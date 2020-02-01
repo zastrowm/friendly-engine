@@ -1,0 +1,27 @@
+design-editor {
+  user-select: none;
+  --squareColor: rgba(0, 0, 0, 0.5);
+  --squareSize: 8px;
+  --squareSizeTimes2: 16px;
+
+  background-color: white;
+  background-image: linear-gradient(
+      45deg,
+      var(--squareColor) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--squareColor) 75%
+    ),
+    linear-gradient(
+      45deg,
+      var(--squareColor) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--squareColor) 75%
+    );
+  background-position: 0 0, var(--squareSize) var(--squareSize);
+  background-size: var(--squareSizeTimes2) var(--squareSizeTimes2);
+
+  width: 400px;
+  height: 400px;
+}
