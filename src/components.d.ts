@@ -7,12 +7,17 @@
 
 
 import { HTMLStencilElement, JSXBase } from '@stencil/core/internal';
-
+import {
+  Anchor,
+} from './api/layout';
 
 export namespace Components {
   interface AppHome {}
   interface AppRoot {}
   interface DesignEditor {}
+  interface DragHandle {
+    'anchorMode': Anchor;
+  }
 }
 
 declare global {
@@ -35,10 +40,17 @@ declare global {
     prototype: HTMLDesignEditorElement;
     new (): HTMLDesignEditorElement;
   };
+
+  interface HTMLDragHandleElement extends Components.DragHandle, HTMLStencilElement {}
+  var HTMLDragHandleElement: {
+    prototype: HTMLDragHandleElement;
+    new (): HTMLDragHandleElement;
+  };
   interface HTMLElementTagNameMap {
     'app-home': HTMLAppHomeElement;
     'app-root': HTMLAppRootElement;
     'design-editor': HTMLDesignEditorElement;
+    'drag-handle': HTMLDragHandleElement;
   }
 }
 
@@ -46,11 +58,15 @@ declare namespace LocalJSX {
   interface AppHome {}
   interface AppRoot {}
   interface DesignEditor {}
+  interface DragHandle {
+    'anchorMode'?: Anchor;
+  }
 
   interface IntrinsicElements {
     'app-home': AppHome;
     'app-root': AppRoot;
     'design-editor': DesignEditor;
+    'drag-handle': DragHandle;
   }
 }
 
@@ -63,6 +79,7 @@ declare module "@stencil/core" {
       'app-home': LocalJSX.AppHome & JSXBase.HTMLAttributes<HTMLAppHomeElement>;
       'app-root': LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
       'design-editor': LocalJSX.DesignEditor & JSXBase.HTMLAttributes<HTMLDesignEditorElement>;
+      'drag-handle': LocalJSX.DragHandle & JSXBase.HTMLAttributes<HTMLDragHandleElement>;
     }
   }
 }

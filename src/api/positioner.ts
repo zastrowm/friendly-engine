@@ -1,33 +1,6 @@
-enum Anchor {
-  none = 0,
-  /* The order here matters because of the assumption that
-     functions make in this module */
-  left = 1 << 0,
-  right = 1 << 1,
-  top = 1 << 2,
-  bottom = 1 << 3,
-}
+import { Anchor, IStoredPositionInfo, AnchoredBoundry } from './layout';
 
-interface IStoredPositionInfo {
-  left?: number;
-  right?: number;
-  top?: number;
-  bottom?: number;
-
-  width?: number;
-  height?: number;
-}
-
-interface IStyleInfo {
-  left: string;
-  right: string;
-  top: string;
-  bottom: string;
-
-  anchors: Anchor;
-}
-
-function determineEditStyle(storedInfo: IStoredPositionInfo, parent: HTMLElement): IStyleInfo {
+function determineEditStyle(storedInfo: IStoredPositionInfo, parent: HTMLElement) {
   let leftRightData = getAbsoluteOffsets(
     storedInfo.left,
     storedInfo.right,
@@ -49,11 +22,13 @@ function determineEditStyle(storedInfo: IStoredPositionInfo, parent: HTMLElement
   );
 
   return {
-    left: leftRightData.offsetA,
-    right: leftRightData.offsetB,
-    top: topRightData.offsetA,
-    bottom: topRightData.offsetB,
-    anchors: leftRightData.anchor | topRightData.anchor,
+    anchor: leftRightData.anchor | topRightData.anchor,
+    boundaries: new AnchoredBoundry(
+      leftRightData.offsetA,
+      topRightData.offsetA,
+      leftRightData.offsetB,
+      topRightData.offsetB,
+    ),
   };
 }
 
@@ -66,20 +41,20 @@ function getAbsoluteOffsets(
   mode: string,
   aFlag: Anchor,
 ) {
-  let offsetA = '0px';
-  let offsetB = '0px';
+  let offsetA = 0;
+  let offsetB = 0;
   let anchor = Anchor.none;
 
   if (a == null && b == null) {
     console.error(`No ${mode} offsets stored`, data);
-    offsetA = '0px';
-    offsetB = parentSize - 100 + 'px';
+    offsetA = 0;
+    offsetB = parentSize - 100;
     return { offsetA, offsetB };
   }
 
   if (a != null && b != null) {
-    offsetA = a + 'px';
-    offsetB = b + 'px';
+    offsetA = a;
+    offsetB = b;
     anchor = aFlag | (anchor << 1);
     return { offsetA, offsetB, anchor };
   }
@@ -90,13 +65,13 @@ function getAbsoluteOffsets(
   }
 
   if (a != null /* && b == null*/) {
-    offsetA = a + 'px';
-    offsetB = parentSize - (a + size) + 'px';
+    offsetA = a;
+    offsetB = parentSize - (a + size);
     anchor = aFlag;
     return { offsetA, offsetB, anchor };
   } /* if (b != null) */ else {
-    offsetB = a + 'px';
-    offsetA = parentSize - b - size + 'px';
+    offsetB = a;
+    offsetA = parentSize - b - size;
     anchor = aFlag << 1;
     return { offsetA, offsetB, anchor };
   }

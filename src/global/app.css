@@ -8,13 +8,13 @@
   Any global CSS variables should also be applied here.
 */
 
-@import "variables.css";
+@import 'variables.css';
 
 body {
   margin: 0px;
   padding: 0px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 }
 
 .control-container {
@@ -25,15 +25,18 @@ body {
 }
 
 .control-container.button {
-  font-family: "Courier New", Courier, monospace;
+  font-family: 'Courier New', Courier, monospace;
 }
 
-.control-container button {
+.control-container > *:first-child {
   position: absolute;
   left: 0px;
   right: 0px;
   top: 0px;
   bottom: 0px;
+  display: block;
+
+  width: 100%;
 }
 
 .active-editor {
@@ -50,49 +53,6 @@ body {
   cursor: move;
 }
 
-.active-editor .drag-handle-nw,
-.active-editor .drag-handle-ne,
-.active-editor .drag-handle-se,
-.active-editor .drag-handle-sw {
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 10010;
-  position: absolute;
-
-  --handle-offset: -3px;
-  --handle-size: 6px;
-
-  width: var(--handle-size);
-  height: var(--handle-size);
-}
-
-.drag-handle-nw {
-  left: var(--handle-offset);
-  top: var(--handle-offset);
-
-  cursor: nw-resize;
-}
-
-.drag-handle-ne {
-  right: var(--handle-offset);
-  top: var(--handle-offset);
-
-  cursor: ne-resize;
-}
-
-.drag-handle-se {
-  right: var(--handle-offset);
-  bottom: var(--handle-offset);
-
-  cursor: se-resize;
-}
-
-.drag-handle-sw {
-  left: var(--handle-offset);
-  bottom: var(--handle-offset);
-
-  cursor: sw-resize;
-}
-
 button {
   margin: 0px;
   padding: 0px;
@@ -100,8 +60,6 @@ button {
   border: none;
   margin: 0;
   padding: 0;
-  width: auto;
-  height: auto;
   overflow: visible;
 
   background: yellow;
