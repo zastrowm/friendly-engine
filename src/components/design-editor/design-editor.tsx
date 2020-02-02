@@ -20,6 +20,7 @@ export class DesignEditor {
   private elementToMove: HTMLElement;
   private dragTarget: HTMLElement;
   private anchorAndBoundary: { anchor: number; boundaries: AnchoredBoundary };
+  lastUpdatedBoundary: AnchoredBoundary;
 
   constructor() {
     this.mouseDownListener = mouseEvent => this.handleMouseDown(mouseEvent);
@@ -84,6 +85,8 @@ export class DesignEditor {
   private handleMouseUp(mouseEvent: MouseEvent) {
     window.removeEventListener('mousemove', this.mouseMoveListener);
     window.removeEventListener('mouseup', this.mouseUpListener);
+
+    this.anchorAndBoundary.boundaries = this.lastUpdatedBoundary;
   }
 
   private handleMouseMove(mouseEvent: MouseEvent) {
@@ -91,7 +94,7 @@ export class DesignEditor {
       return;
     }
 
-    const minimumChangeRequired = 2;
+    const minimumChangeRequired = 1;
 
     let position = this.getPosition(mouseEvent);
     let diff = position.subtract(this.lastPosition);
@@ -109,7 +112,9 @@ export class DesignEditor {
     }
 
     // and now move as we need to
-    let boundaryInfo = this.anchorAndBoundary.boundaries;
+    let boundaryInfo = this.anchorAndBoundary.boundaries.clone();
+
+    const clampper = 10;
 
     if (sizeChange & Anchor.west) {
       boundaryInfo.left += diff.x;
@@ -124,10 +129,54 @@ export class DesignEditor {
       boundaryInfo.bottom -= diff.y;
     }
 
-    // and apply it to the element
-    boundaryInfo.applyTo(this.elementToMove);
+    let hOffset = DesignEditor.calculateOffset(
+      boundaryInfo.left,
+      boundaryInfo.right,
+      sizeChange,
+      Anchor.west,
+    );
 
-    this.lastPosition = position;
+    let vOffset = DesignEditor.calculateOffset(
+      boundaryInfo.top,
+      boundaryInfo.bottom,
+      sizeChange,
+      Anchor.north,
+    );
+
+    boundaryInfo.left -= hOffset;
+    boundaryInfo.right += hOffset;
+    boundaryInfo.top -= vOffset;
+    boundaryInfo.bottom += vOffset;
+
+    if (!boundaryInfo.equals(this.anchorAndBoundary.boundaries)) {
+      // and apply it to the element
+
+      console.log(boundaryInfo);
+
+      boundaryInfo.applyTo(this.elementToMove);
+      this.lastUpdatedBoundary = boundaryInfo;
+    }
+  }
+
+  private static calculateOffset(a: number, b: number, anchor: Anchor, anchorFlag: Anchor) {
+    const clamper = 8;
+
+    let aFlag = anchorFlag;
+    let bFlag = anchorFlag << 1;
+
+    if (anchor & (aFlag | bFlag)) {
+      return Math.abs(a % clamper);
+    } else if (anchorFlag & aFlag) {
+      return Math.abs(a % clamper);
+    } else if (anchorFlag & bFlag) {
+      return Math.abs(b % clamper);
+    } else {
+      return 0;
+    }
+  }
+
+  private static clampValue(value: number, clampper: number) {
+    return value;
   }
 
   public componentWillLoad() {
