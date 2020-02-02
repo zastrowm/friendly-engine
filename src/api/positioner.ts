@@ -1,4 +1,4 @@
-import { Anchor, IStoredPositionInfo, AnchoredBoundry } from './layout';
+import { Anchor, IStoredPositionInfo, AnchoredBoundary } from './layout';
 
 function determineEditStyle(storedInfo: IStoredPositionInfo, parent: HTMLElement) {
   let leftRightData = getAbsoluteOffsets(
@@ -8,7 +8,7 @@ function determineEditStyle(storedInfo: IStoredPositionInfo, parent: HTMLElement
     parent.clientWidth,
     storedInfo,
     'horizontal',
-    Anchor.left,
+    Anchor.west,
   );
 
   let topRightData = getAbsoluteOffsets(
@@ -18,12 +18,12 @@ function determineEditStyle(storedInfo: IStoredPositionInfo, parent: HTMLElement
     parent.clientHeight,
     storedInfo,
     'vertical',
-    Anchor.top,
+    Anchor.north,
   );
 
   return {
     anchor: leftRightData.anchor | topRightData.anchor,
-    boundaries: new AnchoredBoundry(
+    boundaries: new AnchoredBoundary(
       leftRightData.offsetA,
       topRightData.offsetA,
       leftRightData.offsetB,

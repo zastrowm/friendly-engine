@@ -13,18 +13,7 @@ export class DragHandle {
   public anchorMode: Anchor;
 
   render() {
-    let className = null;
-
-    if (this.anchorMode == Anchor.topLeft) {
-      className = 'drag-handle-nw';
-    } else if (this.anchorMode == Anchor.topRight) {
-      className = 'drag-handle-ne';
-    } else if (this.anchorMode == Anchor.bottomRight) {
-      className = 'drag-handle-se';
-    } else if (this.anchorMode == Anchor.bottomLeft) {
-      className = 'drag-handle-sw';
-    }
-
+    let className = 'drag-handle-' + Anchor[this.anchorMode];
     return <Host class={className}></Host>;
   }
 }

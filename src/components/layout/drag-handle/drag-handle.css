@@ -1,14 +1,16 @@
-.drag-handle-nw,
-.drag-handle-ne,
-.drag-handle-se,
-.drag-handle-sw {
+drag-handle {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 10010;
   position: absolute;
 
   --handle-offset: -3px;
   --handle-size: 6px;
+}
 
+.drag-handle-nw,
+.drag-handle-ne,
+.drag-handle-se,
+.drag-handle-sw {
   width: var(--handle-size);
   height: var(--handle-size);
 }
@@ -39,4 +41,47 @@
   bottom: var(--handle-offset);
 
   cursor: sw-resize;
+}
+
+.drag-handle-east,
+.drag-handle-west,
+.drag-handle-north,
+.drag-handle-south {
+  background: rgba(0, 0, 0, 0);
+}
+
+.drag-handle-north {
+  right: var(--handle-offset);
+  top: var(--handle-offset);
+  left: var(--handle-offset);
+  height: var(--handle-size);
+
+  cursor: n-resize;
+}
+
+.drag-handle-east {
+  right: var(--handle-offset);
+  top: var(--handle-offset);
+  bottom: var(--handle-offset);
+  width: var(--handle-size);
+
+  cursor: e-resize;
+}
+
+.drag-handle-west {
+  left: var(--handle-offset);
+  top: var(--handle-offset);
+  bottom: var(--handle-offset);
+  width: var(--handle-size);
+
+  cursor: w-resize;
+}
+
+.drag-handle-south {
+  right: var(--handle-offset);
+  bottom: var(--handle-offset);
+  left: var(--handle-offset);
+  height: var(--handle-size);
+
+  cursor: s-resize;
 }

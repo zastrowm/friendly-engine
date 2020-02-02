@@ -4,31 +4,38 @@
  */
 export enum Anchor {
   none = 0,
-  /* The order here matters because of the assumption that
-     functions make in this module */
-  left = 1 << 0,
-  right = 1 << 1,
-  top = 1 << 2,
-  bottom = 1 << 3,
 
-  all = left | right | top | bottom,
+  /* The values are important here matters east and west must be shift a way; same for south & north */
+  west = 1 << 0,
+  east = 1 << 1,
+  north = 1 << 2,
+  south = 1 << 3,
 
-  topLeft = left | top,
-  topRight = right | top,
-  bottomLeft = left | bottom,
-  bottomRight = right | bottom,
+  all = west | north | east | south,
+
+  ne = north | east,
+  se = south | east,
+  sw = south | west,
+  nw = north | west,
 }
 
 /**
  * Represents the position of an element with Anchor.all
  */
-export class AnchoredBoundry {
+export class AnchoredBoundary {
   constructor(
     public left: number,
     public top: number,
     public right: number,
     public bottom: number,
   ) {}
+
+  /**
+   * Makes a copy of this boundary.
+   */
+  public clone(): AnchoredBoundary {
+    return new AnchoredBoundary(this.left, this.top, this.right, this.bottom);
+  }
 
   /**
    * Convert the boundaries to an object that can be assigned to an element.style.

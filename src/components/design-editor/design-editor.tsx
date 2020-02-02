@@ -3,7 +3,7 @@ import { Element } from '@stencil/core';
 
 import { determineEditStyle } from '../../api/positioner';
 import hmr from '../../api/hmr';
-import { Anchor, Point, AnchoredBoundry } from '../../api/layout';
+import { Anchor, Point, AnchoredBoundary } from '../../api/layout';
 
 @Component({
   tag: 'design-editor',
@@ -19,7 +19,7 @@ export class DesignEditor {
   private lastPosition: Point;
   private elementToMove: HTMLElement;
   private dragTarget: HTMLElement;
-  private anchorAndBoundary: { anchor: number; boundaries: AnchoredBoundry };
+  private anchorAndBoundary: { anchor: number; boundaries: AnchoredBoundary };
 
   constructor() {
     this.mouseDownListener = mouseEvent => this.handleMouseDown(mouseEvent);
@@ -48,10 +48,15 @@ export class DesignEditor {
         <div class="control-container button" style={styleInfo}>
           <button onClick={() => alert()}>This is a button</button>
           <div class="active-editor">
-            <drag-handle anchorMode={Anchor.topLeft}></drag-handle>
-            <drag-handle anchorMode={Anchor.topRight}></drag-handle>
-            <drag-handle anchorMode={Anchor.bottomRight}></drag-handle>
-            <drag-handle anchorMode={Anchor.bottomLeft}></drag-handle>
+            <drag-handle anchorMode={Anchor.west}></drag-handle>
+            <drag-handle anchorMode={Anchor.north}></drag-handle>
+            <drag-handle anchorMode={Anchor.east}></drag-handle>
+            <drag-handle anchorMode={Anchor.south}></drag-handle>
+
+            <drag-handle anchorMode={Anchor.nw}></drag-handle>
+            <drag-handle anchorMode={Anchor.ne}></drag-handle>
+            <drag-handle anchorMode={Anchor.se}></drag-handle>
+            <drag-handle anchorMode={Anchor.sw}></drag-handle>
           </div>
         </div>
       </div>
@@ -86,8 +91,13 @@ export class DesignEditor {
       return;
     }
 
+    const minimumChangeRequired = 2;
+
     let position = this.getPosition(mouseEvent);
     let diff = position.subtract(this.lastPosition);
+    if (Math.abs(diff.x) < minimumChangeRequired && Math.abs(diff.y) < minimumChangeRequired) {
+      return;
+    }
 
     // by default assuming we're moving the element
     let sizeChange = Anchor.all;
@@ -101,16 +111,16 @@ export class DesignEditor {
     // and now move as we need to
     let boundaryInfo = this.anchorAndBoundary.boundaries;
 
-    if (sizeChange & Anchor.left) {
+    if (sizeChange & Anchor.west) {
       boundaryInfo.left += diff.x;
     }
-    if (sizeChange & Anchor.right) {
+    if (sizeChange & Anchor.east) {
       boundaryInfo.right -= diff.x;
     }
-    if (sizeChange & Anchor.top) {
+    if (sizeChange & Anchor.north) {
       boundaryInfo.top += diff.y;
     }
-    if (sizeChange & Anchor.bottom) {
+    if (sizeChange & Anchor.south) {
       boundaryInfo.bottom -= diff.y;
     }
 
