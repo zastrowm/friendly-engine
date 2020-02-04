@@ -1,6 +1,6 @@
 import { Anchor, IStoredPositionInfo, AnchoredBoundary } from './layout';
 
-function determineEditStyle(storedInfo: IStoredPositionInfo, parent: HTMLElement) {
+export function determineEditStyle(storedInfo: IStoredPositionInfo, parent: HTMLElement) {
   let leftRightData = getAbsoluteOffsets(
     storedInfo.left,
     storedInfo.right,
@@ -77,4 +77,18 @@ function getAbsoluteOffsets(
   }
 }
 
-export { determineEditStyle };
+export function calculateSnapTo(value: number, snapToDivider: number) {
+  // if the snap is 4, then we want to determine if we're closest to the "next"
+  // multiple of 4 or the "previous" multiple of 4
+
+  // so get the remainder
+  let distanceToNext = snapToDivider - (value % snapToDivider);
+
+  // and compare that to half of the devider (in this case, instead we multiple since
+  // multiplication is easier than dividing)
+  if (distanceToNext * 2 < snapToDivider) {
+    return value + distanceToNext;
+  } else {
+    return value - (value % snapToDivider);
+  }
+}

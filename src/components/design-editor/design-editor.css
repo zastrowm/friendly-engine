@@ -1,6 +1,6 @@
 design-editor {
   user-select: none;
-  --squareColor: rgba(0, 0, 0, 0.5);
+  --squareColor: rgba(0, 0, 0, 0.1);
   --squareSize: 8px;
   --squareSizeTimes2: 16px;
 

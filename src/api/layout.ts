@@ -64,8 +64,8 @@ export class AnchoredBoundary {
   public applyTo(element: HTMLElement) {
     let currentElementStyle = element.style;
     currentElementStyle.left = this.left + 'px';
-    currentElementStyle.right = this.right + 'px';
     currentElementStyle.top = this.top + 'px';
+    currentElementStyle.right = this.right + 'px';
     currentElementStyle.bottom = this.bottom + 'px';
   }
 }

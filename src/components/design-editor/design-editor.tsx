@@ -1,7 +1,7 @@
 import { Component, h, State } from '@stencil/core';
 import { Element } from '@stencil/core';
 
-import { determineEditStyle } from '../../api/positioner';
+import { determineEditStyle, calculateSnapTo } from '../../api/positioner';
 import hmr from '../../api/hmr';
 import { Anchor, Point, AnchoredBoundary } from '../../api/layout';
 
@@ -114,69 +114,59 @@ export class DesignEditor {
     // and now move as we need to
     let boundaryInfo = this.anchorAndBoundary.boundaries.clone();
 
-    const clampper = 10;
+    const clampper = 8;
 
-    if (sizeChange & Anchor.west) {
-      boundaryInfo.left += diff.x;
-    }
-    if (sizeChange & Anchor.east) {
-      boundaryInfo.right -= diff.x;
-    }
-    if (sizeChange & Anchor.north) {
-      boundaryInfo.top += diff.y;
-    }
-    if (sizeChange & Anchor.south) {
-      boundaryInfo.bottom -= diff.y;
+    // cache the values
+    let isAdjustingWest = sizeChange & Anchor.west;
+    let isAdjustingEast = sizeChange & Anchor.east;
+    let isAdjustingNorth = sizeChange & Anchor.north;
+    let isAdjustingSouth = sizeChange & Anchor.south;
+
+    if (isAdjustingWest && isAdjustingEast) {
+      // if we're moving left & right, then we want to snap in whichever direction we're moving
+      // e.g. if we're moving right, snap right
+      let diffValue;
+
+      if (diff.x > 0) {
+        diffValue = boundaryInfo.left - calculateSnapTo(boundaryInfo.left + diff.x, clampper);
+        diffValue = -diffValue;
+      } else {
+        diffValue = boundaryInfo.right - calculateSnapTo(boundaryInfo.right - diff.x, clampper);
+      }
+
+      boundaryInfo.left += diffValue;
+      boundaryInfo.right -= diffValue;
+    } else if (isAdjustingWest) {
+      boundaryInfo.left = calculateSnapTo(boundaryInfo.left + diff.x, clampper);
+    } else if (isAdjustingEast) {
+      boundaryInfo.right = calculateSnapTo(boundaryInfo.right - diff.x, clampper);
     }
 
-    let hOffset = DesignEditor.calculateOffset(
-      boundaryInfo.left,
-      boundaryInfo.right,
-      sizeChange,
-      Anchor.west,
-    );
+    // same logic above as for left & right, but this time for up/down
+    if (isAdjustingNorth && isAdjustingSouth) {
+      let snapToValue;
 
-    let vOffset = DesignEditor.calculateOffset(
-      boundaryInfo.top,
-      boundaryInfo.bottom,
-      sizeChange,
-      Anchor.north,
-    );
+      if (diff.y > 0) {
+        snapToValue = boundaryInfo.top - calculateSnapTo(boundaryInfo.top + diff.y, clampper);
+        snapToValue = -snapToValue;
+      } else {
+        snapToValue = boundaryInfo.bottom - calculateSnapTo(boundaryInfo.bottom - diff.y, clampper);
+      }
 
-    boundaryInfo.left -= hOffset;
-    boundaryInfo.right += hOffset;
-    boundaryInfo.top -= vOffset;
-    boundaryInfo.bottom += vOffset;
+      boundaryInfo.top += snapToValue;
+      boundaryInfo.bottom -= snapToValue;
+    } else if (isAdjustingNorth) {
+      boundaryInfo.top = calculateSnapTo(boundaryInfo.top + diff.y, clampper);
+    } else if (isAdjustingSouth) {
+      boundaryInfo.bottom = calculateSnapTo(boundaryInfo.bottom - diff.y, clampper);
+    }
 
     if (!boundaryInfo.equals(this.anchorAndBoundary.boundaries)) {
       // and apply it to the element
 
-      console.log(boundaryInfo);
-
       boundaryInfo.applyTo(this.elementToMove);
       this.lastUpdatedBoundary = boundaryInfo;
     }
-  }
-
-  private static calculateOffset(a: number, b: number, anchor: Anchor, anchorFlag: Anchor) {
-    const clamper = 8;
-
-    let aFlag = anchorFlag;
-    let bFlag = anchorFlag << 1;
-
-    if (anchor & (aFlag | bFlag)) {
-      return Math.abs(a % clamper);
-    } else if (anchorFlag & aFlag) {
-      return Math.abs(a % clamper);
-    } else if (anchorFlag & bFlag) {
-      return Math.abs(b % clamper);
-    } else {
-      return 0;
-    }
-  }
-
-  private static clampValue(value: number, clampper: number) {
-    return value;
   }
 
   public componentWillLoad() {
