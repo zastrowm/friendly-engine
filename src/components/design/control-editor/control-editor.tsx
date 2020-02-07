@@ -1,15 +1,14 @@
 import { Component, h, State } from '@stencil/core';
 import { Element } from '@stencil/core';
 
-import { determineEditStyle, calculateSnapTo } from '../../api/positioner';
-import hmr from '../../api/hmr';
-import { Anchor, Point, AnchoredBoundary } from '../../api/layout';
+import { determineEditStyle, calculateSnapTo } from '../../../api/positioner';
+import { Anchor, Point, AnchoredBoundary } from '../../../api/layout';
 
 @Component({
-  tag: 'design-editor',
-  styleUrl: 'design-editor.css',
+  tag: 'control-editor',
+  styleUrl: 'control-editor.css',
 })
-export class DesignEditor {
+export class ControlEditor {
   @Element() host: HTMLElement;
 
   private mouseDownListener: (mouseEvent: MouseEvent) => void;
@@ -17,7 +16,7 @@ export class DesignEditor {
   private mouseMoveListener: (MouseEvent: MouseEvent) => void;
 
   private lastPosition: Point;
-  private elementToMove: HTMLElement;
+
   private dragTarget: HTMLElement;
   private anchorAndBoundary: { anchor: number; boundaries: AnchoredBoundary };
   lastUpdatedBoundary: AnchoredBoundary;
@@ -28,6 +27,10 @@ export class DesignEditor {
     this.mouseMoveListener = mouseEvent => this.handleMouseMove(mouseEvent);
   }
 
+  private get elementToMove(): HTMLElement {
+    return this.host.parentElement;
+  }
+
   render() {
     let buttonPositionInfo = {
       left: 20,
@@ -36,45 +39,34 @@ export class DesignEditor {
       height: 100,
     };
 
-    let anchorAndBoundary = determineEditStyle(buttonPositionInfo, this.host);
-
-    console.log('re-render');
-
-    let styleInfo = anchorAndBoundary.boundaries.toStyle() as any;
-
-    this.anchorAndBoundary = anchorAndBoundary;
-
     return (
-      <div>
-        <div class="control-container button" style={styleInfo}>
-          <button onClick={() => alert()}>This is a button</button>
-          <div class="active-editor">
-            <drag-handle anchorMode={Anchor.west}></drag-handle>
-            <drag-handle anchorMode={Anchor.north}></drag-handle>
-            <drag-handle anchorMode={Anchor.east}></drag-handle>
-            <drag-handle anchorMode={Anchor.south}></drag-handle>
+      <div class="active-editor">
+        <drag-handle anchorMode={Anchor.west}></drag-handle>
+        <drag-handle anchorMode={Anchor.north}></drag-handle>
+        <drag-handle anchorMode={Anchor.east}></drag-handle>
+        <drag-handle anchorMode={Anchor.south}></drag-handle>
 
-            <drag-handle anchorMode={Anchor.nw}></drag-handle>
-            <drag-handle anchorMode={Anchor.ne}></drag-handle>
-            <drag-handle anchorMode={Anchor.se}></drag-handle>
-            <drag-handle anchorMode={Anchor.sw}></drag-handle>
-          </div>
-        </div>
+        <drag-handle anchorMode={Anchor.nw}></drag-handle>
+        <drag-handle anchorMode={Anchor.ne}></drag-handle>
+        <drag-handle anchorMode={Anchor.se}></drag-handle>
+        <drag-handle anchorMode={Anchor.sw}></drag-handle>
       </div>
     );
   }
 
-  public componentDidRender() {
-    this.elementToMove = this.host.querySelector('.control-container');
-  }
-
-  private handleMouseDown(mouseEvent: MouseEvent) {
+  private async handleMouseDown(mouseEvent: MouseEvent) {
     let target = mouseEvent.target as HTMLElement;
     let editorElement = target.closest('.active-editor');
 
     this.dragTarget = target;
 
     if (editorElement != null) {
+      let controlContainer = target.closest('control-container');
+      this.anchorAndBoundary = determineEditStyle(
+        controlContainer.positionInfo,
+        controlContainer.parentElement,
+      );
+
       window.addEventListener('mousemove', this.mouseMoveListener);
       window.addEventListener('mouseup', this.mouseUpListener);
 
@@ -87,6 +79,8 @@ export class DesignEditor {
     window.removeEventListener('mouseup', this.mouseUpListener);
 
     this.anchorAndBoundary.boundaries = this.lastUpdatedBoundary;
+    let controlContainer = this.elementToMove.closest('control-container');
+    controlContainer.positionInfo = this.lastUpdatedBoundary;
   }
 
   private handleMouseMove(mouseEvent: MouseEvent) {
@@ -170,16 +164,12 @@ export class DesignEditor {
   }
 
   public componentWillLoad() {
-    hmr.componentWillLoad(this.host, this);
-
     console.log('Editor added');
 
     this.host.addEventListener('mousedown', this.mouseDownListener);
   }
 
   public componentDidUnload() {
-    hmr.componentDidUnload(this.host);
-
     console.log('Editor removed');
     this.host.removeEventListener('mousedown', this.mouseDownListener);
   }

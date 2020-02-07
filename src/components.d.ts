@@ -9,11 +9,16 @@
 import { HTMLStencilElement, JSXBase } from '@stencil/core/internal';
 import {
   Anchor,
+  IStoredPositionInfo,
 } from './api/layout';
 
 export namespace Components {
   interface AppHome {}
   interface AppRoot {}
+  interface ControlContainer {
+    'positionInfo': IStoredPositionInfo;
+  }
+  interface ControlEditor {}
   interface DesignEditor {}
   interface DragHandle {
     'anchorMode': Anchor;
@@ -35,6 +40,18 @@ declare global {
     new (): HTMLAppRootElement;
   };
 
+  interface HTMLControlContainerElement extends Components.ControlContainer, HTMLStencilElement {}
+  var HTMLControlContainerElement: {
+    prototype: HTMLControlContainerElement;
+    new (): HTMLControlContainerElement;
+  };
+
+  interface HTMLControlEditorElement extends Components.ControlEditor, HTMLStencilElement {}
+  var HTMLControlEditorElement: {
+    prototype: HTMLControlEditorElement;
+    new (): HTMLControlEditorElement;
+  };
+
   interface HTMLDesignEditorElement extends Components.DesignEditor, HTMLStencilElement {}
   var HTMLDesignEditorElement: {
     prototype: HTMLDesignEditorElement;
@@ -49,6 +66,8 @@ declare global {
   interface HTMLElementTagNameMap {
     'app-home': HTMLAppHomeElement;
     'app-root': HTMLAppRootElement;
+    'control-container': HTMLControlContainerElement;
+    'control-editor': HTMLControlEditorElement;
     'design-editor': HTMLDesignEditorElement;
     'drag-handle': HTMLDragHandleElement;
   }
@@ -57,6 +76,10 @@ declare global {
 declare namespace LocalJSX {
   interface AppHome {}
   interface AppRoot {}
+  interface ControlContainer {
+    'positionInfo'?: IStoredPositionInfo;
+  }
+  interface ControlEditor {}
   interface DesignEditor {}
   interface DragHandle {
     'anchorMode'?: Anchor;
@@ -65,6 +88,8 @@ declare namespace LocalJSX {
   interface IntrinsicElements {
     'app-home': AppHome;
     'app-root': AppRoot;
+    'control-container': ControlContainer;
+    'control-editor': ControlEditor;
     'design-editor': DesignEditor;
     'drag-handle': DragHandle;
   }
@@ -78,6 +103,8 @@ declare module "@stencil/core" {
     interface IntrinsicElements {
       'app-home': LocalJSX.AppHome & JSXBase.HTMLAttributes<HTMLAppHomeElement>;
       'app-root': LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
+      'control-container': LocalJSX.ControlContainer & JSXBase.HTMLAttributes<HTMLControlContainerElement>;
+      'control-editor': LocalJSX.ControlEditor & JSXBase.HTMLAttributes<HTMLControlEditorElement>;
       'design-editor': LocalJSX.DesignEditor & JSXBase.HTMLAttributes<HTMLDesignEditorElement>;
       'drag-handle': LocalJSX.DragHandle & JSXBase.HTMLAttributes<HTMLDragHandleElement>;
     }
