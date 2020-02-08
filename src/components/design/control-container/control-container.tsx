@@ -18,6 +18,11 @@ export class DesignEditor {
   render() {
     console.log('re-render');
 
+    if (this.positionInfo == null) {
+      debugger;
+      return;
+    }
+
     let anchorAndBoundary = determineEditStyle(this.positionInfo, this.host.parentElement);
     let styleInfo = anchorAndBoundary.boundaries.toStyle() as any;
 

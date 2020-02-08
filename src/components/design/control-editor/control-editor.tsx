@@ -1,4 +1,4 @@
-import { Component, h, State } from '@stencil/core';
+import { Component, h, State, Listen } from '@stencil/core';
 import { Element } from '@stencil/core';
 
 import { determineEditStyle, calculateSnapTo } from '../../../api/positioner';
@@ -32,13 +32,6 @@ export class ControlEditor {
   }
 
   render() {
-    let buttonPositionInfo = {
-      left: 20,
-      top: 70,
-      width: 100,
-      height: 100,
-    };
-
     return (
       <div class="active-editor">
         <drag-handle anchorMode={Anchor.west}></drag-handle>
@@ -54,6 +47,7 @@ export class ControlEditor {
     );
   }
 
+  @Listen('mousedown')
   private async handleMouseDown(mouseEvent: MouseEvent) {
     let target = mouseEvent.target as HTMLElement;
     let editorElement = target.closest('.active-editor');
@@ -77,6 +71,10 @@ export class ControlEditor {
   private handleMouseUp(mouseEvent: MouseEvent) {
     window.removeEventListener('mousemove', this.mouseMoveListener);
     window.removeEventListener('mouseup', this.mouseUpListener);
+
+    if (this.lastUpdatedBoundary == null) {
+      return;
+    }
 
     this.anchorAndBoundary.boundaries = this.lastUpdatedBoundary;
     let controlContainer = this.elementToMove.closest('control-container');
@@ -161,17 +159,6 @@ export class ControlEditor {
       boundaryInfo.applyTo(this.elementToMove);
       this.lastUpdatedBoundary = boundaryInfo;
     }
-  }
-
-  public componentWillLoad() {
-    console.log('Editor added');
-
-    this.host.addEventListener('mousedown', this.mouseDownListener);
-  }
-
-  public componentDidUnload() {
-    console.log('Editor removed');
-    this.host.removeEventListener('mousedown', this.mouseDownListener);
   }
 
   private getPosition(event: MouseEvent): Point {

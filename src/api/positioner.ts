@@ -69,8 +69,8 @@ function getAbsoluteOffsets(
     offsetB = parentSize - (a + size);
     anchor = aFlag;
     return { offsetA, offsetB, anchor };
-  } /* if (b != null) */ else {
-    offsetB = a;
+  } /* if (b != null && a == null) */ else {
+    offsetB = b;
     offsetA = parentSize - b - size;
     anchor = aFlag << 1;
     return { offsetA, offsetB, anchor };
