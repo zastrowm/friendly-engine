@@ -11,15 +11,13 @@ export class AppRoot {
     return (
       <div>
         <header>
-          <h1>Stencil App Starter</h1>
+          <h1>Web HMI Builder</h1>
         </header>
 
         <main>
-          <stencil-router>
-            <stencil-route-switch scrollTopOffset={0}>
-              <stencil-route url='/' component='app-home' exact={true} />
-            </stencil-route-switch>
-          </stencil-router>
+          <div>
+            <design-editor />
+          </div>
         </main>
       </div>
     );

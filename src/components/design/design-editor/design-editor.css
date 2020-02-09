@@ -22,6 +22,17 @@ design-editor {
   background-position: 0 0, var(--squareSize) var(--squareSize);
   background-size: var(--squareSizeTimes2) var(--squareSizeTimes2);
 
-  width: 400px;
-  height: 400px;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  right: calc(50% - 400px);
+
+  width: 800px;
+  height: 800px;
+}
+
+@media screen and (max-width: 810px) {
+  design-editor {
+    right: calc(-800px + 100%);
+  }
 }
