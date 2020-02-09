@@ -1,4 +1,4 @@
-import { Component, h, State, Listen } from '@stencil/core';
+import { Component, h, Listen, Host } from '@stencil/core';
 import { Element } from '@stencil/core';
 
 import { determineEditStyle, calculateSnapTo } from '../../../api/positioner';
@@ -11,7 +11,6 @@ import { Anchor, Point, AnchoredBoundary } from '../../../api/layout';
 export class ControlEditor {
   @Element() host: HTMLElement;
 
-  private mouseDownListener: (mouseEvent: MouseEvent) => void;
   private mouseUpListener: (MouseEvent: MouseEvent) => void;
   private mouseMoveListener: (MouseEvent: MouseEvent) => void;
 
@@ -22,7 +21,6 @@ export class ControlEditor {
   lastUpdatedBoundary: AnchoredBoundary;
 
   constructor() {
-    this.mouseDownListener = mouseEvent => this.handleMouseDown(mouseEvent);
     this.mouseUpListener = mouseEvent => this.handleMouseUp(mouseEvent);
     this.mouseMoveListener = mouseEvent => this.handleMouseMove(mouseEvent);
   }
@@ -33,7 +31,7 @@ export class ControlEditor {
 
   render() {
     return (
-      <div class="active-editor">
+      <Host class="active-editor">
         <drag-handle anchorMode={Anchor.west}></drag-handle>
         <drag-handle anchorMode={Anchor.north}></drag-handle>
         <drag-handle anchorMode={Anchor.east}></drag-handle>
@@ -43,12 +41,12 @@ export class ControlEditor {
         <drag-handle anchorMode={Anchor.ne}></drag-handle>
         <drag-handle anchorMode={Anchor.se}></drag-handle>
         <drag-handle anchorMode={Anchor.sw}></drag-handle>
-      </div>
+      </Host>
     );
   }
 
   @Listen('mousedown')
-  private async handleMouseDown(mouseEvent: MouseEvent) {
+  public async handleMouseDown(mouseEvent: MouseEvent) {
     let target = mouseEvent.target as HTMLElement;
     let editorElement = target.closest('.active-editor');
 

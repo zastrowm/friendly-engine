@@ -19,7 +19,9 @@ export namespace Components {
     'positionInfo': IStoredPositionInfo;
   }
   interface ControlEditor {}
-  interface DesignEditor {}
+  interface DesignEditor {
+    'addControl': (name: string, layoutInfo: IStoredPositionInfo) => Promise<void>;
+  }
   interface DragHandle {
     'anchorMode': Anchor;
   }

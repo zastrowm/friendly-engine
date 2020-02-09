@@ -1,8 +1,8 @@
-import { Component, h, Prop, Host, Method } from '@stencil/core';
+import { Component, h, Prop, Host } from '@stencil/core';
 import { Element } from '@stencil/core';
 
 import { determineEditStyle } from '../../../api/positioner';
-import { AnchoredBoundary, IStoredPositionInfo } from '../../../api/layout';
+import { IStoredPositionInfo } from '../../../api/layout';
 
 @Component({
   tag: 'control-container',
