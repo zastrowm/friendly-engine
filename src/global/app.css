@@ -39,7 +39,7 @@ body {
   width: 100%;
 }
 
-.active-editor {
+control-editor {
   position: absolute;
   left: 0px;
   top: 0px;

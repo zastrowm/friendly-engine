@@ -18,9 +18,17 @@ export namespace Components {
   interface ControlContainer {
     'positionInfo': IStoredPositionInfo;
   }
-  interface ControlEditor {}
+  interface ControlEditor {
+    /**
+    * Transfer the mouse-down to be handled as if the event occured on this element directly.
+    */
+    'transferMouseDown': (mouseEvent: MouseEvent) => Promise<void>;
+  }
   interface DesignEditor {
     'addControl': (name: string, layoutInfo: IStoredPositionInfo) => Promise<void>;
+    'helpers': {
+      activeEditor: HTMLControlEditorElement;
+    };
   }
   interface DragHandle {
     'anchorMode': Anchor;
@@ -82,7 +90,11 @@ declare namespace LocalJSX {
     'positionInfo'?: IStoredPositionInfo;
   }
   interface ControlEditor {}
-  interface DesignEditor {}
+  interface DesignEditor {
+    'helpers'?: {
+      activeEditor: HTMLControlEditorElement;
+    };
+  }
   interface DragHandle {
     'anchorMode'?: Anchor;
   }

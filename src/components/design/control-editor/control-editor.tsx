@@ -1,4 +1,4 @@
-import { Component, h, Listen, Host } from '@stencil/core';
+import { Component, h, Listen, Host, Method } from '@stencil/core';
 import { Element } from '@stencil/core';
 
 import { determineEditStyle, calculateSnapTo } from '../../../api/positioner';
@@ -16,13 +16,13 @@ export class ControlEditor {
 
   private lastPosition: Point;
 
-  private dragTarget: HTMLElement;
   private anchorAndBoundary: { anchor: number; boundaries: AnchoredBoundary };
+  private sizeChange: Anchor;
   lastUpdatedBoundary: AnchoredBoundary;
 
   constructor() {
-    this.mouseUpListener = mouseEvent => this.handleMouseUp(mouseEvent);
-    this.mouseMoveListener = mouseEvent => this.handleMouseMove(mouseEvent);
+    this.mouseUpListener = () => this.onMouseUp();
+    this.mouseMoveListener = mouseEvent => this.onMouseMove(mouseEvent);
   }
 
   private get elementToMove(): HTMLElement {
@@ -31,7 +31,7 @@ export class ControlEditor {
 
   render() {
     return (
-      <Host class="active-editor">
+      <Host>
         <drag-handle anchorMode={Anchor.west}></drag-handle>
         <drag-handle anchorMode={Anchor.north}></drag-handle>
         <drag-handle anchorMode={Anchor.east}></drag-handle>
@@ -45,28 +45,55 @@ export class ControlEditor {
     );
   }
 
-  @Listen('mousedown')
-  public async handleMouseDown(mouseEvent: MouseEvent) {
-    let target = mouseEvent.target as HTMLElement;
-    let editorElement = target.closest('.active-editor');
-
-    this.dragTarget = target;
-
-    if (editorElement != null) {
-      let controlContainer = target.closest('control-container');
-      this.anchorAndBoundary = determineEditStyle(
-        controlContainer.positionInfo,
-        controlContainer.parentElement,
-      );
-
-      window.addEventListener('mousemove', this.mouseMoveListener);
-      window.addEventListener('mouseup', this.mouseUpListener);
-
-      this.lastPosition = this.getPosition(mouseEvent);
-    }
+  /** Transfer the mouse-down to be handled as if the event occured on this element directly. */
+  @Method()
+  public async transferMouseDown(mouseEvent: MouseEvent) {
+    this.doMouseDown(mouseEvent);
   }
 
-  private handleMouseUp(mouseEvent: MouseEvent) {
+  @Listen('mousedown', { passive: false })
+  public async onMouseDown(mouseEvent: MouseEvent) {
+    let target = mouseEvent.target as HTMLElement;
+    let editorElement = target.closest('control-editor');
+
+    if (editorElement == null) {
+      debugger;
+      // how did we get here?
+      return;
+    }
+
+    mouseEvent.preventDefault();
+    this.lastUpdatedBoundary = null;
+    this.doMouseDown(mouseEvent);
+  }
+
+  /**
+   * Common method for handling mouse down event (externally or internally)
+   */
+  private doMouseDown(mouseEvent: MouseEvent) {
+    let target = this.host.parentElement;
+    let controlContainer = target.closest('control-container');
+
+    // if we selected a drag handle, then use the anchoring given by that element
+    let selectedDragHandle = (mouseEvent.target as HTMLElement).closest('drag-handle');
+    if (selectedDragHandle != null) {
+      this.sizeChange = selectedDragHandle.anchorMode;
+    } else {
+      // otherwise default to resizing all of them (e.g. a move operation)
+      this.sizeChange = Anchor.all;
+    }
+
+    this.lastUpdatedBoundary = null;
+    this.anchorAndBoundary = determineEditStyle(
+      controlContainer.positionInfo,
+      controlContainer.parentElement,
+    );
+    window.addEventListener('mousemove', this.mouseMoveListener);
+    window.addEventListener('mouseup', this.mouseUpListener);
+    this.lastPosition = this.getPosition(mouseEvent);
+  }
+
+  private onMouseUp() {
     window.removeEventListener('mousemove', this.mouseMoveListener);
     window.removeEventListener('mouseup', this.mouseUpListener);
 
@@ -79,11 +106,7 @@ export class ControlEditor {
     controlContainer.positionInfo = this.lastUpdatedBoundary;
   }
 
-  private handleMouseMove(mouseEvent: MouseEvent) {
-    if (this.elementToMove == null) {
-      return;
-    }
-
+  private onMouseMove(mouseEvent: MouseEvent) {
     const minimumChangeRequired = 1;
 
     let position = this.getPosition(mouseEvent);
@@ -92,25 +115,16 @@ export class ControlEditor {
       return;
     }
 
-    // by default assuming we're moving the element
-    let sizeChange = Anchor.all;
-
-    // but if we selected a drag handle, then use the anchoring given by that element
-    let selectedDragHandle = this.dragTarget.closest('drag-handle');
-    if (selectedDragHandle != null) {
-      sizeChange = selectedDragHandle.anchorMode;
-    }
-
     // and now move as we need to
     let boundaryInfo = this.anchorAndBoundary.boundaries.clone();
 
     const clampper = 8;
 
     // cache the values
-    let isAdjustingWest = sizeChange & Anchor.west;
-    let isAdjustingEast = sizeChange & Anchor.east;
-    let isAdjustingNorth = sizeChange & Anchor.north;
-    let isAdjustingSouth = sizeChange & Anchor.south;
+    let isAdjustingWest = this.sizeChange & Anchor.west;
+    let isAdjustingEast = this.sizeChange & Anchor.east;
+    let isAdjustingNorth = this.sizeChange & Anchor.north;
+    let isAdjustingSouth = this.sizeChange & Anchor.south;
 
     if (isAdjustingWest && isAdjustingEast) {
       // if we're moving left & right, then we want to snap in whichever direction we're moving
@@ -159,6 +173,7 @@ export class ControlEditor {
     }
   }
 
+  /** Gets a point that represents the given mouse location. */
   private getPosition(event: MouseEvent): Point {
     return new Point(event.clientX, event.clientY);
   }
