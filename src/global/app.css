@@ -39,21 +39,7 @@ body {
   width: 100%;
 }
 
-control-editor {
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  bottom: 0px;
-  right: 0px;
-  background-color: #33000000;
-
-  border: 1px solid black;
-  z-index: 10000;
-
-  cursor: move;
-}
-
-button {
+control-container button {
   margin: 0px;
   padding: 0px;
 
@@ -62,11 +48,15 @@ button {
   padding: 0;
   overflow: visible;
 
-  background: yellow;
+  background: rgb(224, 96, 37);
+  border-radius: 0px;
 
   /* inherit font & color from ancestor */
   color: inherit;
   font: inherit;
+
+  border: 2px solid rgb(61, 110, 201);
+  box-sizing: border-box;
 }
 
 /* Remove excess padding and border in Firefox 4+ */

@@ -1,14 +1,20 @@
-import { Component, h, Listen, Host, Method } from '@stencil/core';
+import { Component, h, Listen, Host, Method, Event, EventEmitter } from '@stencil/core';
 import { Element } from '@stencil/core';
 
 import { determineEditStyle, calculateSnapTo } from '../../api/positioner';
-import { Anchor, Point, AnchoredBoundary } from '../../api/layout';
+import { Anchor, Point, AnchoredBoundary, IStoredPositionInfo } from '../../api/layout';
+import { IUndoCommand, IContext } from '../../api/undoCommand';
 
 @Component({
   tag: 'control-editor',
+  styleUrl: 'control-editor.css',
 })
 export class ControlEditor {
-  @Element() host: HTMLElement;
+  @Element()
+  host: HTMLElement;
+
+  @Event({ eventName: 'undoEventGenerated' })
+  public undoEventGenerated: EventEmitter<IUndoCommand>;
 
   private mouseUpListener: (MouseEvent: MouseEvent) => void;
   private mouseMoveListener: (MouseEvent: MouseEvent) => void;
@@ -17,7 +23,12 @@ export class ControlEditor {
 
   private anchorAndBoundary: { anchor: number; boundaries: AnchoredBoundary };
   private sizeChange: Anchor;
-  lastUpdatedBoundary: AnchoredBoundary;
+  private lastUpdatedBoundary: AnchoredBoundary;
+
+  /**
+   * The original position of the element that is now being moved
+   */
+  private originalPosition: AnchoredBoundary;
 
   constructor() {
     this.mouseUpListener = () => this.onMouseUp();
@@ -87,6 +98,8 @@ export class ControlEditor {
       controlContainer.positionInfo,
       controlContainer.parentElement,
     );
+    this.originalPosition = this.anchorAndBoundary.boundaries.clone();
+
     window.addEventListener('mousemove', this.mouseMoveListener);
     window.addEventListener('mouseup', this.mouseUpListener);
     this.lastPosition = this.getPosition(mouseEvent);
@@ -103,6 +116,14 @@ export class ControlEditor {
     this.anchorAndBoundary.boundaries = this.lastUpdatedBoundary;
     let controlContainer = this.elementToMove.closest('control-container');
     controlContainer.positionInfo = this.lastUpdatedBoundary;
+
+    this.undoEventGenerated.emit(
+      new MoveCommand(
+        controlContainer.uniqueId,
+        this.originalPosition.clone(),
+        this.lastUpdatedBoundary.clone(),
+      ),
+    );
   }
 
   private onMouseMove(mouseEvent: MouseEvent) {
@@ -175,5 +196,25 @@ export class ControlEditor {
   /** Gets a point that represents the given mouse location. */
   private getPosition(event: MouseEvent): Point {
     return new Point(event.clientX, event.clientY);
+  }
+}
+
+class MoveCommand implements IUndoCommand {
+  constructor(
+    private id: string,
+    private startingPosition: IStoredPositionInfo,
+    private endingPosition: IStoredPositionInfo,
+  ) {}
+
+  undo(context: IContext): void | Promise<void> {
+    let controlContainer = context.editor.helpers.getControlContainer(this.id);
+    controlContainer.positionInfo = this.startingPosition;
+    context.editor.helpers.selectAndMarkActive(controlContainer);
+  }
+
+  redo(context: IContext): void | Promise<void> {
+    let controlContainer = context.editor.helpers.getControlContainer(this.id);
+    controlContainer.positionInfo = this.endingPosition;
+    context.editor.helpers.selectAndMarkActive(controlContainer);
   }
 }

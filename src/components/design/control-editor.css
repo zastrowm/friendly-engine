@@ -1,0 +1,13 @@
+control-editor {
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  bottom: -1px;
+  right: -1px;
+  background-color: #33000000;
+
+  border: 1px dashed black;
+  z-index: 10000;
+
+  cursor: move;
+}

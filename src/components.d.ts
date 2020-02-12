@@ -11,12 +11,16 @@ import {
   Anchor,
   IStoredPositionInfo,
 } from './api/layout';
+import {
+  IUndoCommand,
+} from './api/undoCommand';
 
 export namespace Components {
-  interface AppHome {}
   interface AppRoot {}
   interface ControlContainer {
+    'controlType': string;
     'positionInfo': IStoredPositionInfo;
+    'uniqueId': string;
   }
   interface ControlEditor {
     /**
@@ -24,11 +28,18 @@ export namespace Components {
     */
     'transferMouseDown': (mouseEvent: MouseEvent) => Promise<void>;
   }
+  interface DesignApp {}
   interface DesignEditor {
-    'addControl': (name: string, layoutInfo: IStoredPositionInfo) => Promise<void>;
+    'addControl': (type: string, id: string, layoutInfo: IStoredPositionInfo) => Promise<void>;
+    'addControlNoUndo': (type: string, id: string, layoutInfo: IStoredPositionInfo) => Promise<void>;
+    'api': DesignEditor;
     'helpers': {
-      activeEditor: HTMLControlEditorElement;
+      selectAndMarkActive: (control: HTMLControlContainerElement, mouseEvent?: MouseEvent) => void;
+      getControlContainer: (id: string) => HTMLControlContainerElement;
+      getActive: () => HTMLControlContainerElement;
     };
+    'removeControl': (id: string) => Promise<void>;
+    'removeControlNoUndo': (id: string) => Promise<void>;
   }
   interface DragHandle {
     'anchorMode': Anchor;
@@ -37,12 +48,6 @@ export namespace Components {
 
 declare global {
 
-
-  interface HTMLAppHomeElement extends Components.AppHome, HTMLStencilElement {}
-  var HTMLAppHomeElement: {
-    prototype: HTMLAppHomeElement;
-    new (): HTMLAppHomeElement;
-  };
 
   interface HTMLAppRootElement extends Components.AppRoot, HTMLStencilElement {}
   var HTMLAppRootElement: {
@@ -62,6 +67,12 @@ declare global {
     new (): HTMLControlEditorElement;
   };
 
+  interface HTMLDesignAppElement extends Components.DesignApp, HTMLStencilElement {}
+  var HTMLDesignAppElement: {
+    prototype: HTMLDesignAppElement;
+    new (): HTMLDesignAppElement;
+  };
+
   interface HTMLDesignEditorElement extends Components.DesignEditor, HTMLStencilElement {}
   var HTMLDesignEditorElement: {
     prototype: HTMLDesignEditorElement;
@@ -74,36 +85,44 @@ declare global {
     new (): HTMLDragHandleElement;
   };
   interface HTMLElementTagNameMap {
-    'app-home': HTMLAppHomeElement;
     'app-root': HTMLAppRootElement;
     'control-container': HTMLControlContainerElement;
     'control-editor': HTMLControlEditorElement;
+    'design-app': HTMLDesignAppElement;
     'design-editor': HTMLDesignEditorElement;
     'drag-handle': HTMLDragHandleElement;
   }
 }
 
 declare namespace LocalJSX {
-  interface AppHome {}
   interface AppRoot {}
   interface ControlContainer {
+    'controlType'?: string;
     'positionInfo'?: IStoredPositionInfo;
+    'uniqueId'?: string;
   }
-  interface ControlEditor {}
+  interface ControlEditor {
+    'onUndoEventGenerated'?: (event: CustomEvent<IUndoCommand>) => void;
+  }
+  interface DesignApp {}
   interface DesignEditor {
+    'api'?: DesignEditor;
     'helpers'?: {
-      activeEditor: HTMLControlEditorElement;
+      selectAndMarkActive: (control: HTMLControlContainerElement, mouseEvent?: MouseEvent) => void;
+      getControlContainer: (id: string) => HTMLControlContainerElement;
+      getActive: () => HTMLControlContainerElement;
     };
+    'onUndoEventGenerated'?: (event: CustomEvent<IUndoCommand>) => void;
   }
   interface DragHandle {
     'anchorMode'?: Anchor;
   }
 
   interface IntrinsicElements {
-    'app-home': AppHome;
     'app-root': AppRoot;
     'control-container': ControlContainer;
     'control-editor': ControlEditor;
+    'design-app': DesignApp;
     'design-editor': DesignEditor;
     'drag-handle': DragHandle;
   }
@@ -115,10 +134,10 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
   export namespace JSX {
     interface IntrinsicElements {
-      'app-home': LocalJSX.AppHome & JSXBase.HTMLAttributes<HTMLAppHomeElement>;
       'app-root': LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
       'control-container': LocalJSX.ControlContainer & JSXBase.HTMLAttributes<HTMLControlContainerElement>;
       'control-editor': LocalJSX.ControlEditor & JSXBase.HTMLAttributes<HTMLControlEditorElement>;
+      'design-app': LocalJSX.DesignApp & JSXBase.HTMLAttributes<HTMLDesignAppElement>;
       'design-editor': LocalJSX.DesignEditor & JSXBase.HTMLAttributes<HTMLDesignEditorElement>;
       'drag-handle': LocalJSX.DragHandle & JSXBase.HTMLAttributes<HTMLDragHandleElement>;
     }

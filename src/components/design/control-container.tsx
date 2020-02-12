@@ -7,9 +7,15 @@ import { IStoredPositionInfo } from '../../api/layout';
 @Component({
   tag: 'control-container',
 })
-export class DesignEditor {
+export class ControlContainer {
   @Element()
-  host: HTMLElement;
+  host: HTMLControlContainerElement;
+
+  @Prop()
+  controlType: string;
+
+  @Prop({ reflect: true })
+  uniqueId: string;
 
   @Prop()
   positionInfo: IStoredPositionInfo;
@@ -25,17 +31,7 @@ export class DesignEditor {
    */
   @Listen('mousedown', { passive: false })
   public async onMouseDown(mouseEvent: MouseEvent) {
-    let activeEditor = this.designCanvas.helpers.activeEditor;
-    if (activeEditor.parentElement == this.host) {
-      return;
-    }
-
-    console.log('Stealing active control editor');
-
-    this.host.appendChild(activeEditor);
-    mouseEvent.preventDefault();
-
-    await activeEditor.transferMouseDown(mouseEvent);
+    this.designCanvas.helpers.selectAndMarkActive(this.host, mouseEvent);
   }
 
   /** STENCIL :: Called every time the component is connected to the DOM */
