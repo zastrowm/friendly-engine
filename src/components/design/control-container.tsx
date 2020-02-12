@@ -1,12 +1,11 @@
 import { Component, h, Prop, Host, Listen } from '@stencil/core';
 import { Element } from '@stencil/core';
 
-import { determineEditStyle } from '../../../api/positioner';
-import { IStoredPositionInfo } from '../../../api/layout';
+import { determineEditStyle } from '../../api/positioner';
+import { IStoredPositionInfo } from '../../api/layout';
 
 @Component({
   tag: 'control-container',
-  styleUrl: 'control-container.css',
 })
 export class DesignEditor {
   @Element()

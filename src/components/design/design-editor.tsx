@@ -1,10 +1,10 @@
 import { Component, h, Host, Method, Prop } from '@stencil/core';
 import { Element } from '@stencil/core';
-import { IStoredPositionInfo } from '../../../api/layout';
+import { IStoredPositionInfo } from '../../api/layout';
 
 @Component({
   tag: 'design-editor',
-  styleUrl: 'design-editor.css',
+  styleUrl: './design-editor.css',
 })
 export class DesignEditor {
   @Element()

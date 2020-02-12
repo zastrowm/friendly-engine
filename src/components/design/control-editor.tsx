@@ -1,12 +1,11 @@
 import { Component, h, Listen, Host, Method } from '@stencil/core';
 import { Element } from '@stencil/core';
 
-import { determineEditStyle, calculateSnapTo } from '../../../api/positioner';
-import { Anchor, Point, AnchoredBoundary } from '../../../api/layout';
+import { determineEditStyle, calculateSnapTo } from '../../api/positioner';
+import { Anchor, Point, AnchoredBoundary } from '../../api/layout';
 
 @Component({
   tag: 'control-editor',
-  styleUrl: 'control-editor.css',
 })
 export class ControlEditor {
   @Element() host: HTMLElement;
