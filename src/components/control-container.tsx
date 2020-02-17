@@ -53,7 +53,7 @@ export class ControlContainer extends HTMLElement {
     anchorAndBoundary.boundaries.applyTo(this);
 
     this.addEventListener("mousedown", e => this.onMouseDown(e));
-    this.designCanvas = this.closest("design-editor") as DesignEditor;
+    this.designCanvas = this.closest("design-editor");
   }
 
   /**

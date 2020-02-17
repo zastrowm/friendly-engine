@@ -39,11 +39,11 @@ export class DesignEditor extends HTMLElement {
 
   private getControlContainer(id: string): ControlContainer {
     let query = `control-container[unique-id='${id}']`;
-    let container = this.querySelector(query) as ControlContainer;
+    let container: ControlContainer = this.querySelector(query);
     if (container == null) {
       console.log("using slow search");
       let containers = this.querySelectorAll("control-container");
-      for (let container of Array.from(containers) as ControlContainer[]) {
+      for (let container of containers) {
         if (container.uniqueId == id) {
           return container;
         }
@@ -87,9 +87,7 @@ export class DesignEditor extends HTMLElement {
     id: string,
     layoutInfo: IStoredPositionInfo
   ) {
-    let controlContainer = document.createElement(
-      "control-container"
-    ) as ControlContainer;
+    let controlContainer = document.createElement("control-container");
     controlContainer.uniqueId = id;
     controlContainer.positionInfo = layoutInfo;
     controlContainer.controlType = type;
