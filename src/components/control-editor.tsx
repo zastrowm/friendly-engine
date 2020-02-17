@@ -1,21 +1,15 @@
-import { Component, h, Listen, Host, Method, Event, EventEmitter } from '@stencil/core';
-import { Element } from '@stencil/core';
+import { determineEditStyle, calculateSnapTo } from "../api/positioner";
+import {
+  Anchor,
+  Point,
+  AnchoredBoundary,
+  IStoredPositionInfo
+} from "../api/layout";
+import { IUndoCommand, IContext, fireUndoEvent } from "../api/undoCommand";
+import { ControlContainer } from "./control-container";
+import { DragHandle } from "./drag-handle";
 
-import { determineEditStyle, calculateSnapTo } from '../../api/positioner';
-import { Anchor, Point, AnchoredBoundary, IStoredPositionInfo } from '../../api/layout';
-import { IUndoCommand, IContext } from '../../api/undoCommand';
-
-@Component({
-  tag: 'control-editor',
-  styleUrl: 'control-editor.css',
-})
-export class ControlEditor {
-  @Element()
-  host: HTMLElement;
-
-  @Event({ eventName: 'undoEventGenerated' })
-  public undoEventGenerated: EventEmitter<IUndoCommand>;
-
+export class ControlEditor extends HTMLElement {
   private mouseUpListener: (MouseEvent: MouseEvent) => void;
   private mouseMoveListener: (MouseEvent: MouseEvent) => void;
 
@@ -31,40 +25,52 @@ export class ControlEditor {
   private originalPosition: AnchoredBoundary;
 
   constructor() {
+    super();
+
+    this.addEventListener("mousedown", e => this.doMouseDown(e));
+
     this.mouseUpListener = () => this.onMouseUp();
     this.mouseMoveListener = mouseEvent => this.onMouseMove(mouseEvent);
   }
 
   private get elementToMove(): HTMLElement {
-    return this.host.parentElement;
+    return this.parentElement;
   }
 
-  render() {
-    return (
-      <Host>
-        <drag-handle anchorMode={Anchor.west}></drag-handle>
-        <drag-handle anchorMode={Anchor.north}></drag-handle>
-        <drag-handle anchorMode={Anchor.east}></drag-handle>
-        <drag-handle anchorMode={Anchor.south}></drag-handle>
+  private isInited: boolean;
 
-        <drag-handle anchorMode={Anchor.nw}></drag-handle>
-        <drag-handle anchorMode={Anchor.ne}></drag-handle>
-        <drag-handle anchorMode={Anchor.se}></drag-handle>
-        <drag-handle anchorMode={Anchor.sw}></drag-handle>
-      </Host>
-    );
+  public connectedCallback() {
+    if (this.isInited) {
+      return;
+    }
+
+    this.isInited = true;
+
+    this.createDragHandleAndAdd(Anchor.west);
+    this.createDragHandleAndAdd(Anchor.north);
+    this.createDragHandleAndAdd(Anchor.east);
+    this.createDragHandleAndAdd(Anchor.south);
+
+    this.createDragHandleAndAdd(Anchor.nw);
+    this.createDragHandleAndAdd(Anchor.ne);
+    this.createDragHandleAndAdd(Anchor.se);
+    this.createDragHandleAndAdd(Anchor.sw);
+  }
+
+  createDragHandleAndAdd(mode: Anchor) {
+    let dragHandle = document.createElement("drag-handle") as DragHandle;
+    dragHandle.anchorMode = mode;
+    this.appendChild(dragHandle);
   }
 
   /** Transfer the mouse-down to be handled as if the event occured on this element directly. */
-  @Method()
-  public async transferMouseDown(mouseEvent: MouseEvent) {
+  public transferMouseDown(mouseEvent: MouseEvent) {
     this.doMouseDown(mouseEvent);
   }
 
-  @Listen('mousedown', { passive: false })
-  public async onMouseDown(mouseEvent: MouseEvent) {
+  public onMouseDown(mouseEvent: MouseEvent) {
     let target = mouseEvent.target as HTMLElement;
-    let editorElement = target.closest('control-editor');
+    let editorElement = target.closest("control-editor");
 
     if (editorElement == null) {
       debugger;
@@ -81,11 +87,15 @@ export class ControlEditor {
    * Common method for handling mouse down event (externally or internally)
    */
   private doMouseDown(mouseEvent: MouseEvent) {
-    let target = this.host.parentElement;
-    let controlContainer = target.closest('control-container');
+    let target = this.parentElement;
+    let controlContainer = target.closest(
+      "control-container"
+    ) as ControlContainer;
 
     // if we selected a drag handle, then use the anchoring given by that element
-    let selectedDragHandle = (mouseEvent.target as HTMLElement).closest('drag-handle');
+    let selectedDragHandle = (mouseEvent.target as HTMLElement).closest(
+      "drag-handle"
+    ) as DragHandle;
     if (selectedDragHandle != null) {
       this.sizeChange = selectedDragHandle.anchorMode;
     } else {
@@ -96,34 +106,36 @@ export class ControlEditor {
     this.lastUpdatedBoundary = null;
     this.anchorAndBoundary = determineEditStyle(
       controlContainer.positionInfo,
-      controlContainer.parentElement,
+      controlContainer.parentElement
     );
     this.originalPosition = this.anchorAndBoundary.boundaries.clone();
 
-    window.addEventListener('mousemove', this.mouseMoveListener);
-    window.addEventListener('mouseup', this.mouseUpListener);
+    window.addEventListener("mousemove", this.mouseMoveListener);
+    window.addEventListener("mouseup", this.mouseUpListener);
     this.lastPosition = this.getPosition(mouseEvent);
   }
 
   private onMouseUp() {
-    window.removeEventListener('mousemove', this.mouseMoveListener);
-    window.removeEventListener('mouseup', this.mouseUpListener);
+    window.removeEventListener("mousemove", this.mouseMoveListener);
+    window.removeEventListener("mouseup", this.mouseUpListener);
 
     if (this.lastUpdatedBoundary == null) {
       return;
     }
 
     this.anchorAndBoundary.boundaries = this.lastUpdatedBoundary;
-    let controlContainer = this.elementToMove.closest('control-container');
+    let controlContainer = this.elementToMove.closest(
+      "control-container"
+    ) as ControlContainer;
     controlContainer.positionInfo = this.lastUpdatedBoundary;
 
-    this.undoEventGenerated.emit(
-      new MoveCommand(
-        controlContainer.uniqueId,
-        this.originalPosition.clone(),
-        this.lastUpdatedBoundary.clone(),
-      ),
+    let moveCommand = new MoveCommand(
+      controlContainer.uniqueId,
+      this.originalPosition.clone(),
+      this.lastUpdatedBoundary.clone()
     );
+
+    fireUndoEvent(this, moveCommand);
   }
 
   private onMouseMove(mouseEvent: MouseEvent) {
@@ -131,7 +143,10 @@ export class ControlEditor {
 
     let position = this.getPosition(mouseEvent);
     let diff = position.subtract(this.lastPosition);
-    if (Math.abs(diff.x) < minimumChangeRequired && Math.abs(diff.y) < minimumChangeRequired) {
+    if (
+      Math.abs(diff.x) < minimumChangeRequired &&
+      Math.abs(diff.y) < minimumChangeRequired
+    ) {
       return;
     }
 
@@ -152,10 +167,14 @@ export class ControlEditor {
       let diffValue;
 
       if (diff.x > 0) {
-        diffValue = boundaryInfo.left - calculateSnapTo(boundaryInfo.left + diff.x, clampper);
+        diffValue =
+          boundaryInfo.left -
+          calculateSnapTo(boundaryInfo.left + diff.x, clampper);
         diffValue = -diffValue;
       } else {
-        diffValue = boundaryInfo.right - calculateSnapTo(boundaryInfo.right - diff.x, clampper);
+        diffValue =
+          boundaryInfo.right -
+          calculateSnapTo(boundaryInfo.right - diff.x, clampper);
       }
 
       boundaryInfo.left += diffValue;
@@ -163,7 +182,10 @@ export class ControlEditor {
     } else if (isAdjustingWest) {
       boundaryInfo.left = calculateSnapTo(boundaryInfo.left + diff.x, clampper);
     } else if (isAdjustingEast) {
-      boundaryInfo.right = calculateSnapTo(boundaryInfo.right - diff.x, clampper);
+      boundaryInfo.right = calculateSnapTo(
+        boundaryInfo.right - diff.x,
+        clampper
+      );
     }
 
     // same logic above as for left & right, but this time for up/down
@@ -171,10 +193,14 @@ export class ControlEditor {
       let snapToValue;
 
       if (diff.y > 0) {
-        snapToValue = boundaryInfo.top - calculateSnapTo(boundaryInfo.top + diff.y, clampper);
+        snapToValue =
+          boundaryInfo.top -
+          calculateSnapTo(boundaryInfo.top + diff.y, clampper);
         snapToValue = -snapToValue;
       } else {
-        snapToValue = boundaryInfo.bottom - calculateSnapTo(boundaryInfo.bottom - diff.y, clampper);
+        snapToValue =
+          boundaryInfo.bottom -
+          calculateSnapTo(boundaryInfo.bottom - diff.y, clampper);
       }
 
       boundaryInfo.top += snapToValue;
@@ -182,7 +208,10 @@ export class ControlEditor {
     } else if (isAdjustingNorth) {
       boundaryInfo.top = calculateSnapTo(boundaryInfo.top + diff.y, clampper);
     } else if (isAdjustingSouth) {
-      boundaryInfo.bottom = calculateSnapTo(boundaryInfo.bottom - diff.y, clampper);
+      boundaryInfo.bottom = calculateSnapTo(
+        boundaryInfo.bottom - diff.y,
+        clampper
+      );
     }
 
     if (!boundaryInfo.equals(this.anchorAndBoundary.boundaries)) {
@@ -203,7 +232,7 @@ class MoveCommand implements IUndoCommand {
   constructor(
     private id: string,
     private startingPosition: IStoredPositionInfo,
-    private endingPosition: IStoredPositionInfo,
+    private endingPosition: IStoredPositionInfo
   ) {}
 
   undo(context: IContext): void | Promise<void> {
@@ -218,3 +247,5 @@ class MoveCommand implements IUndoCommand {
     context.editor.helpers.selectAndMarkActive(controlContainer);
   }
 }
+
+window.customElements.define("control-editor", ControlEditor);

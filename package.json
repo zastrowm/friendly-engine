@@ -1,25 +1,24 @@
 {
-  "name": "hmi-builder",
+  "name": "friendly-engine",
+  "version": "1.0.0",
+  "description": "WYSIWYG HMI Builder",
   "private": true,
-  "version": "0.0.1",
-  "description": "Stencil App Starter",
   "scripts": {
-    "build": "stencil build",
-    "start": "stencil build --dev --watch --serve",
-    "test": "stencil test --spec --e2e",
-    "test.watch": "stencil test --spec --e2e --watchAll",
-    "generate": "stencil generate"
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch",
+    "start": "webpack-dev-server --mode development --open --hot"
   },
-  "dependencies": {
-    "@stencil/core": "^1.8.4",
-    "@stencil/router": "^1.0.1"
-  },
+  "main": "dist/bundle.js",
+  "types": "dist/types/index.d.ts",
   "license": "MIT",
-  "prettier": {
-    "printWidth": 100,
-    "trailingComma": "all",
-    "tabWidth": 2,
-    "semi": true,
-    "singleQuote": true
+  "devDependencies": {
+    "ts-loader": "^6.2.1",
+    "typescript": "3.7.5",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.3"
+  },
+  "resolutions": {
+    "terser": "3.14.1"
   }
 }

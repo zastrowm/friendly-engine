@@ -1,3 +1,5 @@
+import { DesignEditor } from "../components/design-editor";
+
 export interface IUndoCommand {
   /**
    * Undoes the operation that was originally performed
@@ -26,5 +28,31 @@ export interface IUndoCommand {
 }
 
 export interface IContext {
-  editor: HTMLDesignEditorElement;
+  editor: DesignEditor;
+}
+
+const undoEventName = "undoEventGenerated";
+
+export function fireUndoEvent(element: HTMLElement, undoCommand: IUndoCommand) {
+  element.dispatchEvent(
+    new CustomEvent(undoEventName, {
+      bubbles: true,
+      detail: undoCommand
+    })
+  );
+}
+
+export function addUndoEventListener(
+  element: HTMLElement,
+  callback: (undoCommand: IUndoCommand) => boolean
+) {
+  element.addEventListener(undoEventName, function(
+    evt: CustomEvent<IUndoCommand>
+  ) {
+    let command = evt.detail;
+    let didHandle = callback(command);
+    if (didHandle) {
+      evt.preventDefault();
+    }
+  });
 }

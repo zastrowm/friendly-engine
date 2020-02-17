@@ -19,5 +19,6 @@ Totally a learning prototype.
 To run the current prototype, clone the repository and run:
 
 ```bash
-npm start
+npm install
+npm run start
 ```
