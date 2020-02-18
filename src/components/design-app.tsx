@@ -2,38 +2,10 @@ import { generateGuid } from "../api/util";
 import {
   IUndoCommand,
   IContext,
-  addUndoEventListener
+  undoCommandCreated,
+  UndoRedoQueue
 } from "../api/undoCommand";
 import { DesignEditor } from "./design-editor";
-
-class UndoRedoQueue {
-  private readonly undoQueue: IUndoCommand[] = [];
-  private readonly redoQueue: IUndoCommand[] = [];
-
-  public addUndo(command: IUndoCommand) {
-    this.undoQueue.push(command);
-    this.redoQueue.splice(0, this.redoQueue.length);
-  }
-
-  public async undo(context: IContext): Promise<void> {
-    if (this.undoQueue.length == 0) {
-      return;
-    }
-
-    let command = this.undoQueue.pop();
-    await command.undo(context);
-    this.redoQueue.push(command);
-  }
-  public async redo(context: IContext): Promise<void> {
-    if (this.redoQueue.length == 0) {
-      return;
-    }
-
-    let command = this.redoQueue.pop();
-    await command.redo(context);
-    this.undoQueue.push(command);
-  }
-}
 
 export class DesignApp extends HTMLElement {
   private editor: DesignEditor;
@@ -43,7 +15,9 @@ export class DesignApp extends HTMLElement {
   constructor() {
     super();
 
-    addUndoEventListener(this, command => this.onUndoEventGenerated(command));
+    undoCommandCreated.addListener(this, command =>
+      this.onUndoEventGenerated(command)
+    );
   }
 
   async addButton() {
@@ -56,14 +30,14 @@ export class DesignApp extends HTMLElement {
   }
 
   async deleteCurrent() {
-    let container = this.editor.helpers.getActive();
+    let container = this.editor.getActiveControlContainer();
     if (container != null) {
       this.editor.removeControl(container.uniqueId);
     }
   }
 
   public onUndoEventGenerated(command: IUndoCommand) {
-    this.undoRedoQueue.addUndo(command);
+    this.undoRedoQueue.addUndo(this.getContext(), command);
     return true;
   }
 

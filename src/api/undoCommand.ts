@@ -1,5 +1,9 @@
 import { DesignEditor } from "../components/design-editor";
+import { RoutedEventDescriptor } from "./routedEvents";
 
+/**
+ * An command that can be undone/redone as part of an undo/redo queue.
+ */
 export interface IUndoCommand {
   /**
    * Undoes the operation that was originally performed
@@ -31,28 +35,58 @@ export interface IContext {
   editor: DesignEditor;
 }
 
-const undoEventName = "undoEventGenerated";
+/**
+ * Represents a queue of commands that can be done/undone.
+ */
+export class UndoRedoQueue {
+  private readonly undoQueue: IUndoCommand[] = [];
+  private readonly redoQueue: IUndoCommand[] = [];
 
-export function fireUndoEvent(element: HTMLElement, undoCommand: IUndoCommand) {
-  element.dispatchEvent(
-    new CustomEvent(undoEventName, {
-      bubbles: true,
-      detail: undoCommand
-    })
-  );
-}
-
-export function addUndoEventListener(
-  element: HTMLElement,
-  callback: (undoCommand: IUndoCommand) => boolean
-) {
-  element.addEventListener(undoEventName, function(
-    evt: CustomEvent<IUndoCommand>
-  ) {
-    let command = evt.detail;
-    let didHandle = callback(command);
-    if (didHandle) {
-      evt.preventDefault();
+  /**
+   * Adds an undo action to the queue.  If the undo action has a .do method, it will
+   * be invoked.  This operation clears the redo queue.
+   *
+   * @param context the context to use if `.do` is present
+   * @param command the command to add the queue
+   */
+  public async addUndo(context: IContext, command: IUndoCommand) {
+    if (command.do != null) {
+      await command.do(context);
     }
-  });
+
+    this.undoQueue.push(command);
+    this.redoQueue.splice(0, this.redoQueue.length);
+  }
+
+  /**
+   * Calls `IUndoCommand.undo()` on the first command in the undo queue
+   */
+  public async undo(context: IContext): Promise<void> {
+    if (this.undoQueue.length == 0) {
+      return;
+    }
+
+    let command = this.undoQueue.pop();
+    await command.undo(context);
+    this.redoQueue.push(command);
+  }
+
+  /**
+   * Calls `IUndoCommand.redo()` on the first command in the redo queue
+   */
+  public async redo(context: IContext): Promise<void> {
+    if (this.redoQueue.length == 0) {
+      return;
+    }
+
+    let command = this.redoQueue.pop();
+    await command.redo(context);
+    this.undoQueue.push(command);
+  }
 }
+
+/** The routed event for undo commands being created. */
+export let undoCommandCreated = new RoutedEventDescriptor<IUndoCommand>({
+  id: "undoEventGenerated",
+  mustBeHandled: true
+});

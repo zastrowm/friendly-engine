@@ -1,59 +1,35 @@
 import { IStoredPositionInfo } from "../api/layout";
-import { IUndoCommand, IContext, fireUndoEvent } from "../api/undoCommand";
+import { IUndoCommand, IContext, undoCommandCreated } from "../api/undoCommand";
 import { ControlContainer } from "./control-container";
 import { ControlEditor } from "./control-editor";
 
 export class DesignEditor extends HTMLElement {
-  public helpers: {
-    selectAndMarkActive: (
-      control: ControlContainer,
-      mouseEvent?: MouseEvent
-    ) => void;
-    getControlContainer: (id: string) => ControlContainer;
-    getActive: () => ControlContainer;
-  };
-
-  public api: DesignEditor;
-
   private activeEditor: ControlEditor;
 
   constructor() {
     super();
 
-    // TODO handle failures
-    this.api = this;
-
-    this.activeEditor = document.createElement(
-      "control-editor"
-    ) as ControlEditor;
-    this.helpers = {
-      selectAndMarkActive: (c, m) => this.selectAndMarkActive(c, m),
-      getControlContainer: id => this.getControlContainer(id),
-      getActive: () => this.getActiveControlContainer()
-    };
+    this.activeEditor = document.createElement("control-editor");
   }
 
-  private getActiveControlContainer(): ControlContainer {
+  /** obvious */
+  public getActiveControlContainer(): ControlContainer {
     return this.activeEditor.parentElement as ControlContainer;
   }
 
-  private getControlContainer(id: string): ControlContainer {
+  /** obvious */
+  public getControlContainer(id: string): ControlContainer {
     let query = `control-container[unique-id='${id}']`;
     let container: ControlContainer = this.querySelector(query);
-    if (container == null) {
-      console.log("using slow search");
-      let containers = this.querySelectorAll("control-container");
-      for (let container of containers) {
-        if (container.uniqueId == id) {
-          return container;
-        }
-      }
-    }
-
     return container;
   }
 
-  private selectAndMarkActive(
+  /**
+   * Sets the given control to be the actively selected control
+   * @param control The control which should be marked as the active control
+   * @param mouseEvent (optional) the mouse event that triggered the operation
+   */
+  public selectAndMarkActive(
     control: ControlContainer,
     mouseEvent?: MouseEvent
   ) {
@@ -79,14 +55,20 @@ export class DesignEditor extends HTMLElement {
 
   public addControl(type: string, id: string, layoutInfo: IStoredPositionInfo) {
     this.addControlNoUndo(type, id, layoutInfo);
-    fireUndoEvent(this, new UndoAddCommand(type, id, layoutInfo));
+    undoCommandCreated.trigger(this, new UndoAddCommand(type, id, layoutInfo));
   }
 
+  /**
+   * Adds a control to the design surface without adding an undo event for it.
+   * @param type the type of control to add
+   * @param id the unique id of the control
+   * @param layoutInfo the initial position information of the control
+   */
   public addControlNoUndo(
     type: string,
     id: string,
     layoutInfo: IStoredPositionInfo
-  ) {
+  ): ControlContainer {
     let controlContainer = document.createElement("control-container");
     controlContainer.uniqueId = id;
     controlContainer.positionInfo = layoutInfo;
@@ -97,6 +79,8 @@ export class DesignEditor extends HTMLElement {
     controlContainer.appendChild(nestedControl);
 
     this.appendChild(controlContainer);
+
+    return controlContainer;
   }
 
   public removeControl(id: string) {
@@ -107,15 +91,25 @@ export class DesignEditor extends HTMLElement {
 
     this.removeControlNoUndo(id);
 
-    fireUndoEvent(this, new UndoRemoveCommand(type, id, layoutInfo));
+    undoCommandCreated.trigger(
+      this,
+      new UndoRemoveCommand(type, id, layoutInfo)
+    );
   }
 
+  /**
+   * Removes a control from the design surface without adding an undo event.
+   * @param id the unique id of the control to remove
+   */
   public removeControlNoUndo(id: string) {
     let container = this.getControlContainer(id);
     this.removeChild(container);
   }
 }
 
+/**
+ * Undo event for adding a control to the design surface.
+ */
 class UndoAddCommand implements IUndoCommand {
   constructor(
     private type: string,
@@ -123,17 +117,23 @@ class UndoAddCommand implements IUndoCommand {
     private position: IStoredPositionInfo
   ) {}
 
-  async undo(context: IContext): Promise<void> {
-    await context.editor.removeControlNoUndo(this.id);
+  undo(context: IContext): void {
+    context.editor.removeControlNoUndo(this.id);
   }
 
-  async redo(context: IContext): Promise<void> {
-    await context.editor.addControlNoUndo(this.type, this.id, this.position);
-    let container = context.editor.helpers.getControlContainer(this.id);
-    context.editor.helpers.selectAndMarkActive(container);
+  redo(context: IContext): void {
+    let container = context.editor.addControlNoUndo(
+      this.type,
+      this.id,
+      this.position
+    );
+    context.editor.selectAndMarkActive(container);
   }
 }
 
+/**
+ * Undo event for removing a control from the design surface.
+ */
 class UndoRemoveCommand implements IUndoCommand {
   constructor(
     private type: string,
@@ -141,16 +141,18 @@ class UndoRemoveCommand implements IUndoCommand {
     private position: IStoredPositionInfo
   ) {}
 
-  async undo(context: IContext): Promise<void> {
-    await context.editor.addControlNoUndo(this.type, this.id, this.position);
-    let container = context.editor.helpers.getControlContainer(this.id);
-    context.editor.helpers.selectAndMarkActive(container);
+  undo(context: IContext): void {
+    let container = context.editor.addControlNoUndo(
+      this.type,
+      this.id,
+      this.position
+    );
+    context.editor.selectAndMarkActive(container);
   }
 
-  async redo(context: IContext): Promise<void> {
-    await context.editor.removeControlNoUndo(this.id);
+  redo(context: IContext): void {
+    context.editor.removeControlNoUndo(this.id);
   }
 }
 
-console.log("Defining Design Editor");
 window.customElements.define("design-editor", DesignEditor);

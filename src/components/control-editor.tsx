@@ -5,7 +5,7 @@ import {
   AnchoredBoundary,
   IStoredPositionInfo
 } from "../api/layout";
-import { IUndoCommand, IContext, fireUndoEvent } from "../api/undoCommand";
+import { IUndoCommand, IContext, undoCommandCreated } from "../api/undoCommand";
 import { ControlContainer } from "./control-container";
 import { DragHandle } from "./drag-handle";
 
@@ -135,7 +135,7 @@ export class ControlEditor extends HTMLElement {
       this.lastUpdatedBoundary.clone()
     );
 
-    fireUndoEvent(this, moveCommand);
+    undoCommandCreated.trigger(this, moveCommand);
   }
 
   private onMouseMove(mouseEvent: MouseEvent) {
@@ -236,15 +236,15 @@ class MoveCommand implements IUndoCommand {
   ) {}
 
   undo(context: IContext): void | Promise<void> {
-    let controlContainer = context.editor.helpers.getControlContainer(this.id);
+    let controlContainer = context.editor.getControlContainer(this.id);
     controlContainer.positionInfo = this.startingPosition;
-    context.editor.helpers.selectAndMarkActive(controlContainer);
+    context.editor.selectAndMarkActive(controlContainer);
   }
 
   redo(context: IContext): void | Promise<void> {
-    let controlContainer = context.editor.helpers.getControlContainer(this.id);
+    let controlContainer = context.editor.getControlContainer(this.id);
     controlContainer.positionInfo = this.endingPosition;
-    context.editor.helpers.selectAndMarkActive(controlContainer);
+    context.editor.selectAndMarkActive(controlContainer);
   }
 }
 

@@ -2,10 +2,21 @@ import { determineEditStyle } from "../api/positioner";
 import { IStoredPositionInfo } from "../api/layout";
 import { DesignEditor } from "./design-editor";
 
+type UniqueId = string;
+
 export class ControlContainer extends HTMLElement {
   public controlType: string;
 
-  public uniqueId: string;
+  public get uniqueId(): UniqueId {
+    return this._uniqueId;
+  }
+
+  public set uniqueId(value: UniqueId) {
+    this._uniqueId = value;
+    this.setAttribute("unique-id", value);
+  }
+
+  private _uniqueId: UniqueId;
 
   public get positionInfo(): IStoredPositionInfo {
     return this._positionInfo;
@@ -61,7 +72,7 @@ export class ControlContainer extends HTMLElement {
    * pass the mouse event down into the editor.
    */
   public async onMouseDown(mouseEvent: MouseEvent) {
-    this.designCanvas.helpers.selectAndMarkActive(this, mouseEvent);
+    this.designCanvas.selectAndMarkActive(this, mouseEvent);
   }
 }
 
