@@ -1,3 +1,5 @@
+import { calculateSnapTo } from "./positioner";
+
 /**
  * Represents how an element is laid out - that is, what sides of the element
  * are attached to the side of the parent container.
@@ -16,7 +18,7 @@ export enum Anchor {
   ne = north | east,
   se = south | east,
   sw = south | west,
-  nw = north | west,
+  nw = north | west
 }
 
 /**
@@ -27,7 +29,7 @@ export class AnchoredBoundary {
     public left: number,
     public top: number,
     public right: number,
-    public bottom: number,
+    public bottom: number
   ) {}
 
   /**
@@ -51,10 +53,10 @@ export class AnchoredBoundary {
    */
   public toStyle() {
     return {
-      left: this.left + 'px',
-      right: this.right + 'px',
-      top: this.top + 'px',
-      bottom: this.bottom + 'px',
+      left: this.left + "px",
+      right: this.right + "px",
+      top: this.top + "px",
+      bottom: this.bottom + "px"
     };
   }
 
@@ -63,10 +65,10 @@ export class AnchoredBoundary {
    */
   public applyTo(element: HTMLElement) {
     let currentElementStyle = element.style;
-    currentElementStyle.left = this.left + 'px';
-    currentElementStyle.top = this.top + 'px';
-    currentElementStyle.right = this.right + 'px';
-    currentElementStyle.bottom = this.bottom + 'px';
+    currentElementStyle.left = this.left + "px";
+    currentElementStyle.top = this.top + "px";
+    currentElementStyle.right = this.right + "px";
+    currentElementStyle.bottom = this.bottom + "px";
   }
 }
 
@@ -81,6 +83,39 @@ export interface IStoredPositionInfo {
 
   width?: number;
   height?: number;
+}
+
+/**
+ * Snap all values of the position info to match the grid snap. This basically normalizes
+ * the position information to the current grid.
+ */
+export function snapLayout(
+  positionInfo: IStoredPositionInfo,
+  gridSnap: number
+) {
+  if (positionInfo.left != null) {
+    positionInfo.left = calculateSnapTo(positionInfo.left, gridSnap);
+  }
+
+  if (positionInfo.top != null) {
+    positionInfo.top = calculateSnapTo(positionInfo.top, gridSnap);
+  }
+
+  if (positionInfo.right != null) {
+    positionInfo.right = calculateSnapTo(positionInfo.right, gridSnap);
+  }
+
+  if (positionInfo.bottom != null) {
+    positionInfo.bottom = calculateSnapTo(positionInfo.bottom, gridSnap);
+  }
+
+  if (positionInfo.width != null) {
+    positionInfo.width = calculateSnapTo(positionInfo.width, gridSnap);
+  }
+
+  if (positionInfo.height != null) {
+    positionInfo.height = calculateSnapTo(positionInfo.height, gridSnap);
+  }
 }
 
 /**

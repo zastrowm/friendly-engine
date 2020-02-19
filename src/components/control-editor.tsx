@@ -8,6 +8,7 @@ import {
 import { IUndoCommand, IContext, undoCommandCreated } from "../api/undoCommand";
 import { ControlContainer } from "./control-container";
 import { DragHandle } from "./drag-handle";
+import { DesignEditor } from "./design-editor";
 
 export class ControlEditor extends HTMLElement {
   private mouseUpListener: (MouseEvent: MouseEvent) => void;
@@ -33,6 +34,8 @@ export class ControlEditor extends HTMLElement {
     this.mouseMoveListener = mouseEvent => this.onMouseMove(mouseEvent);
   }
 
+  public designEditor: DesignEditor;
+
   private get elementToMove(): HTMLElement {
     return this.parentElement;
   }
@@ -45,6 +48,8 @@ export class ControlEditor extends HTMLElement {
     }
 
     this.isInited = true;
+
+    this.designEditor = this.closest("design-editor");
 
     this.createDragHandleAndAdd(Anchor.west);
     this.createDragHandleAndAdd(Anchor.north);
@@ -63,7 +68,7 @@ export class ControlEditor extends HTMLElement {
     this.appendChild(dragHandle);
   }
 
-  /** Transfer the mouse-down to be handled as if the event occured on this element directly. */
+  /** Transfer the mouse-down to be handled as if the event occurred on this element directly. */
   public transferMouseDown(mouseEvent: MouseEvent) {
     this.doMouseDown(mouseEvent);
   }
@@ -153,7 +158,7 @@ export class ControlEditor extends HTMLElement {
     // and now move as we need to
     let boundaryInfo = this.anchorAndBoundary.boundaries.clone();
 
-    const clampper = 8;
+    const gridSnap = this.designEditor.gridSnap;
 
     // cache the values
     let isAdjustingWest = this.sizeChange & Anchor.west;
@@ -169,22 +174,22 @@ export class ControlEditor extends HTMLElement {
       if (diff.x > 0) {
         diffValue =
           boundaryInfo.left -
-          calculateSnapTo(boundaryInfo.left + diff.x, clampper);
+          calculateSnapTo(boundaryInfo.left + diff.x, gridSnap);
         diffValue = -diffValue;
       } else {
         diffValue =
           boundaryInfo.right -
-          calculateSnapTo(boundaryInfo.right - diff.x, clampper);
+          calculateSnapTo(boundaryInfo.right - diff.x, gridSnap);
       }
 
       boundaryInfo.left += diffValue;
       boundaryInfo.right -= diffValue;
     } else if (isAdjustingWest) {
-      boundaryInfo.left = calculateSnapTo(boundaryInfo.left + diff.x, clampper);
+      boundaryInfo.left = calculateSnapTo(boundaryInfo.left + diff.x, gridSnap);
     } else if (isAdjustingEast) {
       boundaryInfo.right = calculateSnapTo(
         boundaryInfo.right - diff.x,
-        clampper
+        gridSnap
       );
     }
 
@@ -195,22 +200,22 @@ export class ControlEditor extends HTMLElement {
       if (diff.y > 0) {
         snapToValue =
           boundaryInfo.top -
-          calculateSnapTo(boundaryInfo.top + diff.y, clampper);
+          calculateSnapTo(boundaryInfo.top + diff.y, gridSnap);
         snapToValue = -snapToValue;
       } else {
         snapToValue =
           boundaryInfo.bottom -
-          calculateSnapTo(boundaryInfo.bottom - diff.y, clampper);
+          calculateSnapTo(boundaryInfo.bottom - diff.y, gridSnap);
       }
 
       boundaryInfo.top += snapToValue;
       boundaryInfo.bottom -= snapToValue;
     } else if (isAdjustingNorth) {
-      boundaryInfo.top = calculateSnapTo(boundaryInfo.top + diff.y, clampper);
+      boundaryInfo.top = calculateSnapTo(boundaryInfo.top + diff.y, gridSnap);
     } else if (isAdjustingSouth) {
       boundaryInfo.bottom = calculateSnapTo(
         boundaryInfo.bottom - diff.y,
-        clampper
+        gridSnap
       );
     }
 

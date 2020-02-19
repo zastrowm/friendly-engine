@@ -1,14 +1,17 @@
-import { Anchor, IStoredPositionInfo, AnchoredBoundary } from './layout';
+import { Anchor, IStoredPositionInfo, AnchoredBoundary } from "./layout";
 
-export function determineEditStyle(storedInfo: IStoredPositionInfo, parent: HTMLElement) {
+export function determineEditStyle(
+  storedInfo: IStoredPositionInfo,
+  parent: HTMLElement
+) {
   let leftRightData = getAbsoluteOffsets(
     storedInfo.left,
     storedInfo.right,
     storedInfo.width,
     parent.clientWidth,
     storedInfo,
-    'horizontal',
-    Anchor.west,
+    "horizontal",
+    Anchor.west
   );
 
   let topRightData = getAbsoluteOffsets(
@@ -17,8 +20,8 @@ export function determineEditStyle(storedInfo: IStoredPositionInfo, parent: HTML
     storedInfo.height,
     parent.clientHeight,
     storedInfo,
-    'vertical',
-    Anchor.north,
+    "vertical",
+    Anchor.north
   );
 
   return {
@@ -27,8 +30,8 @@ export function determineEditStyle(storedInfo: IStoredPositionInfo, parent: HTML
       leftRightData.offsetA,
       topRightData.offsetA,
       leftRightData.offsetB,
-      topRightData.offsetB,
-    ),
+      topRightData.offsetB
+    )
   };
 }
 
@@ -39,7 +42,7 @@ function getAbsoluteOffsets(
   parentSize: number,
   data: any,
   mode: string,
-  aFlag: Anchor,
+  aFlag: Anchor
 ) {
   let offsetA = 0;
   let offsetB = 0;
@@ -84,7 +87,7 @@ export function calculateSnapTo(value: number, snapToDivider: number) {
   // so get the remainder
   let distanceToNext = snapToDivider - (value % snapToDivider);
 
-  // and compare that to half of the devider (in this case, instead we multiple since
+  // and compare that to half of the divider (in this case, instead we multiple since
   // multiplication is easier than dividing)
   if (distanceToNext * 2 < snapToDivider) {
     return value + distanceToNext;

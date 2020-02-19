@@ -1,4 +1,4 @@
-import { IStoredPositionInfo } from "../api/layout";
+import { IStoredPositionInfo, snapLayout } from "../api/layout";
 import { IUndoCommand, IContext, undoCommandCreated } from "../api/undoCommand";
 import { ControlContainer } from "./control-container";
 import { ControlEditor } from "./control-editor";
@@ -11,6 +11,9 @@ export class DesignEditor extends HTMLElement {
 
     this.activeEditor = document.createElement("control-editor");
   }
+
+  /** Determines the grid-snap for the controls */
+  public gridSnap = 8;
 
   /** obvious */
   public getActiveControlContainer(): ControlContainer {
@@ -58,6 +61,8 @@ export class DesignEditor extends HTMLElement {
     id: string,
     layoutInfo: IStoredPositionInfo
   ): ControlContainer {
+    snapLayout(layoutInfo, this.gridSnap);
+
     let container = this.addControlNoUndo(type, id, layoutInfo);
     undoCommandCreated.trigger(this, new UndoAddCommand(type, id, layoutInfo));
     return container;
