@@ -17,6 +17,7 @@ export class RoutedEventDescriptor<T> {
 
   /**
    * Propagates an undo event to be handled by an upstream listener
+   * @returns true if it was handled, false otherwise
    */
   trigger(element: HTMLElement, data: T) {
     let wasUnhandled = element.dispatchEvent(
@@ -33,12 +34,14 @@ export class RoutedEventDescriptor<T> {
         data
       );
     }
+
+    return !wasUnhandled;
   }
 
   /**
    * Adds a routed command listener on the given element.
    */
-  addListener(element: HTMLElement, callback: (data: T) => boolean) {
+  public addListener(element: HTMLElement, callback: (data: T) => boolean) {
     element.addEventListener(this.configuration.id, function(
       evt: CustomEvent<T>
     ) {

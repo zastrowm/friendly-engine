@@ -1,11 +1,12 @@
 import { generateGuid } from "../api/util";
+import { DesignEditor } from "./design-editor";
 import {
   IUndoCommand,
   IContext,
   undoCommandCreated,
   UndoRedoQueue
 } from "../api/undoCommand";
-import { DesignEditor } from "./design-editor";
+import { RoutedCommand, undoCommand, redoCommand } from "../api/routedCommands";
 
 export class DesignApp extends HTMLElement {
   private editor: DesignEditor;
@@ -18,6 +19,10 @@ export class DesignApp extends HTMLElement {
     undoCommandCreated.addListener(this, command =>
       this.onUndoEventGenerated(command)
     );
+
+    let listener = RoutedCommand.createListener(this);
+    listener.set(undoCommand, () => this.doUndo());
+    listener.set(redoCommand, () => this.doRedo());
   }
 
   async addButton() {
@@ -47,11 +52,11 @@ export class DesignApp extends HTMLElement {
     };
   }
 
-  async doUndo() {
+  doUndo() {
     this.undoRedoQueue.undo(this.getContext());
   }
 
-  async doRedo() {
+  doRedo() {
     this.undoRedoQueue.redo(this.getContext());
   }
 
@@ -63,6 +68,22 @@ export class DesignApp extends HTMLElement {
     }
 
     this.isInited = true;
+
+    // TODO replace this with something like https://wangchujiang.com/hotkeys/
+    {
+      this.tabIndex = 0;
+      this.focus();
+
+      window.addEventListener("keydown", evt => {
+        if (evt.ctrlKey && evt.key == "z") {
+          undoCommand.trigger(document.activeElement as HTMLElement);
+          evt.preventDefault();
+        } else if (evt.ctrlKey && evt.key == "y") {
+          redoCommand.trigger(document.activeElement as HTMLElement);
+          evt.preventDefault();
+        }
+      });
+    }
 
     let create = function(type: any, text?: any, click?: any): HTMLElement {
       let element = document.createElement(type) as HTMLElement;
