@@ -69,7 +69,3 @@ class RoutedCommandListener {
     }
   };
 }
-
-// TODO move these somewhere more "app"-specific
-export let undoCommand = new RoutedCommand("undo");
-export let redoCommand = new RoutedCommand("redo");

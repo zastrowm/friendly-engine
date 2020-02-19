@@ -1,12 +1,14 @@
 import { generateGuid } from "../api/util";
 import { DesignEditor } from "./design-editor";
+
 import {
   IUndoCommand,
   IContext,
   undoCommandCreated,
   UndoRedoQueue
 } from "../api/undoCommand";
-import { RoutedCommand, undoCommand, redoCommand } from "../api/routedCommands";
+import { appRoutedCommands, RoutedCommand } from "../api/appRoutedCommands";
+import { registerShortcuts } from "../api/keyboardShortcuts";
 
 export class DesignApp extends HTMLElement {
   private editor: DesignEditor;
@@ -21,20 +23,24 @@ export class DesignApp extends HTMLElement {
     );
 
     let listener = RoutedCommand.createListener(this);
-    listener.set(undoCommand, () => this.doUndo());
-    listener.set(redoCommand, () => this.doRedo());
+    listener.set(appRoutedCommands.undo, () => this.doUndo());
+    listener.set(appRoutedCommands.redo, () => this.doRedo());
+    listener.set(appRoutedCommands.delete, () => this.deleteCurrent());
+    listener.set(appRoutedCommands.new, () => this.addButton());
   }
 
-  async addButton() {
-    this.editor.addControl("button", generateGuid(), {
+  public addButton() {
+    let newControl = this.editor.addControl("button", generateGuid(), {
       left: 20,
       top: 20,
       width: 40,
       height: 60
     });
+
+    this.editor.selectAndMarkActive(newControl);
   }
 
-  async deleteCurrent() {
+  public deleteCurrent() {
     let container = this.editor.getActiveControlContainer();
     if (container != null) {
       this.editor.removeControl(container.uniqueId);
@@ -69,20 +75,11 @@ export class DesignApp extends HTMLElement {
 
     this.isInited = true;
 
-    // TODO replace this with something like https://wangchujiang.com/hotkeys/
     {
       this.tabIndex = 0;
       this.focus();
 
-      window.addEventListener("keydown", evt => {
-        if (evt.ctrlKey && evt.key == "z") {
-          undoCommand.trigger(document.activeElement as HTMLElement);
-          evt.preventDefault();
-        } else if (evt.ctrlKey && evt.key == "y") {
-          redoCommand.trigger(document.activeElement as HTMLElement);
-          evt.preventDefault();
-        }
-      });
+      registerShortcuts();
     }
 
     let create = function(type: any, text?: any, click?: any): HTMLElement {

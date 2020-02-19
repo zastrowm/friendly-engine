@@ -21,5 +21,8 @@
   },
   "resolutions": {
     "terser": "3.14.1"
+  },
+  "dependencies": {
+    "hotkeys-js": "^3.7.3"
   }
 }

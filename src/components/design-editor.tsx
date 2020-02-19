@@ -53,9 +53,14 @@ export class DesignEditor extends HTMLElement {
     return true;
   }
 
-  public addControl(type: string, id: string, layoutInfo: IStoredPositionInfo) {
-    this.addControlNoUndo(type, id, layoutInfo);
+  public addControl(
+    type: string,
+    id: string,
+    layoutInfo: IStoredPositionInfo
+  ): ControlContainer {
+    let container = this.addControlNoUndo(type, id, layoutInfo);
     undoCommandCreated.trigger(this, new UndoAddCommand(type, id, layoutInfo));
+    return container;
   }
 
   /**
