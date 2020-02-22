@@ -3,6 +3,8 @@ import { Anchor } from "../api/layout";
 export class DragHandle extends HTMLElement {
   constructor() {
     super();
+
+    this.anchorMode = Anchor.none;
   }
 
   public anchorMode: Anchor;

@@ -1,3 +1,4 @@
+import { h } from "preact";
 import { determineEditStyle, calculateSnapTo } from "../api/positioner";
 import {
   Anchor,
@@ -9,8 +10,9 @@ import { IUndoCommand, IContext, undoCommandCreated } from "../api/undoCommand";
 import { ControlContainer } from "./control-container";
 import { DragHandle } from "./drag-handle";
 import { DesignEditor } from "./design-editor";
+import { CustomHtmlElement } from "../../lib/friendlee/CustomHtmlElement";
 
-export class ControlEditor extends HTMLElement {
+export class ControlEditor extends CustomHtmlElement {
   private mouseUpListener: (MouseEvent: MouseEvent) => void;
   private mouseMoveListener: (MouseEvent: MouseEvent) => void;
 
@@ -40,32 +42,20 @@ export class ControlEditor extends HTMLElement {
     return this.parentElement;
   }
 
-  private isInited: boolean;
-
-  public connectedCallback() {
-    if (this.isInited) {
-      return;
-    }
-
-    this.isInited = true;
-
+  public onFirstConnected() {
     this.designEditor = this.closest("design-editor");
 
-    this.createDragHandleAndAdd(Anchor.west);
-    this.createDragHandleAndAdd(Anchor.north);
-    this.createDragHandleAndAdd(Anchor.east);
-    this.createDragHandleAndAdd(Anchor.south);
-
-    this.createDragHandleAndAdd(Anchor.nw);
-    this.createDragHandleAndAdd(Anchor.ne);
-    this.createDragHandleAndAdd(Anchor.se);
-    this.createDragHandleAndAdd(Anchor.sw);
-  }
-
-  createDragHandleAndAdd(mode: Anchor) {
-    let dragHandle = document.createElement("drag-handle") as DragHandle;
-    dragHandle.anchorMode = mode;
-    this.appendChild(dragHandle);
+    this.renderJsx([
+      <drag-handle anchorMode={Anchor.west} />,
+      <drag-handle anchorMode={Anchor.north} />,
+      <drag-handle anchorMode={Anchor.east} />,
+      <drag-handle anchorMode={Anchor.south} />,
+      //
+      <drag-handle anchorMode={Anchor.nw} />,
+      <drag-handle anchorMode={Anchor.ne} />,
+      <drag-handle anchorMode={Anchor.se} />,
+      <drag-handle anchorMode={Anchor.sw} />
+    ]);
   }
 
   /** Transfer the mouse-down to be handled as if the event occurred on this element directly. */

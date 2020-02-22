@@ -14,7 +14,7 @@
   "license": "MIT",
   "devDependencies": {
     "ts-loader": "^6.2.1",
-    "typescript": "3.7.5",
+    "typescript": "3.8.2",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.10.3"
@@ -23,6 +23,7 @@
     "terser": "3.14.1"
   },
   "dependencies": {
-    "hotkeys-js": "^3.7.3"
+    "hotkeys-js": "^3.7.3",
+    "preact": "^10.3.2"
   }
 }

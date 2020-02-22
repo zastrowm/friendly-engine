@@ -9,9 +9,10 @@
     "target": "ES2017",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "sourceMap": true,
     "jsx": "react",
     "jsxFactory": "h"
   },
-  "include": ["src"],
+  "include": ["src", "lib/friendlee"],
   "exclude": ["node_modules"]
 }
