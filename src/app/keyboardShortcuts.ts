@@ -1,5 +1,8 @@
 import hotkeys from "hotkeys-js";
-import { appRoutedCommands, RoutedCommand } from "./appRoutedCommands";
+import {
+  appRoutedCommands,
+  RoutedCommand
+} from "../framework/appRoutedCommands";
 
 function trigger(shortcut, command: RoutedCommand) {
   hotkeys(shortcut, evt => {

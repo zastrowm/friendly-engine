@@ -1,4 +1,4 @@
-import { Anchor } from "../api/layout";
+import { Anchor } from "../framework/layout";
 
 export class DragHandle extends HTMLElement {
   constructor() {

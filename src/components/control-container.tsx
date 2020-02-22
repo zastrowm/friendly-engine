@@ -1,5 +1,5 @@
-import { determineEditStyle } from "../api/positioner";
-import { IStoredPositionInfo } from "../api/layout";
+import { determineEditStyle } from "../framework/positioner";
+import { IStoredPositionInfo } from "../framework/layout";
 import { DesignEditor } from "./design-editor";
 
 type UniqueId = string;

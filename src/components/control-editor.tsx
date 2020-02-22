@@ -1,12 +1,16 @@
 import { h } from "preact";
-import { determineEditStyle, calculateSnapTo } from "../api/positioner";
+import { determineEditStyle, calculateSnapTo } from "../framework/positioner";
 import {
   Anchor,
   Point,
   AnchoredBoundary,
   IStoredPositionInfo
-} from "../api/layout";
-import { IUndoCommand, IContext, undoCommandCreated } from "../api/undoCommand";
+} from "../framework/layout";
+import {
+  IUndoCommand,
+  IContext,
+  undoCommandCreated
+} from "../framework/undoCommand";
 import { ControlContainer } from "./control-container";
 import { DragHandle } from "./drag-handle";
 import { DesignEditor } from "./design-editor";

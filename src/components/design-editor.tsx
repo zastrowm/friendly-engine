@@ -1,5 +1,9 @@
-import { IStoredPositionInfo, snapLayout } from "../api/layout";
-import { IUndoCommand, IContext, undoCommandCreated } from "../api/undoCommand";
+import { IStoredPositionInfo, snapLayout } from "../framework/layout";
+import {
+  IUndoCommand,
+  IContext,
+  undoCommandCreated
+} from "../framework/undoCommand";
 import { ControlContainer } from "./control-container";
 import { ControlEditor } from "./control-editor";
 

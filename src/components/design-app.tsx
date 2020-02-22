@@ -1,4 +1,4 @@
-import { generateGuid } from "../api/util";
+import { generateGuid } from "../framework/util";
 import { DesignEditor } from "./design-editor";
 
 import {
@@ -6,9 +6,12 @@ import {
   IContext,
   undoCommandCreated,
   UndoRedoQueue
-} from "../api/undoCommand";
-import { appRoutedCommands, RoutedCommand } from "../api/appRoutedCommands";
-import { registerShortcuts } from "../api/keyboardShortcuts";
+} from "../framework/undoCommand";
+import {
+  appRoutedCommands,
+  RoutedCommand
+} from "../framework/appRoutedCommands";
+import { registerShortcuts } from "../app/keyboardShortcuts";
 
 export class DesignApp extends HTMLElement {
   private editor: DesignEditor;
