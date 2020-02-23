@@ -5,6 +5,7 @@ import { ControlContainer } from "./components/control-container";
 import { ControlEditor } from "./components/control-editor";
 
 import * as PJSX from "preact/src/jsx";
+import * as preact from "preact";
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -24,12 +25,18 @@ declare global {
  **/
 declare module "preact" {
   namespace JSXInternal {
+    // TODO should we use preact.ClassAttributes or PJSX.JSXInternal.HTMLAttributes
+
+    // Use Partial because otherwise JSX complains that we're not providing all the properties
+    // use ClassAttributes because that gives use jsx goodies like "key", "jsx", & "ref"
+    type JSXType<T> = Partial<preact.ClassAttributes<T> | T>;
+
     interface IntrinsicElements extends PJSX.JSXInternal.IntrinsicElements {
-      "control-container": ControlContainer;
-      "control-editor": ControlEditor;
-      "design-app": DesignApp;
-      "design-editor": DesignEditor;
-      "drag-handle": Partial<DragHandle>;
+      "control-container": JSXType<ControlContainer>;
+      "control-editor": JSXType<ControlEditor>;
+      "design-app": JSXType<DesignApp>;
+      "design-editor": JSXType<DesignEditor>;
+      "drag-handle": JSXType<DragHandle>;
     }
   }
 }
