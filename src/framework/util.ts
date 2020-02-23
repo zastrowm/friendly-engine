@@ -18,3 +18,44 @@ export function generateGuid() {
       ).toString(16)
   );
 }
+
+/**
+ * A promise which can be cancelled
+ */
+interface CancellablePromise<T> extends Promise<T> {
+  cancel: () => void;
+}
+
+/**
+ * Returns a promise that completes at some point in the future.  It resolves to
+ * true if the promise ran to completion after the timer elapsed; it resolves to
+ * false if the promise timer was cancelled.
+ * @param timeInMs the time in milliseconds to delay
+ */
+export function delay(timeInMs: number): CancellablePromise<boolean> {
+  let cancelCallback: () => void;
+
+  var promise = new Promise<boolean>(function(resolve) {
+    let timerId = 0;
+
+    timerId = window.setTimeout(function() {
+      if (timerId != 0) {
+        resolve(true);
+        timerId = 0;
+      }
+    }, timeInMs);
+
+    cancelCallback = function() {
+      window.clearTimeout(timerId);
+
+      if (timerId != 0) {
+        resolve(false);
+        timerId = 0;
+      }
+    };
+  });
+
+  let cancellable = promise as CancellablePromise<boolean>;
+  cancellable.cancel = cancelCallback;
+  return cancellable;
+}
