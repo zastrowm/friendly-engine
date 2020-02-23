@@ -12,8 +12,14 @@ import {
   RoutedCommand
 } from "../framework/appRoutedCommands";
 import { registerShortcuts } from "../app/keyboardShortcuts";
+import {
+  controlDescriptors,
+  IControlDescriptor
+} from "../framework/controlsRegistry";
+import { CustomHtmlElement } from "../../lib/friendlee/CustomHtmlElement";
+import { h } from "preact";
 
-export class DesignApp extends HTMLElement {
+export class DesignApp extends CustomHtmlElement {
   private editor: DesignEditor;
 
   private readonly undoRedoQueue = new UndoRedoQueue();
@@ -30,10 +36,24 @@ export class DesignApp extends HTMLElement {
     listener.set(appRoutedCommands.redo, () => this.doRedo());
     listener.set(appRoutedCommands.delete, () => this.deleteCurrent());
     listener.set(appRoutedCommands.new, () => this.addButton());
+
+    controlDescriptors.addChangeListener(() => this.onControlsChange());
   }
 
   public addButton() {
     let newControl = this.editor.addControl("button", generateGuid(), {
+      left: 20,
+      top: 20,
+      width: 40,
+      height: 60
+    });
+
+    this.editor.selectAndMarkActive(newControl);
+  }
+
+  private addControl(descriptor: IControlDescriptor) {
+    let name = descriptor.createInstance().tagName;
+    let newControl = this.editor.addControl(name, generateGuid(), {
       left: 20,
       top: 20,
       width: 40,
@@ -61,6 +81,10 @@ export class DesignApp extends HTMLElement {
     };
   }
 
+  private onControlsChange(): void {
+    this.reRender();
+  }
+
   doUndo() {
     this.undoRedoQueue.undo(this.getContext());
   }
@@ -69,15 +93,7 @@ export class DesignApp extends HTMLElement {
     this.undoRedoQueue.redo(this.getContext());
   }
 
-  private isInited: boolean;
-
-  public connectedCallback() {
-    if (this.isInited) {
-      return;
-    }
-
-    this.isInited = true;
-
+  public onFirstConnected() {
     {
       this.tabIndex = 0;
       this.focus();
@@ -85,37 +101,7 @@ export class DesignApp extends HTMLElement {
       registerShortcuts();
     }
 
-    let create = function(type: any, text?: any, click?: any): HTMLElement {
-      let element = document.createElement(type) as HTMLElement;
-      if (text != null) {
-        element.textContent = text;
-      }
-
-      if (click != null) {
-        element.addEventListener("click", click);
-      }
-
-      return element;
-    };
-
-    let div = create("div");
-
-    let header = create("header");
-    header.appendChild(create("h1", "Web HMI Builder"));
-    header.appendChild(create("button", "Add New", () => this.addButton()));
-    header.appendChild(create("button", "Delete", () => this.deleteCurrent()));
-    header.appendChild(create("button", "Undo", () => this.doUndo()));
-    header.appendChild(create("button", "Redo", () => this.doRedo()));
-    div.appendChild(header);
-
-    let main = create("main");
-    let div2 = create("div");
-    this.editor = document.createElement("design-editor") as DesignEditor;
-    div2.appendChild(this.editor);
-    main.appendChild(div2);
-    div.appendChild(main);
-
-    this.appendChild(div);
+    this.reRender();
 
     this.editor.addControl("button", "first", {
       left: 20,
@@ -129,6 +115,37 @@ export class DesignApp extends HTMLElement {
       width: 100,
       height: 100
     });
+  }
+
+  private reRender() {
+    this.renderJsx(
+      <div>
+        <header>
+          <h1>Web HMI Builder</h1>
+          {this.renderControls()}
+          <button onClick={() => this.deleteCurrent()}>Delete</button>
+          <button onClick={() => this.doUndo()}>Undo</button>
+          <button onClick={() => this.doRedo()}>Redo</button>
+        </header>
+        <main>
+          <div>
+            <design-editor ref={it => (this.editor = it)} />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  private renderControls() {
+    let arr = [];
+    for (var descriptor of controlDescriptors.getDescriptors()) {
+      arr.push(
+        <button onClick={() => this.addControl(descriptor)}>
+          Add {descriptor.id}
+        </button>
+      );
+    }
+    return arr;
   }
 }
 
