@@ -1,3 +1,5 @@
+import { IStoredPositionInfo } from "./layout";
+
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
  * intended that this can be used as a factory so that a control merely needs to query
@@ -20,6 +22,15 @@ export interface IControlDescriptor {
   setValue(element: HTMLElement, property: IPropertyDescriptor, value: any);
 
   getValue(element: HTMLElement, property: IPropertyDescriptor): any;
+}
+
+export interface IControlSerializedProperties {}
+
+export interface IControlSerializedData {
+  id: string;
+  position: IStoredPositionInfo;
+  properties: { [name: string]: any };
+  typeId: string;
 }
 
 enum PropertyType {

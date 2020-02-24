@@ -6,6 +6,11 @@ import {
 } from "../framework/undoCommand";
 import { ControlContainer } from "./control-container";
 import { ControlEditor } from "./control-editor";
+import {
+  IControlDescriptor,
+  IControlSerializedData
+} from "../framework/controlsRegistry";
+import { generateGuid } from "../framework/util";
 
 export class DesignEditor extends HTMLElement {
   private activeEditor: ControlEditor;
@@ -61,15 +66,38 @@ export class DesignEditor extends HTMLElement {
   }
 
   public addControl(
-    type: string,
-    id: string,
-    layoutInfo: IStoredPositionInfo
+    descriptor: IControlDescriptor,
+    layout: IStoredPositionInfo = null
   ): ControlContainer {
-    snapLayout(layoutInfo, this.gridSnap);
+    // TODO copy the data
+    let data: IControlSerializedData = {
+      position: layout ?? this.getDefaultLayoutInfo(descriptor),
+      id: generateGuid(),
+      properties: {},
+      typeId: descriptor.id
+    };
 
-    let container = this.addControlNoUndo(type, id, layoutInfo);
-    undoCommandCreated.trigger(this, new UndoAddCommand(type, id, layoutInfo));
+    snapLayout(data.position, this.gridSnap);
+
+    let container = this.addControlNoUndo(descriptor, data);
+    undoCommandCreated.trigger(this, new UndoAddCommand(descriptor, data));
     return container;
+  }
+
+  /**
+   * Gets the default layout information for the given control
+   */
+  private getDefaultLayoutInfo(
+    descriptor: IControlDescriptor
+  ): IStoredPositionInfo {
+    console.log(descriptor);
+
+    return {
+      left: 20,
+      top: 20,
+      width: 40,
+      height: 60
+    };
   }
 
   /**
@@ -79,35 +107,24 @@ export class DesignEditor extends HTMLElement {
    * @param layoutInfo the initial position information of the control
    */
   public addControlNoUndo(
-    type: string,
-    id: string,
-    layoutInfo: IStoredPositionInfo
+    descriptor: IControlDescriptor,
+    data: IControlSerializedData
   ): ControlContainer {
     let controlContainer = document.createElement("control-container");
-    controlContainer.uniqueId = id;
-    controlContainer.positionInfo = layoutInfo;
-    controlContainer.controlType = type;
-
-    let nestedControl = document.createElement(type);
-    nestedControl.textContent = "This is a " + type;
-    controlContainer.appendChild(nestedControl);
-
+    controlContainer.deserialize(descriptor, data);
     this.appendChild(controlContainer);
-
     return controlContainer;
   }
 
   public removeControl(id: string) {
     let container = this.getControlContainer(id);
-
-    let type = container.controlType;
-    let layoutInfo = container.positionInfo;
+    let data = container.serialize();
 
     this.removeControlNoUndo(id);
 
     undoCommandCreated.trigger(
       this,
-      new UndoRemoveCommand(type, id, layoutInfo)
+      new UndoRemoveCommand(container.descriptor, data)
     );
   }
 
@@ -126,21 +143,16 @@ export class DesignEditor extends HTMLElement {
  */
 class UndoAddCommand implements IUndoCommand {
   constructor(
-    private type: string,
-    private id: string,
-    private position: IStoredPositionInfo
+    private descriptor: IControlDescriptor,
+    private data: IControlSerializedData
   ) {}
 
   undo(context: IContext): void {
-    context.editor.removeControlNoUndo(this.id);
+    context.editor.removeControlNoUndo(this.data.id);
   }
 
   redo(context: IContext): void {
-    let container = context.editor.addControlNoUndo(
-      this.type,
-      this.id,
-      this.position
-    );
+    let container = context.editor.addControlNoUndo(this.descriptor, this.data);
     context.editor.selectAndMarkActive(container);
   }
 }
@@ -150,22 +162,17 @@ class UndoAddCommand implements IUndoCommand {
  */
 class UndoRemoveCommand implements IUndoCommand {
   constructor(
-    private type: string,
-    private id: string,
-    private position: IStoredPositionInfo
+    private descriptor: IControlDescriptor,
+    private data: IControlSerializedData
   ) {}
 
   undo(context: IContext): void {
-    let container = context.editor.addControlNoUndo(
-      this.type,
-      this.id,
-      this.position
-    );
+    let container = context.editor.addControlNoUndo(this.descriptor, this.data);
     context.editor.selectAndMarkActive(container);
   }
 
   redo(context: IContext): void {
-    context.editor.removeControlNoUndo(this.id);
+    context.editor.removeControlNoUndo(this.data.id);
   }
 }
 

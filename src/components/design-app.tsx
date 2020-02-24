@@ -1,4 +1,3 @@
-import { generateGuid } from "../framework/util";
 import { DesignEditor } from "./design-editor";
 
 import {
@@ -35,31 +34,12 @@ export class DesignApp extends CustomHtmlElement {
     listener.set(appRoutedCommands.undo, () => this.doUndo());
     listener.set(appRoutedCommands.redo, () => this.doRedo());
     listener.set(appRoutedCommands.delete, () => this.deleteCurrent());
-    listener.set(appRoutedCommands.new, () => this.addButton());
 
     controlDescriptors.addChangeListener(() => this.onControlsChange());
   }
 
-  public addButton() {
-    let newControl = this.editor.addControl("button", generateGuid(), {
-      left: 20,
-      top: 20,
-      width: 40,
-      height: 60
-    });
-
-    this.editor.selectAndMarkActive(newControl);
-  }
-
   private addControl(descriptor: IControlDescriptor) {
-    let name = descriptor.createInstance().tagName;
-    let newControl = this.editor.addControl(name, generateGuid(), {
-      left: 20,
-      top: 20,
-      width: 40,
-      height: 60
-    });
-
+    let newControl = this.editor.addControl(descriptor);
     this.editor.selectAndMarkActive(newControl);
   }
 
@@ -103,13 +83,14 @@ export class DesignApp extends CustomHtmlElement {
 
     this.reRender();
 
-    this.editor.addControl("button", "first", {
+    let buttonDescriptor = controlDescriptors.getDescriptor("button");
+    this.editor.addControl(buttonDescriptor, {
       left: 20,
       top: 70,
       width: 100,
       height: 100
     });
-    this.editor.addControl("button", "second", {
+    this.editor.addControl(buttonDescriptor, {
       right: 20,
       top: 100,
       width: 100,
@@ -138,7 +119,7 @@ export class DesignApp extends CustomHtmlElement {
 
   private renderControls() {
     let arr = [];
-    for (var descriptor of controlDescriptors.getDescriptors()) {
+    for (let descriptor of controlDescriptors.getDescriptors()) {
       arr.push(
         <button onClick={() => this.addControl(descriptor)}>
           Add {descriptor.id}
