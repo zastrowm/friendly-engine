@@ -4,8 +4,11 @@ import { ControlContainer } from './control-container';
 import { ControlEditor } from './control-editor';
 import { IControlDescriptor, IControlSerializedData } from '../framework/controlsRegistry';
 import { generateGuid } from '../framework/util';
+import { CustomHtmlElement } from '../../lib/friendlee/CustomHtmlElement';
 
-export class DesignEditor extends HTMLElement {
+import './design-editor.css';
+
+export class DesignEditor extends CustomHtmlElement {
   private activeEditor: ControlEditor;
 
   constructor() {

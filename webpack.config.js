@@ -26,8 +26,17 @@ module.exports = {
 
   module: {
     rules: [
+      // CSS loading
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
+
       // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
-      { test: /\.tsx?$/, loader: "ts-loader" }
+      {
+        test: /\.tsx?$/,
+        loader: "ts-loader"
+      }
     ]
   }
 };

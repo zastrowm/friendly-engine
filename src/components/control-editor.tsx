@@ -7,6 +7,8 @@ import { DragHandle } from './drag-handle';
 import { DesignEditor } from './design-editor';
 import { CustomHtmlElement } from '../../lib/friendlee/CustomHtmlElement';
 
+import './control-editor.css';
+
 export class ControlEditor extends CustomHtmlElement {
   private mouseUpListener: (MouseEvent: MouseEvent) => void;
   private mouseMoveListener: (MouseEvent: MouseEvent) => void;
