@@ -31,5 +31,12 @@ export abstract class CustomHtmlElement extends HTMLElement {
   // Eventually we should add decorators or something
   public renderJsx(tree: ComponentChild) {
     render(tree, this);
+
+    let any = this as any;
+    if (any.renderStyle != null) {
+      let styleElement = document.createElement("style");
+      styleElement.innerHTML = any.renderStyle();
+      this.appendChild(styleElement);
+    }
   }
 }

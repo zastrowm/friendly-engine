@@ -46,7 +46,7 @@ control-container button {
   border: none;
   margin: 0;
   padding: 0;
-  overflow: visible;
+  overflow: hidden;
 
   background: rgb(224, 96, 37);
   border-radius: 0px;
