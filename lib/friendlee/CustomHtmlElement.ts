@@ -1,4 +1,4 @@
-import { render, ComponentChild } from "preact";
+import { render, ComponentChild } from 'preact';
 
 /**
  * Base class for a custom HTML element
@@ -31,12 +31,20 @@ export abstract class CustomHtmlElement extends HTMLElement {
   // Eventually we should add decorators or something
   public renderJsx(tree: ComponentChild) {
     render(tree, this);
+    this.appendInlineStyle();
+  }
 
-    let any = this as any;
-    if (any.renderStyle != null) {
-      let styleElement = document.createElement("style");
-      styleElement.innerHTML = any.renderStyle();
+  /** Appends the inline style defined by this.getInlineStyle() to the current element */
+  protected appendInlineStyle() {
+    let style = this.getInlineStyle();
+    if (style != null) {
+      let styleElement = document.createElement('style');
+      styleElement.innerHTML = style;
       this.appendChild(styleElement);
     }
+  }
+
+  protected getInlineStyle() {
+    return null;
   }
 }

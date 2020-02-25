@@ -109,7 +109,7 @@ export class DesignApp extends CustomHtmlElement {
   }
 
   /* Gets the styling for this component */
-  protected renderStyle() {
+  protected getInlineStyle() {
     return /*css*/ `
       h1 {
         font-size: 1.4rem;
