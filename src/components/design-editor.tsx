@@ -1,16 +1,9 @@
-import { IStoredPositionInfo, snapLayout } from "../framework/layout";
-import {
-  IUndoCommand,
-  IContext,
-  undoCommandCreated
-} from "../framework/undoCommand";
-import { ControlContainer } from "./control-container";
-import { ControlEditor } from "./control-editor";
-import {
-  IControlDescriptor,
-  IControlSerializedData
-} from "../framework/controlsRegistry";
-import { generateGuid } from "../framework/util";
+import { IStoredPositionInfo, snapLayout } from '../framework/layout';
+import { IUndoCommand, IContext, undoCommandCreated } from '../framework/undoCommand';
+import { ControlContainer } from './control-container';
+import { ControlEditor } from './control-editor';
+import { IControlDescriptor, IControlSerializedData } from '../framework/controlsRegistry';
+import { generateGuid } from '../framework/util';
 
 export class DesignEditor extends HTMLElement {
   private activeEditor: ControlEditor;
@@ -18,7 +11,7 @@ export class DesignEditor extends HTMLElement {
   constructor() {
     super();
 
-    this.activeEditor = document.createElement("control-editor");
+    this.activeEditor = document.createElement('control-editor');
   }
 
   /** Determines the grid-snap for the controls */
@@ -41,12 +34,9 @@ export class DesignEditor extends HTMLElement {
    * @param control The control which should be marked as the active control
    * @param mouseEvent (optional) the mouse event that triggered the operation
    */
-  public selectAndMarkActive(
-    control: ControlContainer,
-    mouseEvent?: MouseEvent
-  ) {
+  public selectAndMarkActive(control: ControlContainer, mouseEvent?: MouseEvent) {
     if (control == null) {
-      throw new Error("Control cannot be null");
+      throw new Error('Control cannot be null');
     }
 
     let activeEditor = this.activeEditor;
@@ -65,16 +55,13 @@ export class DesignEditor extends HTMLElement {
     return true;
   }
 
-  public addControl(
-    descriptor: IControlDescriptor,
-    layout: IStoredPositionInfo = null
-  ): ControlContainer {
+  public addControl(descriptor: IControlDescriptor, layout: IStoredPositionInfo = null): ControlContainer {
     // TODO copy the data
     let data: IControlSerializedData = {
       position: layout ?? this.getDefaultLayoutInfo(descriptor),
       id: generateGuid(),
       properties: {},
-      typeId: descriptor.id
+      typeId: descriptor.id,
     };
 
     snapLayout(data.position, this.gridSnap);
@@ -87,16 +74,14 @@ export class DesignEditor extends HTMLElement {
   /**
    * Gets the default layout information for the given control
    */
-  private getDefaultLayoutInfo(
-    descriptor: IControlDescriptor
-  ): IStoredPositionInfo {
+  private getDefaultLayoutInfo(descriptor: IControlDescriptor): IStoredPositionInfo {
     console.log(descriptor);
 
     return {
       left: 20,
       top: 20,
       width: 40,
-      height: 60
+      height: 60,
     };
   }
 
@@ -106,11 +91,8 @@ export class DesignEditor extends HTMLElement {
    * @param id the unique id of the control
    * @param layoutInfo the initial position information of the control
    */
-  public addControlNoUndo(
-    descriptor: IControlDescriptor,
-    data: IControlSerializedData
-  ): ControlContainer {
-    let controlContainer = document.createElement("control-container");
+  public addControlNoUndo(descriptor: IControlDescriptor, data: IControlSerializedData): ControlContainer {
+    let controlContainer = document.createElement('control-container');
     controlContainer.deserialize(descriptor, data);
     this.appendChild(controlContainer);
     return controlContainer;
@@ -122,10 +104,7 @@ export class DesignEditor extends HTMLElement {
 
     this.removeControlNoUndo(id);
 
-    undoCommandCreated.trigger(
-      this,
-      new UndoRemoveCommand(container.descriptor, data)
-    );
+    undoCommandCreated.trigger(this, new UndoRemoveCommand(container.descriptor, data));
   }
 
   /**
@@ -142,10 +121,7 @@ export class DesignEditor extends HTMLElement {
  * Undo event for adding a control to the design surface.
  */
 class UndoAddCommand implements IUndoCommand {
-  constructor(
-    private descriptor: IControlDescriptor,
-    private data: IControlSerializedData
-  ) {}
+  constructor(private descriptor: IControlDescriptor, private data: IControlSerializedData) {}
 
   undo(context: IContext): void {
     context.editor.removeControlNoUndo(this.data.id);
@@ -161,10 +137,7 @@ class UndoAddCommand implements IUndoCommand {
  * Undo event for removing a control from the design surface.
  */
 class UndoRemoveCommand implements IUndoCommand {
-  constructor(
-    private descriptor: IControlDescriptor,
-    private data: IControlSerializedData
-  ) {}
+  constructor(private descriptor: IControlDescriptor, private data: IControlSerializedData) {}
 
   undo(context: IContext): void {
     let container = context.editor.addControlNoUndo(this.descriptor, this.data);
@@ -176,4 +149,4 @@ class UndoRemoveCommand implements IUndoCommand {
   }
 }
 
-window.customElements.define("design-editor", DesignEditor);
+window.customElements.define('design-editor', DesignEditor);

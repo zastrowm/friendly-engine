@@ -24,15 +24,12 @@ export class RoutedEventDescriptor<T> {
       new CustomEvent(this.configuration.id, {
         bubbles: true,
         detail: data,
-        cancelable: true
-      })
+        cancelable: true,
+      }),
     );
 
     if (this.configuration.mustBeHandled && wasUnhandled) {
-      console.error(
-        `Event ${this.configuration.id} with data was unhandled:`,
-        data
-      );
+      console.error(`Event ${this.configuration.id} with data was unhandled:`, data);
     }
 
     return !wasUnhandled;
@@ -42,9 +39,7 @@ export class RoutedEventDescriptor<T> {
    * Adds a routed command listener on the given element.
    */
   public addListener(element: HTMLElement, callback: (data: T) => boolean) {
-    element.addEventListener(this.configuration.id, function(
-      evt: CustomEvent<T>
-    ) {
+    element.addEventListener(this.configuration.id, function(evt: CustomEvent<T>) {
       let command = evt.detail;
       let didHandle = callback(command);
       if (didHandle) {

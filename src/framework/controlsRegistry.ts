@@ -1,4 +1,4 @@
-import { IStoredPositionInfo } from "./layout";
+import { IStoredPositionInfo } from './layout';
 
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
@@ -35,7 +35,7 @@ export interface IControlSerializedData {
 
 enum PropertyType {
   string,
-  number
+  number,
 }
 
 interface IPropertyDescriptor {
@@ -58,17 +58,17 @@ class TextContentProperty extends GettableSettableProperty<string> {
     return instance.textContent;
   }
   constructor() {
-    super("text", PropertyType.string);
+    super('text', PropertyType.string);
   }
 }
 
 class ButtonDescriptor implements IControlDescriptor {
-  public id = "button";
+  public id = 'button';
 
   private static properties = [new TextContentProperty()];
 
   public createInstance(): HTMLElement {
-    return document.createElement("button");
+    return document.createElement('button');
   }
 
   public getProperties() {
@@ -80,7 +80,7 @@ class ButtonDescriptor implements IControlDescriptor {
       return property.setValue(element, value);
     }
 
-    throw new Error("Property set not supported: " + property.name);
+    throw new Error('Property set not supported: ' + property.name);
   }
 
   getValue(element: HTMLElement, property: IPropertyDescriptor) {
@@ -88,17 +88,17 @@ class ButtonDescriptor implements IControlDescriptor {
       return property.getValue(element);
     }
 
-    throw new Error("Property get not supported: " + property.name);
+    throw new Error('Property get not supported: ' + property.name);
   }
 }
 
 class LabelDescriptor implements IControlDescriptor {
-  public id = "label";
+  public id = 'label';
 
   private static properties = [new TextContentProperty()];
 
   public createInstance(): HTMLElement {
-    return document.createElement("div");
+    return document.createElement('div');
   }
 
   public getProperties() {
@@ -110,7 +110,7 @@ class LabelDescriptor implements IControlDescriptor {
       return property.setValue(element, value);
     }
 
-    throw new Error("Property set not supported: " + property.name);
+    throw new Error('Property set not supported: ' + property.name);
   }
 
   getValue(element: HTMLElement, property: IPropertyDescriptor) {
@@ -118,7 +118,7 @@ class LabelDescriptor implements IControlDescriptor {
       return property.getValue(element);
     }
 
-    throw new Error("Property get not supported: " + property.name);
+    throw new Error('Property get not supported: ' + property.name);
   }
 }
 

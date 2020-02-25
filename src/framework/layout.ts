@@ -1,4 +1,4 @@
-import { calculateSnapTo } from "./positioner";
+import { calculateSnapTo } from './positioner';
 
 /**
  * Represents how an element is laid out - that is, what sides of the element
@@ -18,19 +18,14 @@ export enum Anchor {
   ne = north | east,
   se = south | east,
   sw = south | west,
-  nw = north | west
+  nw = north | west,
 }
 
 /**
  * Represents the position of an element with Anchor.all
  */
 export class AnchoredBoundary {
-  constructor(
-    public left: number,
-    public top: number,
-    public right: number,
-    public bottom: number
-  ) {}
+  constructor(public left: number, public top: number, public right: number, public bottom: number) {}
 
   /**
    * Makes a copy of this boundary.
@@ -40,12 +35,7 @@ export class AnchoredBoundary {
   }
 
   public equals(other: AnchoredBoundary) {
-    return (
-      this.left == other.left &&
-      this.right == other.right &&
-      this.bottom == other.bottom &&
-      this.top == other.top
-    );
+    return this.left == other.left && this.right == other.right && this.bottom == other.bottom && this.top == other.top;
   }
 
   /**
@@ -53,10 +43,10 @@ export class AnchoredBoundary {
    */
   public toStyle() {
     return {
-      left: this.left + "px",
-      right: this.right + "px",
-      top: this.top + "px",
-      bottom: this.bottom + "px"
+      left: this.left + 'px',
+      right: this.right + 'px',
+      top: this.top + 'px',
+      bottom: this.bottom + 'px',
     };
   }
 
@@ -65,10 +55,10 @@ export class AnchoredBoundary {
    */
   public applyTo(element: HTMLElement) {
     let currentElementStyle = element.style;
-    currentElementStyle.left = this.left + "px";
-    currentElementStyle.top = this.top + "px";
-    currentElementStyle.right = this.right + "px";
-    currentElementStyle.bottom = this.bottom + "px";
+    currentElementStyle.left = this.left + 'px';
+    currentElementStyle.top = this.top + 'px';
+    currentElementStyle.right = this.right + 'px';
+    currentElementStyle.bottom = this.bottom + 'px';
   }
 }
 
@@ -89,10 +79,7 @@ export interface IStoredPositionInfo {
  * Snap all values of the position info to match the grid snap. This basically normalizes
  * the position information to the current grid.
  */
-export function snapLayout(
-  positionInfo: IStoredPositionInfo,
-  gridSnap: number
-) {
+export function snapLayout(positionInfo: IStoredPositionInfo, gridSnap: number) {
   if (positionInfo.left != null) {
     positionInfo.left = calculateSnapTo(positionInfo.left, gridSnap);
   }

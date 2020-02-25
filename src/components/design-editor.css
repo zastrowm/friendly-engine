@@ -12,13 +12,7 @@ design-editor {
       transparent 75%,
       var(--squareColor) 75%
     ),
-    linear-gradient(
-      45deg,
-      var(--squareColor) 25%,
-      transparent 25%,
-      transparent 75%,
-      var(--squareColor) 75%
-    );
+    linear-gradient(45deg, var(--squareColor) 25%, transparent 25%, transparent 75%, var(--squareColor) 75%);
   background-position: 0 0, var(--squareSize) var(--squareSize);
   background-size: var(--squareSizeTimes2) var(--squareSizeTimes2);
 

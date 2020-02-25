@@ -1,8 +1,8 @@
-import { RoutedEventDescriptor } from "./routedEvents";
+import { RoutedEventDescriptor } from './routedEvents';
 
 let routedCommandEvent = new RoutedEventDescriptor<RoutedCommand>({
-  id: "routedCommand",
-  mustBeHandled: false
+  id: 'routedCommand',
+  mustBeHandled: false,
 });
 
 /**
@@ -22,10 +22,7 @@ export class RoutedCommand {
     return routedCommandEvent.trigger(element, this);
   }
 
-  private static commandListenerLookup = new WeakMap<
-    HTMLElement,
-    RoutedCommandListener
-  >();
+  private static commandListenerLookup = new WeakMap<HTMLElement, RoutedCommandListener>();
 
   /** Creates a listener which can be used to subscribe to RoutedCommands reaching the given element. */
   static createListener(element: HTMLElement): RoutedCommandListener {

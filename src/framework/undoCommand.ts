@@ -1,5 +1,5 @@
-import { DesignEditor } from "../components/design-editor";
-import { RoutedEventDescriptor } from "./routedEvents";
+import { DesignEditor } from '../components/design-editor';
+import { RoutedEventDescriptor } from './routedEvents';
 
 /**
  * An command that can be undone/redone as part of an undo/redo queue.
@@ -87,6 +87,6 @@ export class UndoRedoQueue {
 
 /** The routed event for undo commands being created. */
 export let undoCommandCreated = new RoutedEventDescriptor<IUndoCommand>({
-  id: "undoEventGenerated",
-  mustBeHandled: true
+  id: 'undoEventGenerated',
+  mustBeHandled: true,
 });
