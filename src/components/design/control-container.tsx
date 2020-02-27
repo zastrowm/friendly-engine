@@ -1,8 +1,8 @@
-import { determineEditStyle } from '../framework/positioner';
-import { IStoredPositionInfo } from '../framework/layout';
-import { DesignEditor } from './design-editor';
-import { CustomHtmlElement } from '../../lib/friendlee/CustomHtmlElement';
-import { IControlDescriptor, IControlSerializedData } from '../framework/controlsRegistry';
+import { determineEditStyle } from '../../framework/positioner';
+import { IStoredPositionInfo } from '../../framework/layout';
+import { DesignSurfaceElement } from './design-surface';
+import { CustomHtmlElement } from '../../../lib/friendlee/CustomHtmlElement';
+import { IControlDescriptor, IControlSerializedData } from '../../framework/controlsRegistry';
 
 type UniqueId = string;
 
@@ -71,7 +71,7 @@ export class ControlContainer extends CustomHtmlElement {
   private _positionInfo: IStoredPositionInfo;
 
   // the designer that we're attached to
-  private designCanvas: DesignEditor;
+  private designCanvas: DesignSurfaceElement;
 
   public onFirstConnected() {
     this.classList.add('control-container');
@@ -81,7 +81,7 @@ export class ControlContainer extends CustomHtmlElement {
     anchorAndBoundary.boundaries.applyTo(this);
 
     this.addEventListener('mousedown', e => this.onMouseDown(e));
-    this.designCanvas = this.closest('design-editor');
+    this.designCanvas = this.closest(DesignSurfaceElement.tagName);
   }
 
   /**

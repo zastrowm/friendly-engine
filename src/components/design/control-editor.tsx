@@ -1,11 +1,11 @@
 import { h } from 'preact';
-import { determineEditStyle, calculateSnapTo } from '../framework/positioner';
-import { Anchor, Point, AnchoredBoundary, IStoredPositionInfo } from '../framework/layout';
-import { IUndoCommand, IContext, undoCommandCreated } from '../framework/undoCommand';
+import { determineEditStyle, calculateSnapTo } from '../../framework/positioner';
+import { Anchor, Point, AnchoredBoundary, IStoredPositionInfo } from '../../framework/layout';
+import { IUndoCommand, IContext, undoCommandCreated } from '../../framework/undoCommand';
 import { ControlContainer } from './control-container';
 import { DragHandle } from './drag-handle';
-import { DesignEditor } from './design-editor';
-import { CustomHtmlElement } from '../../lib/friendlee/CustomHtmlElement';
+import { DesignSurfaceElement } from './design-surface';
+import { CustomHtmlElement } from '../../../lib/friendlee/CustomHtmlElement';
 
 import './control-editor.css';
 
@@ -33,14 +33,14 @@ export class ControlEditor extends CustomHtmlElement {
     this.mouseMoveListener = mouseEvent => this.onMouseMove(mouseEvent);
   }
 
-  public designEditor: DesignEditor;
+  public designEditor: DesignSurfaceElement;
 
   private get elementToMove(): HTMLElement {
     return this.parentElement;
   }
 
   public onFirstConnected() {
-    this.designEditor = this.closest('design-editor');
+    this.designEditor = this.closest(DesignSurfaceElement.tagName);
 
     this.renderJsx([
       <drag-handle anchorMode={Anchor.west} />,

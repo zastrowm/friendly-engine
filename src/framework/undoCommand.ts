@@ -1,4 +1,4 @@
-import { DesignEditor } from '../components/design-editor';
+import { DesignSurfaceElement } from '../components/design/design-surface';
 import { RoutedEventDescriptor } from './routedEvents';
 
 /**
@@ -32,7 +32,7 @@ export interface IUndoCommand {
 }
 
 export interface IContext {
-  editor: DesignEditor;
+  editor: DesignSurfaceElement;
 }
 
 /**

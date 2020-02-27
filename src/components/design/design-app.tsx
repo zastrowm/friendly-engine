@@ -1,14 +1,14 @@
-import { DesignEditor } from './design-editor';
+import { DesignSurfaceElement } from './design-surface';
 
-import { IUndoCommand, IContext, undoCommandCreated, UndoRedoQueue } from '../framework/undoCommand';
-import { appRoutedCommands, RoutedCommand } from '../framework/appRoutedCommands';
-import { registerShortcuts } from '../app/keyboardShortcuts';
-import { controlDescriptors, IControlDescriptor } from '../framework/controlsRegistry';
-import { CustomHtmlElement } from '../../lib/friendlee/CustomHtmlElement';
+import { IUndoCommand, IContext, undoCommandCreated, UndoRedoQueue } from '../../framework/undoCommand';
+import { appRoutedCommands, RoutedCommand } from '../../framework/appRoutedCommands';
+import { registerShortcuts } from '../../app/keyboardShortcuts';
+import { controlDescriptors, IControlDescriptor } from '../../framework/controlsRegistry';
+import { CustomHtmlElement } from '../../../lib/friendlee/CustomHtmlElement';
 import { h } from 'preact';
 
 export class DesignApp extends CustomHtmlElement {
-  private editor: DesignEditor;
+  private editor: DesignSurfaceElement;
 
   private readonly undoRedoQueue = new UndoRedoQueue();
 
@@ -101,7 +101,7 @@ export class DesignApp extends CustomHtmlElement {
         </header>
         <main>
           <div>
-            <design-editor ref={it => (this.editor = it)} />
+            <design-surface ref={it => (this.editor = it)} />
           </div>
         </main>
       </div>,

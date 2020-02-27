@@ -1,14 +1,14 @@
-import { IStoredPositionInfo, snapLayout } from '../framework/layout';
-import { IUndoCommand, IContext, undoCommandCreated } from '../framework/undoCommand';
+import { IStoredPositionInfo, snapLayout } from '../../framework/layout';
+import { IUndoCommand, IContext, undoCommandCreated } from '../../framework/undoCommand';
 import { ControlContainer } from './control-container';
 import { ControlEditor } from './control-editor';
-import { IControlDescriptor, IControlSerializedData } from '../framework/controlsRegistry';
-import { generateGuid } from '../framework/util';
-import { CustomHtmlElement } from '../../lib/friendlee/CustomHtmlElement';
+import { IControlDescriptor, IControlSerializedData } from '../../framework/controlsRegistry';
+import { generateGuid } from '../../framework/util';
+import { CustomHtmlElement } from '../../../lib/friendlee/CustomHtmlElement';
 
-import './design-editor.css';
+import './design-surface.css';
 
-export class DesignEditor extends CustomHtmlElement {
+export class DesignSurfaceElement extends CustomHtmlElement {
   private activeEditor: ControlEditor;
 
   constructor() {
@@ -16,6 +16,8 @@ export class DesignEditor extends CustomHtmlElement {
 
     this.activeEditor = document.createElement('control-editor');
   }
+
+  public static readonly tagName = 'design-surface';
 
   /** Determines the grid-snap for the controls */
   public gridSnap = 8;
@@ -47,7 +49,7 @@ export class DesignEditor extends CustomHtmlElement {
       return false;
     }
 
-    console.log(`Transfering focus to: ${control.uniqueId}`);
+    console.log(`Transferring focus to: ${control.uniqueId}`);
     control.appendChild(this.activeEditor);
 
     if (mouseEvent != null) {
@@ -152,4 +154,4 @@ class UndoRemoveCommand implements IUndoCommand {
   }
 }
 
-window.customElements.define('design-editor', DesignEditor);
+window.customElements.define(DesignSurfaceElement.tagName, DesignSurfaceElement);
