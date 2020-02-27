@@ -1,4 +1,6 @@
-import { render, ComponentChild } from 'preact';
+import { render, ComponentChild, h } from 'preact';
+
+export { h };
 
 /**
  * Base class for a custom HTML element

@@ -7,7 +7,16 @@ import { generateGuid } from '../../framework/util';
 import { CustomHtmlElement } from '../../../lib/friendlee/CustomHtmlElement';
 
 import './design-surface.css';
+import { RoutedEventDescriptor } from '../../framework/routedEvents';
 
+export let selectedControlChanges = new RoutedEventDescriptor<ControlContainer>({
+  id: 'selectedControlChanged',
+  mustBeHandled: false,
+});
+
+/**
+ * A control that represents the canvas that can have controls added/deleted/moved.
+ */
 export class DesignSurfaceElement extends CustomHtmlElement {
   private activeEditor: ControlEditor;
 
@@ -49,13 +58,14 @@ export class DesignSurfaceElement extends CustomHtmlElement {
       return false;
     }
 
-    console.log(`Transferring focus to: ${control.uniqueId}`);
     control.appendChild(this.activeEditor);
 
     if (mouseEvent != null) {
       mouseEvent.preventDefault();
       activeEditor.transferMouseDown(mouseEvent);
     }
+
+    selectedControlChanges.trigger(this, control);
 
     return true;
   }

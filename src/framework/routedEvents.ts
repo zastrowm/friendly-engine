@@ -8,6 +8,8 @@ interface IRoutedEventDescriptorOptions {
   mustBeHandled: boolean;
 }
 
+type BooleanOrVoid = boolean | void;
+
 /**
  * Represents an event that can be triggered from one element and bubbles up through
  * the tree looking for a handler.
@@ -38,11 +40,11 @@ export class RoutedEventDescriptor<T> {
   /**
    * Adds a routed command listener on the given element.
    */
-  public addListener(element: HTMLElement, callback: (data: T) => boolean) {
+  public addListener(element: HTMLElement, callback: (data: T) => BooleanOrVoid) {
     element.addEventListener(this.configuration.id, function(evt: CustomEvent<T>) {
       let command = evt.detail;
       let didHandle = callback(command);
-      if (didHandle) {
+      if (didHandle === true) {
         evt.preventDefault();
       }
     });

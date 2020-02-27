@@ -62,10 +62,28 @@ class TextContentProperty extends GettableSettableProperty<string> {
   }
 }
 
+class TextAlignmentProperty extends GettableSettableProperty<string> {
+  constructor() {
+    super('text', PropertyType.string);
+  }
+
+  setValue(instance: HTMLElement, value: string) {
+    instance.style.textAlign = value;
+  }
+  getValue(instance: HTMLElement): string {
+    let alignment = instance.style.textAlign;
+    if (alignment == null || alignment.length == 0) {
+      alignment = getComputedStyle(instance)['textAlign'];
+    }
+
+    return alignment;
+  }
+}
+
 class ButtonDescriptor implements IControlDescriptor {
   public id = 'button';
 
-  private static properties = [new TextContentProperty()];
+  private static properties = [new TextContentProperty(), new TextAlignmentProperty()];
 
   public createInstance(): HTMLElement {
     return document.createElement('button');

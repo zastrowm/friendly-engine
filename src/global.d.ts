@@ -6,6 +6,7 @@ import { ControlEditor } from './components/design/control-editor';
 
 import * as PJSX from 'preact/src/jsx';
 import * as preact from 'preact';
+import { PropertyPanelElement } from './components/design/property-panel';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -13,6 +14,7 @@ declare global {
     'control-editor': ControlEditor;
     'design-app': DesignApp;
     [DesignSurfaceElement.tagName]: DesignSurfaceElement;
+    [PropertyPanelElement.tagName]: PropertyPanelElement;
     'drag-handle': DragHandle;
   }
 }
@@ -36,6 +38,7 @@ declare module 'preact' {
       'control-editor': JSXType<ControlEditor>;
       'design-app': JSXType<DesignApp>;
       [DesignSurfaceElement.tagName]: JSXType<DesignSurfaceElement>;
+      [PropertyPanelElement.tagName]: JSXType<PropertyPanelElement>;
       'drag-handle': JSXType<DragHandle>;
     }
   }

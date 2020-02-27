@@ -17,6 +17,10 @@ export class ControlContainer extends CustomHtmlElement {
     return this._uniqueId;
   }
 
+  public get control(): HTMLElement {
+    return this.firstElementChild as HTMLElement;
+  }
+
   public set uniqueId(value: UniqueId) {
     this._uniqueId = value;
     this.setAttribute('unique-id', value);

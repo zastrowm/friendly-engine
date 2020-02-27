@@ -1,4 +1,4 @@
-import { DesignSurfaceElement } from './design-surface';
+import { DesignSurfaceElement, selectedControlChanges } from './design-surface';
 
 import { IUndoCommand, IContext, undoCommandCreated, UndoRedoQueue } from '../../framework/undoCommand';
 import { appRoutedCommands, RoutedCommand } from '../../framework/appRoutedCommands';
@@ -6,11 +6,20 @@ import { registerShortcuts } from '../../app/keyboardShortcuts';
 import { controlDescriptors, IControlDescriptor } from '../../framework/controlsRegistry';
 import { CustomHtmlElement } from '../../../lib/friendlee/CustomHtmlElement';
 import { h } from 'preact';
+import { ControlContainer } from './control-container';
 
+import './design-app.css';
+import { PropertyPanelElement } from './property-panel';
+
+/**
+ * A control that hosts the DesignSurface and provides related controls to manipulating
+ * the design surface.
+ */
 export class DesignApp extends CustomHtmlElement {
-  private editor: DesignSurfaceElement;
-
   private readonly undoRedoQueue = new UndoRedoQueue();
+
+  private propertyPanel: PropertyPanelElement;
+  private editor: DesignSurfaceElement;
 
   constructor() {
     super();
@@ -21,6 +30,8 @@ export class DesignApp extends CustomHtmlElement {
     listener.set(appRoutedCommands.undo, () => this.doUndo());
     listener.set(appRoutedCommands.redo, () => this.doRedo());
     listener.set(appRoutedCommands.delete, () => this.deleteCurrent());
+
+    selectedControlChanges.addListener(this, c => this.onSelectedControlChanged(c));
 
     controlDescriptors.addChangeListener(() => this.onControlsChange());
   }
@@ -71,18 +82,25 @@ export class DesignApp extends CustomHtmlElement {
     this.reRender();
 
     let buttonDescriptor = controlDescriptors.getDescriptor('button');
-    this.editor.addControl(buttonDescriptor, {
+    let container = this.editor.addControl(buttonDescriptor, {
       left: 20,
       top: 70,
       width: 100,
       height: 100,
     });
-    this.editor.addControl(buttonDescriptor, {
+    container.control.textContent = 'First Button';
+    container = this.editor.addControl(buttonDescriptor, {
       right: 20,
       top: 100,
       width: 100,
       height: 100,
     });
+    container.control.textContent = 'Second Button';
+  }
+
+  private onSelectedControlChanged(container: ControlContainer): void {
+    console.log(`Focus changed to Transferring focus to: ${container.uniqueId}`);
+    this.propertyPanel.container = container;
   }
 
   /* Builds the render tree for this element */
@@ -104,57 +122,11 @@ export class DesignApp extends CustomHtmlElement {
             <design-surface ref={it => (this.editor = it)} />
           </div>
         </main>
+        <aside>
+          <property-panel ref={it => (this.propertyPanel = it)}></property-panel>
+        </aside>
       </div>,
     );
-  }
-
-  /* Gets the styling for this component */
-  protected getInlineStyle() {
-    return /*css*/ `
-      h1 {
-        font-size: 1.4rem;
-        font-weight: 500;
-        color: #fff;
-        padding: 0 12px;
-      }
-
-      design-app div {
-        display: grid;
-
-        grid-template-rows: auto 1fr;
-        grid-template-columns: auto;
-
-        grid-template-areas:
-          'header'
-          'main';
-
-        position: absolute;
-        top: 0px;
-        bottom: 0px;
-        right: 0px;
-        left: 0px;
-      }
-
-      design-app div header {
-        background: #ff6a2b;
-        color: white;
-        height: 56px;
-        display: flex;
-        align-items: center;
-        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
-
-        grid-area: header;
-      }
-      design-app div main {
-        grid-area: main;
-        position: relative;
-        overflow: scroll;
-      }
-
-      design-app div main > div {
-        height: 100%;
-      }
-    `;
   }
 }
 
