@@ -1,7 +1,10 @@
 import { Anchor } from '../../framework/layout';
-import { CustomHtmlElement } from '../../../lib/friendlee/CustomHtmlElement';
+import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 
+@customElement(DragHandle.tagName)
 export class DragHandle extends CustomHtmlElement {
+  public static readonly tagName = 'drag-handle';
+
   constructor() {
     super();
 
@@ -114,5 +117,3 @@ export class DragHandle extends CustomHtmlElement {
     `;
   }
 }
-
-window.customElements.define('drag-handle', DragHandle);

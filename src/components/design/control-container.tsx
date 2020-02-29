@@ -1,12 +1,15 @@
 import { determineEditStyle } from '../../framework/positioner';
 import { IStoredPositionInfo } from '../../framework/layout';
 import { DesignSurfaceElement } from './design-surface';
-import { CustomHtmlElement } from '../../../lib/friendlee/CustomHtmlElement';
+import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 import { IControlDescriptor, IControlSerializedData } from '../../framework/controlsRegistry';
 
 type UniqueId = string;
 
+@customElement(ControlContainer.tagName)
 export class ControlContainer extends CustomHtmlElement {
+  public static readonly tagName = 'control-container';
+
   constructor() {
     super();
   }
@@ -96,5 +99,3 @@ export class ControlContainer extends CustomHtmlElement {
     this.designCanvas.selectAndMarkActive(this, mouseEvent);
   }
 }
-
-window.customElements.define('control-container', ControlContainer);

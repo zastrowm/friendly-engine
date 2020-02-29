@@ -1,16 +1,16 @@
-import { CustomHtmlElement, h } from '../../../lib/friendlee/CustomHtmlElement';
+import { CustomHtmlElement, h, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 import { ControlContainer } from './control-container';
 
 /**
  * Allows editing of the properties for a specific container.
  */
+@customElement(PropertyPanelElement.tagName)
 export class PropertyPanelElement extends CustomHtmlElement {
+  public static readonly tagName = 'property-panel';
+
   constructor() {
-    console.log('upgraded');
     super();
   }
-
-  public static readonly tagName = 'property-panel';
 
   public get container() {
     return this._container;
@@ -59,5 +59,3 @@ export class PropertyPanelElement extends CustomHtmlElement {
     );
   }
 }
-
-window.customElements.define(PropertyPanelElement.tagName, PropertyPanelElement);

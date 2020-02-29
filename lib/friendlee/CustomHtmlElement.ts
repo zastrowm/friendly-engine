@@ -2,6 +2,27 @@ import { render, ComponentChild, h } from 'preact';
 
 export { h };
 
+let knownCustomElements = new Map<string, Function>();
+
+/**
+ * Decorator to automatically register a custom element with the custom elements
+ * @param tagName the html tag name to register the element with
+ */
+export function customElement(tagName: string) {
+  return function<T extends { new (...args: any[]): any }>(constructor: T) {
+    knownCustomElements.set(tagName, constructor);
+    window.customElements.define(tagName, constructor);
+    return constructor;
+  };
+}
+
+/**
+ * Retrieves all of the names for known elements
+ */
+export function getCustomElementNames() {
+  return knownCustomElements.keys();
+}
+
 /**
  * Base class for a custom HTML element
  */

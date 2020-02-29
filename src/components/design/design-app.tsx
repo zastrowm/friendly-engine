@@ -4,7 +4,7 @@ import { IUndoCommand, IContext, undoCommandCreated, UndoRedoQueue } from '../..
 import { appRoutedCommands, RoutedCommand } from '../../framework/appRoutedCommands';
 import { registerShortcuts } from '../../app/keyboardShortcuts';
 import { controlDescriptors, IControlDescriptor } from '../../framework/controlsRegistry';
-import { CustomHtmlElement } from '../../../lib/friendlee/CustomHtmlElement';
+import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 import { h } from 'preact';
 import { ControlContainer } from './control-container';
 
@@ -15,7 +15,10 @@ import { PropertyPanelElement } from './property-panel';
  * A control that hosts the DesignSurface and provides related controls to manipulating
  * the design surface.
  */
+@customElement(DesignApp.tagName)
 export class DesignApp extends CustomHtmlElement {
+  public static readonly tagName = 'design-app';
+
   private readonly undoRedoQueue = new UndoRedoQueue();
 
   private propertyPanel: PropertyPanelElement;
@@ -129,5 +132,3 @@ export class DesignApp extends CustomHtmlElement {
     );
   }
 }
-
-window.customElements.define('design-app', DesignApp);

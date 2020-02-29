@@ -4,12 +4,14 @@ import { DragHandle } from './components/design/drag-handle';
 import { ControlContainer } from './components/design/control-container';
 import { ControlEditor } from './components/design/control-editor';
 import { PropertyPanelElement } from './components/design/property-panel';
+import { getCustomElementNames } from '../lib/friendlee/CustomHtmlElement';
 
 (async () => {
   console.log(DesignApp, DesignSurfaceElement, DragHandle, ControlContainer, ControlEditor);
+  let customElementNames = Array.from(getCustomElementNames());
 
-  await customElements.whenDefined(DesignSurfaceElement.tagName);
+  await Promise.all(customElementNames.map(name => customElements.whenDefined(name)));
   await customElements.whenDefined(PropertyPanelElement.tagName);
-  console.warn('Starting App');
+
   document.body.append(document.createElement('design-app'));
 })();

@@ -4,7 +4,7 @@ import { ControlContainer } from './control-container';
 import { ControlEditor } from './control-editor';
 import { IControlDescriptor, IControlSerializedData } from '../../framework/controlsRegistry';
 import { generateGuid } from '../../framework/util';
-import { CustomHtmlElement } from '../../../lib/friendlee/CustomHtmlElement';
+import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 
 import './design-surface.css';
 import { RoutedEventDescriptor } from '../../framework/routedEvents';
@@ -17,7 +17,10 @@ export let selectedControlChanges = new RoutedEventDescriptor<ControlContainer>(
 /**
  * A control that represents the canvas that can have controls added/deleted/moved.
  */
+@customElement(DesignSurfaceElement.tagName)
 export class DesignSurfaceElement extends CustomHtmlElement {
+  public static readonly tagName = 'design-surface';
+
   private activeEditor: ControlEditor;
 
   constructor() {
@@ -25,8 +28,6 @@ export class DesignSurfaceElement extends CustomHtmlElement {
 
     this.activeEditor = document.createElement('control-editor');
   }
-
-  public static readonly tagName = 'design-surface';
 
   /** Determines the grid-snap for the controls */
   public gridSnap = 8;
@@ -163,5 +164,3 @@ class UndoRemoveCommand implements IUndoCommand {
     context.editor.removeControlNoUndo(this.data.id);
   }
 }
-
-window.customElements.define(DesignSurfaceElement.tagName, DesignSurfaceElement);

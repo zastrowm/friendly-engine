@@ -5,11 +5,14 @@ import { IUndoCommand, IContext, undoCommandCreated } from '../../framework/undo
 import { ControlContainer } from './control-container';
 import { DragHandle } from './drag-handle';
 import { DesignSurfaceElement } from './design-surface';
-import { CustomHtmlElement } from '../../../lib/friendlee/CustomHtmlElement';
+import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 
 import './control-editor.css';
 
+@customElement(ControlEditor.tagName)
 export class ControlEditor extends CustomHtmlElement {
+  public static readonly tagName = 'control-editor';
+
   private mouseUpListener: (MouseEvent: MouseEvent) => void;
   private mouseMoveListener: (MouseEvent: MouseEvent) => void;
 
@@ -213,5 +216,3 @@ class MoveCommand implements IUndoCommand {
     context.editor.selectAndMarkActive(controlContainer);
   }
 }
-
-window.customElements.define('control-editor', ControlEditor);
