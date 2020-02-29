@@ -10,12 +10,12 @@ import { PropertyPanelElement } from './components/design/property-panel';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'control-container': ControlContainer;
-    'control-editor': ControlEditor;
-    'design-app': DesignApp;
+    [ControlContainer.tagName]: ControlContainer;
+    [ControlEditor.tagName]: ControlEditor;
+    [DesignApp.tagName]: DesignApp;
     [DesignSurfaceElement.tagName]: DesignSurfaceElement;
     [PropertyPanelElement.tagName]: PropertyPanelElement;
-    'drag-handle': DragHandle;
+    [DragHandle.tagName]: DragHandle;
   }
 }
 
@@ -34,12 +34,16 @@ declare module 'preact' {
     type JSXType<T> = Partial<preact.ClassAttributes<T> | T>;
 
     interface IntrinsicElements extends PJSX.JSXInternal.IntrinsicElements {
-      'control-container': JSXType<ControlContainer>;
-      'control-editor': JSXType<ControlEditor>;
-      'design-app': JSXType<DesignApp>;
+      [ControlContainer.tagName]: JSXType<ControlContainer>;
+      [ControlEditor.tagName]: JSXType<ControlEditor>;
+      [DesignApp.tagName]: JSXType<DesignApp>;
       [DesignSurfaceElement.tagName]: JSXType<DesignSurfaceElement>;
       [PropertyPanelElement.tagName]: JSXType<PropertyPanelElement>;
-      'drag-handle': JSXType<DragHandle>;
+      [DragHandle.tagName]: JSXType<DragHandle>;
     }
   }
+}
+
+declare interface NodeModule {
+  hot: any;
 }

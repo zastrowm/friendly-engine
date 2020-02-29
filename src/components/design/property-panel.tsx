@@ -29,8 +29,6 @@ export class PropertyPanelElement extends CustomHtmlElement {
   }
 
   private rerender(): void {
-    console.log('here');
-
     if (!this.isConnected) {
       return;
     }
