@@ -6,6 +6,20 @@ import { ControlEditor } from './components/design/control-editor';
 import { PropertyPanelElement } from './components/design/property-panel';
 import { getCustomElementNames } from '../lib/friendlee/CustomHtmlElement';
 
+// @ts-ignore
+function keys<T>(): string[] {
+  return [];
+}
+
+interface Props {
+  id: string;
+  name: string;
+  age: number;
+}
+const keysOfProps = keys<Props>();
+
+console.log(keysOfProps); // ['id', 'name', 'age']
+
 (async () => {
   console.log(DesignApp, DesignSurfaceElement, DragHandle, ControlContainer, ControlEditor);
   let customElementNames = Array.from(getCustomElementNames());

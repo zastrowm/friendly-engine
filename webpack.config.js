@@ -35,7 +35,11 @@ module.exports = {
       // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
       {
         test: /\.tsx?$/,
-        loader: "ts-loader"
+        loader: "ts-loader",
+        options: {
+          // make sure not to set `transpileOnly: true` here, otherwise it will not work
+          getCustomTransformers: path.resolve(__dirname, "transformer.js")
+        }
       }
     ]
   }
