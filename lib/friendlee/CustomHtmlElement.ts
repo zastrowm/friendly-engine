@@ -8,10 +8,21 @@ let knownCustomElements = new Map<string, Function>();
  * Decorator to automatically register a custom element with the custom elements
  * @param tagName the html tag name to register the element with
  */
-export function customElement(tagName: string) {
+export function customElement(tagName: string, module?: any) {
   return function<T extends { new (...args: any[]): any }>(constructor: T) {
-    knownCustomElements.set(tagName, constructor);
-    window.customElements.define(tagName, constructor);
+    try {
+      knownCustomElements.set(tagName, constructor);
+      window.customElements.define(tagName, constructor);
+    } catch (err) {
+      console.error(err);
+    }
+
+    if (module != null && module.hot) {
+      module.hot.accept(function() {
+        console.log('Here I am');
+      });
+    }
+
     return constructor;
   };
 }

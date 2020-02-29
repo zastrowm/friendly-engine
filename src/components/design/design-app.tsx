@@ -15,7 +15,7 @@ import { PropertyPanelElement } from './property-panel';
  * A control that hosts the DesignSurface and provides related controls to manipulating
  * the design surface.
  */
-@customElement(DesignApp.tagName)
+@customElement(DesignApp.tagName, module)
 export class DesignApp extends CustomHtmlElement {
   public static readonly tagName = 'design-app';
 
@@ -26,6 +26,8 @@ export class DesignApp extends CustomHtmlElement {
 
   constructor() {
     super();
+
+    console.log('wootters');
 
     undoCommandCreated.addListener(this, command => this.onUndoEventGenerated(command));
 
@@ -131,4 +133,12 @@ export class DesignApp extends CustomHtmlElement {
       </div>,
     );
   }
+}
+
+declare var module: any;
+
+if (module.hot) {
+  module.hot.accept(function() {
+    console.log('here I am!!');
+  });
 }

@@ -20,8 +20,18 @@ const keysOfProps = keys<Props>();
 
 console.log(keysOfProps); // ['id', 'name', 'age']
 
+let global: { tagCount: number } = window as any;
+
 (async () => {
-  console.log(DesignApp, DesignSurfaceElement, DragHandle, ControlContainer, ControlEditor);
+  let arr = [DesignApp, DesignSurfaceElement, DragHandle, ControlContainer, ControlEditor];
+  console.log(arr.length);
+
+  if (global.tagCount == arr.length) {
+    return;
+  }
+
+  global.tagCount = arr.length;
+
   let customElementNames = Array.from(getCustomElementNames());
 
   await Promise.all(customElementNames.map(name => customElements.whenDefined(name)));
@@ -29,3 +39,11 @@ console.log(keysOfProps); // ['id', 'name', 'age']
 
   document.body.append(document.createElement('design-app'));
 })();
+
+declare var module: any;
+
+if (module.hot) {
+  module.hot.accept(function() {
+    console.log('index');
+  });
+}

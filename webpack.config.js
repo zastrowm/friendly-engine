@@ -10,7 +10,8 @@ module.exports = {
     port: 4297,
     overlay: {
       warnings: true,
-      errors: true
+      errors: true,
+      hot: true
     }
   },
 
