@@ -57,6 +57,12 @@ export abstract class CustomHtmlElement extends HTMLElement {
     this.appendInlineStyle();
   }
 
+  public forceRenderJsx(tree: ComponentChild) {
+    // clear the previous JSX
+    this.innerHTML = '';
+    this.renderJsx(tree);
+  }
+
   /** Appends the inline style defined by this.getInlineStyle() to the current element */
   protected appendInlineStyle() {
     let style = this.getInlineStyle();

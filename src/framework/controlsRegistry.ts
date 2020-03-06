@@ -1,4 +1,5 @@
 import { IStoredPositionInfo } from './layout';
+import { ControlContainer } from '../components/design/control-container';
 
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
@@ -38,45 +39,71 @@ enum PropertyType {
   number,
 }
 
-interface IPropertyDescriptor {
+interface IPropertyEditor {
+  elementToMount: HTMLElement;
+}
+
+export interface IPropertyDescriptor {
   name: string;
   type: PropertyType;
+
+  getEditor(instance: ControlContainer): IPropertyEditor;
 }
 
 abstract class GettableSettableProperty<T> implements IPropertyDescriptor {
   constructor(public name: string, public type: PropertyType) {}
 
-  abstract setValue(instance: HTMLElement, value: T);
-  abstract getValue(instance: HTMLElement): T;
+  abstract setValue(instance: ControlContainer, value: T);
+  abstract getValue(instance: ControlContainer): T;
+
+  abstract getEditor(instance: ControlContainer): IPropertyEditor;
 }
 
 class TextContentProperty extends GettableSettableProperty<string> {
-  setValue(instance: HTMLElement, value: string) {
-    instance.textContent = value;
-  }
-  getValue(instance: HTMLElement): string {
-    return instance.textContent;
-  }
   constructor() {
-    super('text', PropertyType.string);
+    super('text.text', PropertyType.string);
+  }
+
+  public setValue(instance: ControlContainer, value: string) {
+    instance.control.textContent = value;
+  }
+  public getValue(instance: ControlContainer): string {
+    return instance.control.textContent;
+  }
+
+  public getEditor(instance: ControlContainer) {
+    let input = document.createElement('input');
+    input.value = this.getValue(instance);
+
+    input.addEventListener('input', () => {
+      this.setValue(instance, input.value);
+    });
+
+    return { elementToMount: input };
   }
 }
 
 class TextAlignmentProperty extends GettableSettableProperty<string> {
   constructor() {
-    super('text', PropertyType.string);
+    super('text.alignment', PropertyType.string);
   }
 
-  setValue(instance: HTMLElement, value: string) {
-    instance.style.textAlign = value;
+  public setValue(instance: ControlContainer, value: string) {
+    instance.control.style.textAlign = value;
   }
-  getValue(instance: HTMLElement): string {
-    let alignment = instance.style.textAlign;
-    if (alignment == null || alignment.length == 0) {
-      alignment = getComputedStyle(instance)['textAlign'];
-    }
+  public getValue(instance: ControlContainer): string {
+    return getComputedStyle(instance.control).textAlign;
+  }
 
-    return alignment;
+  public getEditor(instance: ControlContainer) {
+    let input = document.createElement('input');
+    input.value = this.getValue(instance);
+
+    input.addEventListener('input', () => {
+      this.setValue(instance, input.value);
+    });
+
+    return { elementToMount: input };
   }
 }
 
@@ -93,7 +120,7 @@ class ButtonDescriptor implements IControlDescriptor {
     return ButtonDescriptor.properties;
   }
 
-  setValue(element: HTMLElement, property: IPropertyDescriptor, value: any) {
+  setValue(element: ControlContainer, property: IPropertyDescriptor, value: any) {
     if (property instanceof GettableSettableProperty) {
       return property.setValue(element, value);
     }
@@ -101,7 +128,7 @@ class ButtonDescriptor implements IControlDescriptor {
     throw new Error('Property set not supported: ' + property.name);
   }
 
-  getValue(element: HTMLElement, property: IPropertyDescriptor) {
+  getValue(element: ControlContainer, property: IPropertyDescriptor) {
     if (property instanceof GettableSettableProperty) {
       return property.getValue(element);
     }
@@ -123,7 +150,7 @@ class LabelDescriptor implements IControlDescriptor {
     return LabelDescriptor.properties;
   }
 
-  setValue(element: HTMLElement, property: IPropertyDescriptor, value: any) {
+  setValue(element: ControlContainer, property: IPropertyDescriptor, value: any) {
     if (property instanceof GettableSettableProperty) {
       return property.setValue(element, value);
     }
@@ -131,7 +158,7 @@ class LabelDescriptor implements IControlDescriptor {
     throw new Error('Property set not supported: ' + property.name);
   }
 
-  getValue(element: HTMLElement, property: IPropertyDescriptor) {
+  getValue(element: ControlContainer, property: IPropertyDescriptor) {
     if (property instanceof GettableSettableProperty) {
       return property.getValue(element);
     }
