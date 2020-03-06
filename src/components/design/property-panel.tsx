@@ -43,54 +43,32 @@ export class PropertyPanelElement extends CustomHtmlElement {
 
     let descriptor = this._container.descriptor;
 
-    this.forceRenderJsx(<span></span>);
     this.forceRenderJsx(
       <table>
         <tr>
           <th>Name</th>
           <th>Value</th>
         </tr>
-        {descriptor.getProperties().map(p => (
-          <property-panel-single-element propertyDescriptor={p} container={this._container} />
-        ))}
+        {descriptor.getProperties().map(p => this.getControlJsx(p))}
       </table>,
     );
   }
-}
 
-@customElement(SinglePropertyElement.tagName)
-export class SinglePropertyElement extends CustomHtmlElement {
-  public static readonly tagName = 'property-panel-single-element';
+  private getControlJsx(property: IPropertyDescriptor) {
+    return (
+      <tr>
+        <td>{property.name}</td>
+        <td
+          ref={element => {
+            if (element == null) {
+              return;
+            }
 
-  public dataNow;
-
-  constructor() {
-    super();
-
-    this.propertyDescriptor = null;
-    this.container = null;
-  }
-
-  public propertyDescriptor: IPropertyDescriptor;
-  public container: ControlContainer;
-
-  /* override */
-  public onConnected() {
-    if (!this.isConnected) {
-      return;
-    }
-
-    let tr = document.createElement('tr');
-
-    let td1 = document.createElement('td');
-    td1.textContent = this.propertyDescriptor.name;
-    tr.appendChild(td1);
-
-    let td2 = document.createElement('td');
-    let editor = this.propertyDescriptor.getEditor(this.container);
-    td2.appendChild(editor.elementToMount);
-    tr.appendChild(td2);
-
-    this.appendChild(tr);
+            let editor = property.getEditor(this._container);
+            element.appendChild(editor.elementToMount);
+          }}
+        ></td>
+      </tr>
+    );
   }
 }

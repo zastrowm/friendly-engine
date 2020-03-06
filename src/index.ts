@@ -3,11 +3,11 @@ import { DesignSurfaceElement } from './components/design/design-surface';
 import { DragHandle } from './components/design/drag-handle';
 import { ControlContainer } from './components/design/control-container';
 import { ControlEditor } from './components/design/control-editor';
-import { PropertyPanelElement, SinglePropertyElement } from './components/design/property-panel';
+import { PropertyPanelElement } from './components/design/property-panel';
 import { getCustomElementNames } from '../lib/friendlee/CustomHtmlElement';
 
 (async () => {
-  let elements = [DesignApp, DesignSurfaceElement, DragHandle, ControlContainer, ControlEditor, SinglePropertyElement];
+  let elements = [DesignApp, DesignSurfaceElement, DragHandle, ControlContainer, ControlEditor];
   console.log('Registered Custom Elements Count', elements.length);
   let customElementNames = Array.from(getCustomElementNames());
 

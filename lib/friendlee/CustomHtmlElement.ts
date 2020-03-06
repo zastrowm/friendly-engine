@@ -58,6 +58,7 @@ export abstract class CustomHtmlElement extends HTMLElement {
   }
 
   public forceRenderJsx(tree: ComponentChild) {
+    this.renderJsx(null);
     // clear the previous JSX
     this.innerHTML = '';
     this.renderJsx(tree);
