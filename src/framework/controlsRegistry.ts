@@ -34,7 +34,7 @@ export interface IControlSerializedData {
   typeId: string;
 }
 
-enum PropertyType {
+export enum PropertyType {
   string,
   number,
 }
@@ -50,121 +50,13 @@ export interface IPropertyDescriptor {
   getEditor(instance: ControlContainer): IPropertyEditor;
 }
 
-abstract class GettableSettableProperty<T> implements IPropertyDescriptor {
+export abstract class GettableSettableProperty<T> implements IPropertyDescriptor {
   constructor(public name: string, public type: PropertyType) {}
 
   abstract setValue(instance: ControlContainer, value: T);
   abstract getValue(instance: ControlContainer): T;
 
   abstract getEditor(instance: ControlContainer): IPropertyEditor;
-}
-
-class TextContentProperty extends GettableSettableProperty<string> {
-  constructor() {
-    super('text.text', PropertyType.string);
-  }
-
-  public setValue(instance: ControlContainer, value: string) {
-    instance.control.textContent = value;
-  }
-  public getValue(instance: ControlContainer): string {
-    return instance.control.textContent;
-  }
-
-  public getEditor(instance: ControlContainer) {
-    let input = document.createElement('input');
-    input.value = this.getValue(instance);
-
-    input.addEventListener('input', () => {
-      this.setValue(instance, input.value);
-    });
-
-    return { elementToMount: input };
-  }
-}
-
-class TextAlignmentProperty extends GettableSettableProperty<string> {
-  constructor() {
-    super('text.alignment', PropertyType.string);
-  }
-
-  public setValue(instance: ControlContainer, value: string) {
-    instance.control.style.textAlign = value;
-  }
-  public getValue(instance: ControlContainer): string {
-    return getComputedStyle(instance.control).textAlign;
-  }
-
-  public getEditor(instance: ControlContainer) {
-    let input = document.createElement('input');
-    input.value = this.getValue(instance);
-
-    input.addEventListener('input', () => {
-      this.setValue(instance, input.value);
-    });
-
-    return { elementToMount: input };
-  }
-}
-
-class ButtonDescriptor implements IControlDescriptor {
-  public id = 'button';
-
-  private static properties = [new TextContentProperty(), new TextAlignmentProperty()];
-
-  public createInstance(): HTMLElement {
-    return document.createElement('button');
-  }
-
-  public getProperties() {
-    return ButtonDescriptor.properties;
-  }
-
-  setValue(element: ControlContainer, property: IPropertyDescriptor, value: any) {
-    if (property instanceof GettableSettableProperty) {
-      return property.setValue(element, value);
-    }
-
-    throw new Error('Property set not supported: ' + property.name);
-  }
-
-  getValue(element: ControlContainer, property: IPropertyDescriptor) {
-    if (property instanceof GettableSettableProperty) {
-      return property.getValue(element);
-    }
-
-    throw new Error('Property get not supported: ' + property.name);
-  }
-}
-
-class LabelDescriptor implements IControlDescriptor {
-  public id = 'label';
-
-  private static properties = [new TextContentProperty()];
-
-  public createInstance(): HTMLElement {
-    return document.createElement('div');
-  }
-
-  public getProperties() {
-    return LabelDescriptor.properties;
-  }
-
-  setValue(element: ControlContainer, property: IPropertyDescriptor, value: any) {
-    if (property instanceof GettableSettableProperty) {
-      return property.setValue(element, value);
-    }
-
-    throw new Error('Property set not supported: ' + property.name);
-  }
-
-  getValue(element: ControlContainer, property: IPropertyDescriptor) {
-    if (property instanceof GettableSettableProperty) {
-      return property.getValue(element);
-    }
-
-    throw new Error('Property get not supported: ' + property.name);
-  }
 }
 
 class ControlDescriptors {
@@ -200,5 +92,3 @@ class ControlDescriptors {
 }
 
 export let controlDescriptors = new ControlDescriptors();
-controlDescriptors.add(new ButtonDescriptor());
-controlDescriptors.add(new LabelDescriptor());

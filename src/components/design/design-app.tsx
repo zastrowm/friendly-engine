@@ -3,13 +3,13 @@ import { DesignSurfaceElement, selectedControlChanges } from './design-surface';
 import { IUndoCommand, IContext, undoCommandCreated, UndoRedoQueue } from '../../framework/undoCommand';
 import { appRoutedCommands, RoutedCommand } from '../../framework/appRoutedCommands';
 import { registerShortcuts } from '../../app/keyboardShortcuts';
-import { controlDescriptors, IControlDescriptor } from '../../framework/controlsRegistry';
 import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 import { h } from 'preact';
 import { ControlContainer } from './control-container';
 
 import './design-app.css';
 import { PropertyPanelElement } from './property-panel';
+import { installCommonDescriptors, controlDescriptors, IControlDescriptor } from '../../controls/commonDescriptors';
 
 /**
  * A control that hosts the DesignSurface and provides related controls to manipulating
@@ -35,6 +35,8 @@ export class DesignApp extends CustomHtmlElement {
     listener.set(appRoutedCommands.delete, () => this.deleteCurrent());
 
     selectedControlChanges.addListener(this, c => this.onSelectedControlChanged(c));
+
+    installCommonDescriptors();
 
     controlDescriptors.addChangeListener(() => this.onControlsChange());
   }
