@@ -42,9 +42,13 @@ export class ControlEditor extends CustomHtmlElement {
     return this.parentElement;
   }
 
+  /** override */
   public onFirstConnected() {
     this.designEditor = this.closest(DesignSurfaceElement.tagName);
+  }
 
+  /** override */
+  public onRender() {
     this.renderJsx([
       <drag-handle anchorMode={Anchor.west} />,
       <drag-handle anchorMode={Anchor.north} />,

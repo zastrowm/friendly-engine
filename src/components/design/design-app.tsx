@@ -63,7 +63,7 @@ export class DesignApp extends CustomHtmlElement {
   }
 
   private onControlsChange(): void {
-    this.reRender();
+    this.invalidate();
   }
 
   doUndo() {
@@ -75,14 +75,12 @@ export class DesignApp extends CustomHtmlElement {
   }
 
   public onFirstConnected() {
-    {
-      this.tabIndex = 0;
-      this.focus();
+    this.tabIndex = 0;
+    this.focus();
 
-      registerShortcuts();
-    }
+    registerShortcuts();
 
-    this.reRender();
+    this.invalidate();
 
     let buttonDescriptor = controlDescriptors.getDescriptor('button');
     let container = this.editor.addControl(buttonDescriptor, {
@@ -106,8 +104,8 @@ export class DesignApp extends CustomHtmlElement {
     this.propertyPanel.container = container;
   }
 
-  /* Builds the render tree for this element */
-  private reRender() {
+  /* override */
+  public onRender() {
     this.renderJsx(
       <div>
         <header>

@@ -29,19 +29,61 @@ export function getCustomElementNames() {
 export abstract class CustomHtmlElement extends HTMLElement {
   private __hasBeenConnectedOnce: boolean;
 
+  /**
+   * Invoked when the element is added to the DOM.
+   */
   public onConnected() {}
 
+  /**
+   * Invoked when the element is added to the DOM for the first time.
+   */
   public onFirstConnected() {}
 
+  /**
+   * Invoked when the element is removed from the DOM.
+   */
   public onDisconnected() {}
 
+  /**
+   * Invoked by the DOM/HTMLElement when the element is added to the DOM.
+   */
   public connectedCallback() {
+    if (!this.isConnected) {
+      return;
+    }
+
     if (!this.__hasBeenConnectedOnce) {
       this.__hasBeenConnectedOnce = true;
       this?.onFirstConnected();
+      this.invalidate();
     }
 
     this.onConnected();
+  }
+
+  /**
+   * Invoked by the DOM/HTMLElement when the element is removed from the DOM.
+   */
+  public disconnectedCallback() {
+    if (this.isConnected) {
+      return;
+    }
+
+    this.onDisconnected();
+  }
+
+  /**
+   * When called, the custom element should render itself by appending any html as necessary.
+   */
+  public onRender() {}
+
+  /**
+   * Force the object to immediately re-render if all criteria are met.
+   **/
+  public invalidate() {
+    if (this.isConnected) {
+      this.onRender();
+    }
   }
 
   // :: Not directly related, but since it was PITA to realize ::
@@ -57,14 +99,9 @@ export abstract class CustomHtmlElement extends HTMLElement {
     this.appendInlineStyle();
   }
 
-  public forceRenderJsx(tree: ComponentChild) {
-    this.renderJsx(null);
-    // clear the previous JSX
-    this.innerHTML = '';
-    this.renderJsx(tree);
-  }
-
-  /** Appends the inline style defined by this.getInlineStyle() to the current element */
+  /**
+   * Appends the inline style defined by this.getInlineStyle() to the current element.
+   **/
   protected appendInlineStyle() {
     let style = this.getInlineStyle();
     if (style != null) {
@@ -74,6 +111,9 @@ export abstract class CustomHtmlElement extends HTMLElement {
     }
   }
 
+  /**
+   * Any inline-styling defined by the component should be added here.
+   */
   protected getInlineStyle() {
     return null;
   }

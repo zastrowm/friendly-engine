@@ -20,7 +20,7 @@ export class DragHandle extends CustomHtmlElement {
   }
 
   /** Override */
-  public onFirstConnected() {
+  public onRender() {
     this.appendInlineStyle();
   }
 

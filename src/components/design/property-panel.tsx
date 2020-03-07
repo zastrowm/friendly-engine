@@ -20,17 +20,13 @@ export class PropertyPanelElement extends CustomHtmlElement {
 
   public set container(value: ControlContainer) {
     this._container = value;
-    this.render();
+    this.onRender();
   }
 
   private _container: ControlContainer;
 
   /** Override */
-  public onFirstConnected() {
-    this.render();
-  }
-
-  private render(): void {
+  public onRender(): void {
     if (!this.isConnected) {
       return;
     }
