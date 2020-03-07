@@ -1,6 +1,7 @@
 import { CustomHtmlElement, h, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 import { ControlContainer } from './control-container';
 import { IPropertyDescriptor } from '../../framework/controlsRegistry';
+import { ref } from '../componentUtils';
 
 /**
  * Allows editing of the properties for a specific container.
@@ -19,22 +20,20 @@ export class PropertyPanelElement extends CustomHtmlElement {
 
   public set container(value: ControlContainer) {
     this._container = value;
-    this.rerender();
+    this.render();
   }
 
   private _container: ControlContainer;
 
   /** Override */
   public onFirstConnected() {
-    this.rerender();
+    this.render();
   }
 
-  private rerender(): void {
+  private render(): void {
     if (!this.isConnected) {
       return;
     }
-
-    console.log('re-rendered', this._container);
 
     if (this._container == null) {
       this.renderJsx(<span>No Active Element</span>);
@@ -43,32 +42,27 @@ export class PropertyPanelElement extends CustomHtmlElement {
 
     let descriptor = this._container.descriptor;
 
-    this.forceRenderJsx(
+    this.renderJsx(
       <table>
         <tr>
           <th>Name</th>
           <th>Value</th>
         </tr>
-        {descriptor.getProperties().map(p => this.getControlJsx(p))}
+        {descriptor.getProperties().map(p => (
+          <PropertyEntry container={this._container} property={p} />
+        ))}
       </table>,
     );
   }
+}
 
-  private getControlJsx(property: IPropertyDescriptor) {
-    return (
-      <tr>
-        <td>{property.name}</td>
-        <td
-          ref={element => {
-            if (element == null) {
-              return;
-            }
+function PropertyEntry(props: { property: IPropertyDescriptor; container: ControlContainer }) {
+  let editor = props.property.getEditor(props.container);
 
-            let editor = property.getEditor(this._container);
-            element.appendChild(editor.elementToMount);
-          }}
-        ></td>
-      </tr>
-    );
-  }
+  return (
+    <tr>
+      <td>{props.property.name}</td>
+      <td ref={ref.appendElement(editor.elementToMount)}></td>
+    </tr>
+  );
 }
