@@ -49,3 +49,7 @@ design-app>div aside {
   overflow: auto;
   width: 180px;
 }
+
+button[selected] {
+  background-color: #ccc;
+}

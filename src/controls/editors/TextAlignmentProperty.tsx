@@ -1,10 +1,10 @@
 import { GettableSettableProperty, PropertyType } from '../../framework/controlsRegistry';
 import { ControlContainer } from '../../components/design/control-container';
-import { renderToFragment, Fragment, h } from '../../../lib/friendlee/jsxElements';
+import { renderToFragment, Fragment, h, VNode } from '../../../lib/friendlee/jsxElements';
 
 export class TextAlignmentProperty extends GettableSettableProperty<string> {
   constructor() {
-    super('text.alignment', PropertyType.string);
+    super('text.alignment', 'Alignment', PropertyType.string);
   }
 
   public setValue(instance: ControlContainer, value: string) {
@@ -15,35 +15,57 @@ export class TextAlignmentProperty extends GettableSettableProperty<string> {
   }
 
   public getEditor(instance: ControlContainer) {
-    let handleClick = (evt: MouseEvent) => {
-      this.setValue(instance, (evt.target as HTMLElement).dataset.alignment);
-      input.value = this.getValue(instance);
+    let onValueChanged = (data: string) => {
+      this.setValue(instance, data);
     };
 
-    let input = document.createElement('input');
-    input.value = this.getValue(instance);
+    let currentValue = this.getValue(instance);
 
     let fragment = renderToFragment(
       <Fragment>
-        <button data-alignment="left" onClick={handleClick}>
-          L
-        </button>
-        <button data-alignment="center" onClick={handleClick}>
-          C
-        </button>
-        <button data-alignment="right" onClick={handleClick}>
-          R
-        </button>
+        <OptionsSelector onChanged={onValueChanged} current={currentValue}>
+          <Option data="left">L</Option>
+          <Option data="center">C</Option>
+          <Option data="right">R</Option>
+        </OptionsSelector>
       </Fragment>,
     );
 
-    input.addEventListener('input', () => {
-      this.setValue(instance, input.value);
-    });
-
-    fragment.appendChild(input);
-
-    let it = fragment as any;
-    return { elementToMount: it };
+    return { elementToMount: fragment as any };
   }
+}
+
+function Option<T>(props: { data: T }) {
+  console.log(props);
+}
+
+function OptionsSelector(props: { onChanged: (data: string) => void; children?: VNode[]; current: string }) {
+  let handleClick = (evt: MouseEvent) => {
+    let button = evt.target as HTMLButtonElement;
+    let previous = button.parentElement.querySelector('button[selected]');
+    if (previous == button) {
+      return;
+    }
+
+    if (previous != null) {
+      previous.removeAttribute('selected');
+    }
+    button.setAttribute('selected', 'true');
+    let data = button.dataset.data;
+    props.onChanged(data);
+  };
+
+  return (
+    <span>
+      {props.children.map(it => (
+        <button
+          onClick={handleClick}
+          data-data={(it.props as any).data}
+          selected={(it.props as any).data == props.current ? true : undefined}
+        >
+          {it.props.children}
+        </button>
+      ))}
+    </span>
+  );
 }

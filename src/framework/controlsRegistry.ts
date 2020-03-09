@@ -45,13 +45,14 @@ interface IPropertyEditor {
 
 export interface IPropertyDescriptor {
   name: string;
+  displayName: string;
   type: PropertyType;
 
   getEditor(instance: ControlContainer): IPropertyEditor;
 }
 
 export abstract class GettableSettableProperty<T> implements IPropertyDescriptor {
-  constructor(public name: string, public type: PropertyType) {}
+  constructor(public name: string, public displayName, public type: PropertyType) {}
 
   abstract setValue(instance: ControlContainer, value: T);
   abstract getValue(instance: ControlContainer): T;

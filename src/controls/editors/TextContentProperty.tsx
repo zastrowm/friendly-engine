@@ -3,7 +3,7 @@ import { ControlContainer } from '../../components/design/control-container';
 
 export class TextContentProperty extends GettableSettableProperty<string> {
   constructor() {
-    super('text.text', PropertyType.string);
+    super('text.text', 'Text', PropertyType.string);
   }
 
   public setValue(instance: ControlContainer, value: string) {

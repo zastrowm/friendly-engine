@@ -53,7 +53,7 @@ function PropertyEntry(props: { property: IPropertyDescriptor; container: Contro
 
   return (
     <div>
-      <div>{props.property.name}</div>
+      <div>{props.property.displayName}</div>
       <div ref={ref.appendElement(editor.elementToMount)}></div>
     </div>
   );
