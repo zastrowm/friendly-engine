@@ -39,15 +39,11 @@ export class PropertyPanelElement extends CustomHtmlElement {
     let descriptor = this._container.descriptor;
 
     this.renderJsx(
-      <table>
-        <tr>
-          <th>Name</th>
-          <th>Value</th>
-        </tr>
+      <div>
         {descriptor.getProperties().map(p => (
           <PropertyEntry container={this._container} property={p} />
         ))}
-      </table>,
+      </div>,
     );
   }
 }
@@ -56,9 +52,9 @@ function PropertyEntry(props: { property: IPropertyDescriptor; container: Contro
   let editor = props.property.getEditor(props.container);
 
   return (
-    <tr>
-      <td>{props.property.name}</td>
-      <td ref={ref.appendElement(editor.elementToMount)}></td>
-    </tr>
+    <div>
+      <div>{props.property.name}</div>
+      <div ref={ref.appendElement(editor.elementToMount)}></div>
+    </div>
   );
 }

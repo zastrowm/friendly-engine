@@ -21,13 +21,13 @@ export const ref = {
    *   </div>
    */
   appendElement: function(replacement: HTMLElement) {
-    return function(element) {
+    return function(element: HTMLElement) {
       if (element == null) {
         return;
       }
 
       if (element.firstChild != null) {
-        element.firstChild.remove();
+        element.innerHTML = '';
       }
 
       element.appendChild(replacement);
