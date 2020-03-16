@@ -49,7 +49,7 @@ export class DesignApp extends CustomHtmlElement {
   public deleteCurrent() {
     let container = this.editor.getActiveControlContainer();
     if (container != null) {
-      this.editor.removeControl(container.uniqueId);
+      this.editor.removeControl(container.uniqueId as string);
     }
   }
 

@@ -3,8 +3,7 @@ import { IStoredPositionInfo } from '../../framework/layout';
 import { DesignSurfaceElement } from './design-surface';
 import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 import { IControlDescriptor, IControlSerializedData } from '../../framework/controlsRegistry';
-
-type UniqueId = string;
+import { UniqueId } from '../../framework/util';
 
 @customElement(ControlContainer.tagName)
 export class ControlContainer extends CustomHtmlElement {
@@ -26,7 +25,7 @@ export class ControlContainer extends CustomHtmlElement {
 
   public set uniqueId(value: UniqueId) {
     this._uniqueId = value;
-    this.setAttribute('unique-id', value);
+    this.setAttribute('unique-id', value as string);
   }
 
   private _uniqueId: UniqueId;

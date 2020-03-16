@@ -1,6 +1,8 @@
 import { GettableSettableProperty, PropertyType } from '../../framework/controlsRegistry';
 import { ControlContainer } from '../../components/design/control-container';
 import { renderToFragment, Fragment, h, VNode } from '../../../lib/friendlee/jsxElements';
+import { undoCommandCreated } from '../../framework/undoCommand';
+import { SetPropertyCommand } from './_shared';
 
 export class TextAlignmentProperty extends GettableSettableProperty<string> {
   constructor() {
@@ -15,8 +17,11 @@ export class TextAlignmentProperty extends GettableSettableProperty<string> {
   }
 
   public getEditor(instance: ControlContainer) {
-    let onValueChanged = (data: string) => {
+    let onValueChanged = (data: string, element: HTMLElement) => {
+      let originalValue = this.getValue(instance);
       this.setValue(instance, data);
+
+      undoCommandCreated.trigger(element, new SetPropertyCommand(instance.uniqueId, this, originalValue, data));
     };
 
     let currentValue = this.getValue(instance);
@@ -39,7 +44,11 @@ function Option<T>(props: { data: T }) {
   console.log(props);
 }
 
-function OptionsSelector(props: { onChanged: (data: string) => void; children?: VNode[]; current: string }) {
+function OptionsSelector(props: {
+  onChanged: (data: string, targetElement?: HTMLElement) => void;
+  children?: VNode[];
+  current: string;
+}) {
   let handleClick = (evt: MouseEvent) => {
     let button = evt.target as HTMLButtonElement;
     let previous = button.parentElement.querySelector('button[selected]');
@@ -52,7 +61,7 @@ function OptionsSelector(props: { onChanged: (data: string) => void; children?: 
     }
     button.setAttribute('selected', 'true');
     let data = button.dataset.data;
-    props.onChanged(data);
+    props.onChanged(data, evt.target as HTMLElement);
   };
 
   return (

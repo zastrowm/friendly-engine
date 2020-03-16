@@ -3,7 +3,7 @@ import { IUndoCommand, IContext, undoCommandCreated } from '../../framework/undo
 import { ControlContainer } from './control-container';
 import { ControlEditor } from './control-editor';
 import { IControlDescriptor, IControlSerializedData } from '../../framework/controlsRegistry';
-import { generateGuid } from '../../framework/util';
+import { generateGuid, UniqueId } from '../../framework/util';
 import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 
 import './design-surface.css';
@@ -38,7 +38,7 @@ export class DesignSurfaceElement extends CustomHtmlElement {
   }
 
   /** obvious */
-  public getControlContainer(id: string): ControlContainer {
+  public getControlContainer(id: UniqueId): ControlContainer {
     let query = `control-container[unique-id='${id}']`;
     let container: ControlContainer = this.querySelector(query);
     return container;
@@ -114,7 +114,7 @@ export class DesignSurfaceElement extends CustomHtmlElement {
     return controlContainer;
   }
 
-  public removeControl(id: string) {
+  public removeControl(id: UniqueId) {
     let container = this.getControlContainer(id);
     let data = container.serialize();
 
@@ -127,7 +127,7 @@ export class DesignSurfaceElement extends CustomHtmlElement {
    * Removes a control from the design surface without adding an undo event.
    * @param id the unique id of the control to remove
    */
-  public removeControlNoUndo(id: string) {
+  public removeControlNoUndo(id: UniqueId) {
     let container = this.getControlContainer(id);
     this.removeChild(container);
   }

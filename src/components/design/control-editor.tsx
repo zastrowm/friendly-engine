@@ -8,6 +8,7 @@ import { DesignSurfaceElement } from './design-surface';
 import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 
 import './control-editor.css';
+import { UniqueId } from '../../framework/util';
 
 @customElement(ControlEditor.tagName)
 export class ControlEditor extends CustomHtmlElement {
@@ -203,7 +204,7 @@ export class ControlEditor extends CustomHtmlElement {
 
 class MoveCommand implements IUndoCommand {
   constructor(
-    private id: string,
+    private id: UniqueId,
     private startingPosition: IStoredPositionInfo,
     private endingPosition: IStoredPositionInfo,
   ) {}

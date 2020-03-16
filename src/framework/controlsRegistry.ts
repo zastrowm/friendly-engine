@@ -1,5 +1,6 @@
 import { IStoredPositionInfo } from './layout';
 import { ControlContainer } from '../components/design/control-container';
+import { UniqueId } from './util';
 
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
@@ -20,15 +21,15 @@ export interface IControlDescriptor {
   /** Gets the editable properties for the given element. */
   getProperties(): IPropertyDescriptor[];
 
-  setValue(element: HTMLElement, property: IPropertyDescriptor, value: any);
+  setValue(element: ControlContainer, property: IPropertyDescriptor, value: any);
 
-  getValue(element: HTMLElement, property: IPropertyDescriptor): any;
+  getValue(element: ControlContainer, property: IPropertyDescriptor): any;
 }
 
 export interface IControlSerializedProperties {}
 
 export interface IControlSerializedData {
-  id: string;
+  id: UniqueId;
   position: IStoredPositionInfo;
   properties: { [name: string]: any };
   typeId: string;
