@@ -21,4 +21,18 @@ export let setPropertyUndoRedo = registerUndoHandler<SetPropertyUndoArgs>('setPr
     let descriptor = container.descriptor;
     descriptor.setValue(container, this.property, this.newValue);
   },
+
+  tryMerge(rhs: SetPropertyUndoArgs) {
+    let shouldMerge =
+      this.property == rhs.property &&
+      this.dateInfo.isLastModifiedWithinMs(1000) &&
+      this.dateInfo.isOriginalCreationWithinMs(3000);
+
+    if (!shouldMerge) {
+      return false;
+    }
+
+    this.newValue = rhs.newValue;
+    return true;
+  },
 }));

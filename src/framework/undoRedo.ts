@@ -5,6 +5,33 @@ interface IContextProvider {
   context: IContext;
 }
 
+interface IDateInfoProvider {
+  dateInfo: IDateInfo;
+}
+
+interface IDateInfo {
+  isLastModifiedWithinMs(amount: number): boolean;
+  isOriginalCreationWithinMs(amount: number): boolean;
+}
+
+class DateInfo implements IDateInfo {
+  constructor(private undoEntry: UndoEntry<any>) {
+    this.now = Date.now();
+  }
+
+  private now: number;
+
+  isLastModifiedWithinMs(amount: number): boolean {
+    let diff = this.now - this.undoEntry.dateModified;
+    return diff < amount;
+  }
+
+  isOriginalCreationWithinMs(amount: number): boolean {
+    let diff = this.now - this.undoEntry.dateAdded;
+    return diff < amount;
+  }
+}
+
 /**
  * An callback that generates undo/redo callbacks that performs undo/redo as part of an undo/redo queue.
  */
@@ -33,7 +60,7 @@ interface UndoableFunctionCallback<T> {
      * @param rhs the command to attempt to merge into this one
      * @returns true if the command was merged, false if it was not
      */
-    tryMerge?: (this: T & IContextProvider, rhs: T & IContextProvider) => boolean;
+    tryMerge?: (this: T & IContextProvider & IDateInfoProvider, rhs: T) => boolean;
   };
 }
 
@@ -55,11 +82,18 @@ export class UndoRedoQueue {
    * @param context the context to use if `.do` is present
    * @param command the command to add the queue
    */
-  public async addUndo(context: IContext, undoData: IUndoEntry) {
-    let actual = undoData as UndoEntry<any>;
-    actual.do(context);
+  public async addUndo(context: IContext, newEntry: IUndoEntry) {
+    let undoEntry = newEntry as UndoEntry<any>;
+    undoEntry.do(context);
 
-    this.undoQueue.push(actual);
+    if (this.undoQueue.length > 0) {
+      let last = this.undoQueue[this.undoQueue.length - 1];
+      if (last.handler == undoEntry.handler && last.tryMerge(context, undoEntry)) {
+        return;
+      }
+    }
+
+    this.undoQueue.push(undoEntry);
     this.redoQueue.splice(0, this.redoQueue.length);
   }
 
@@ -100,36 +134,68 @@ export interface IUndoEntry {}
 
 class UndoEntry<T> implements IUndoEntry {
   constructor(handler: CommandCreator<T>, data: T) {
-    this.dateAdded = new Date();
-    this.dateModified = new Date();
+    this.dateAdded = Date.now();
+    this.dateModified = this.dateAdded;
     this.handler = handler;
     this.data = data;
   }
 
-  dateAdded: Date;
-  dateModified: Date;
+  dateAdded: number;
+  dateModified: number;
   handler: CommandCreator<T>;
   data: T;
 
   do(context: IContext) {
-    let cbs = this.handler.callback();
-    if (cbs.do != null) {
+    let doCallback = this.handler.callback().do;
+    if (doCallback != null) {
       let self: T & IContextProvider = { context: context, ...this.data };
-      cbs.do.apply(self);
+      doCallback.apply(self);
     }
   }
 
   redo(context: IContext) {
-    let cbs = this.handler.callback();
+    let redoCallback = this.handler.callback().redo;
     let self: T & IContextProvider = { context: context, ...this.data };
-    cbs.redo.apply(self);
+    redoCallback.apply(self);
   }
 
   undo(context: IContext) {
-    let cbs = this.handler.callback();
+    let undoCallback = this.handler.callback().undo;
     let self: T & IContextProvider = { context: context, ...this.data };
-    console.log('UNDO', self);
-    cbs.undo.apply(self);
+    undoCallback.apply(self);
+  }
+
+  tryMerge(context: IContext, rhs: UndoEntry<T>): boolean {
+    let tryMerge = this.handler.callback().tryMerge;
+    if (tryMerge == null) {
+      return false;
+    }
+
+    let dateInfo = new DateInfo(this);
+
+    let self: T & IContextProvider & IDateInfoProvider = {
+      context: context,
+      dateInfo: new DateInfo(this),
+      ...this.data,
+    };
+
+    let didMerge = tryMerge.apply(self, [rhs.data]) as boolean;
+    // if we merged, we need to save any data changes that might have been made
+    // TODO - we could have this be done as part of a setter on self instead
+    if (didMerge) {
+      // delete any properties that *we* added, preserving all others that might have been
+      // set by the callback
+      if (self.dateInfo == dateInfo) {
+        delete self.dateInfo;
+      }
+      if (self.context == context) {
+        delete self.context;
+      }
+
+      this.data = self;
+    }
+
+    return didMerge;
   }
 }
 
