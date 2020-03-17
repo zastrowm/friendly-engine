@@ -1,5 +1,5 @@
 import { IStoredPositionInfo, snapLayout } from '../../framework/layout';
-import { IUndoCommand, IContext, undoCommandCreated } from '../../framework/undoCommand';
+import { registerUndoHandler } from '../../framework/undoCommand';
 import { ControlContainer } from './control-container';
 import { ControlEditor } from './control-editor';
 import { IControlDescriptor, IControlSerializedData } from '../../framework/controlsRegistry';
@@ -83,7 +83,11 @@ export class DesignSurfaceElement extends CustomHtmlElement {
     snapLayout(data.position, this.gridSnap);
 
     let container = this.addControlNoUndo(descriptor, data);
-    undoCommandCreated.trigger(this, new UndoAddCommand(descriptor, data));
+    addControlUndoHandler.trigger(this, {
+      descriptor: container.descriptor,
+      data,
+    });
+
     return container;
   }
 
@@ -120,7 +124,10 @@ export class DesignSurfaceElement extends CustomHtmlElement {
 
     this.removeControlNoUndo(id);
 
-    undoCommandCreated.trigger(this, new UndoRemoveCommand(container.descriptor, data));
+    removeControlUndoHandler.trigger(this, {
+      descriptor: container.descriptor,
+      data,
+    });
   }
 
   /**
@@ -133,34 +140,35 @@ export class DesignSurfaceElement extends CustomHtmlElement {
   }
 }
 
+interface UndoArgs {
+  descriptor: IControlDescriptor;
+  data: IControlSerializedData;
+}
+
 /**
  * Undo event for adding a control to the design surface.
  */
-class UndoAddCommand implements IUndoCommand {
-  constructor(private descriptor: IControlDescriptor, private data: IControlSerializedData) {}
+let addControlUndoHandler = registerUndoHandler<UndoArgs>('addControl', () => ({
+  undo() {
+    this.context.editor.removeControlNoUndo(this.data.id);
+  },
 
-  undo(context: IContext): void {
-    context.editor.removeControlNoUndo(this.data.id);
-  }
-
-  redo(context: IContext): void {
-    let container = context.editor.addControlNoUndo(this.descriptor, this.data);
-    context.editor.selectAndMarkActive(container);
-  }
-}
+  redo() {
+    let container = this.context.editor.addControlNoUndo(this.descriptor, this.data);
+    this.context.editor.selectAndMarkActive(container);
+  },
+}));
 
 /**
  * Undo event for removing a control from the design surface.
  */
-class UndoRemoveCommand implements IUndoCommand {
-  constructor(private descriptor: IControlDescriptor, private data: IControlSerializedData) {}
+let removeControlUndoHandler = registerUndoHandler<UndoArgs>('removeControl', () => ({
+  undo() {
+    let container = this.context.editor.addControlNoUndo(this.descriptor, this.data);
+    this.context.editor.selectAndMarkActive(container);
+  },
 
-  undo(context: IContext): void {
-    let container = context.editor.addControlNoUndo(this.descriptor, this.data);
-    context.editor.selectAndMarkActive(container);
-  }
-
-  redo(context: IContext): void {
-    context.editor.removeControlNoUndo(this.data.id);
-  }
-}
+  redo() {
+    this.context.editor.removeControlNoUndo(this.data.id);
+  },
+}));

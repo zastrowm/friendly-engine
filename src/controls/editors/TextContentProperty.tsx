@@ -1,7 +1,6 @@
 import { GettableSettableProperty, PropertyType } from '../../framework/controlsRegistry';
 import { ControlContainer } from '../../components/design/control-container';
-import { SetPropertyCommand } from './_shared';
-import { undoCommandCreated } from '../../framework/undoCommand';
+import { setPropertyUndoRedo } from './_shared';
 
 export class TextContentProperty extends GettableSettableProperty<string> {
   constructor() {
@@ -24,7 +23,12 @@ export class TextContentProperty extends GettableSettableProperty<string> {
       let newValue = input.value;
       this.setValue(instance, newValue);
 
-      undoCommandCreated.trigger(input, new SetPropertyCommand(instance.uniqueId, this, originalValue, newValue));
+      setPropertyUndoRedo.trigger(input, {
+        id: instance.uniqueId,
+        property: this,
+        originalValue,
+        newValue,
+      });
     });
 
     return { elementToMount: input };

@@ -1,8 +1,7 @@
 import { GettableSettableProperty, PropertyType } from '../../framework/controlsRegistry';
 import { ControlContainer } from '../../components/design/control-container';
 import { renderToFragment, Fragment, h, VNode } from '../../../lib/friendlee/jsxElements';
-import { undoCommandCreated } from '../../framework/undoCommand';
-import { SetPropertyCommand } from './_shared';
+import { setPropertyUndoRedo } from './_shared';
 
 export class TextAlignmentProperty extends GettableSettableProperty<string> {
   constructor() {
@@ -21,7 +20,12 @@ export class TextAlignmentProperty extends GettableSettableProperty<string> {
       let originalValue = this.getValue(instance);
       this.setValue(instance, data);
 
-      undoCommandCreated.trigger(element, new SetPropertyCommand(instance.uniqueId, this, originalValue, data));
+      setPropertyUndoRedo.trigger(element, {
+        id: instance.uniqueId,
+        property: this,
+        originalValue,
+        newValue: data,
+      });
     };
 
     let currentValue = this.getValue(instance);

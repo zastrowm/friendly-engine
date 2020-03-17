@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { determineEditStyle, calculateSnapTo } from '../../framework/positioner';
 import { Anchor, Point, AnchoredBoundary, IStoredPositionInfo } from '../../framework/layout';
-import { IUndoCommand, IContext, undoCommandCreated } from '../../framework/undoCommand';
+import { registerUndoHandler } from '../../framework/undoCommand';
 import { ControlContainer } from './control-container';
 import { DragHandle } from './drag-handle';
 import { DesignSurfaceElement } from './design-surface';
@@ -120,13 +120,11 @@ export class ControlEditor extends CustomHtmlElement {
     let controlContainer = this.elementToMove.closest('control-container') as ControlContainer;
     controlContainer.positionInfo = this.lastUpdatedBoundary;
 
-    let moveCommand = new MoveCommand(
-      controlContainer.uniqueId,
-      this.originalPosition.clone(),
-      this.lastUpdatedBoundary.clone(),
-    );
-
-    undoCommandCreated.trigger(this, moveCommand);
+    moveUndoHandler.trigger(this, {
+      id: controlContainer.uniqueId,
+      startingPosition: this.originalPosition.clone(),
+      endingPosition: this.lastUpdatedBoundary.clone(),
+    });
   }
 
   private onMouseMove(mouseEvent: MouseEvent) {
@@ -202,22 +200,22 @@ export class ControlEditor extends CustomHtmlElement {
   }
 }
 
-class MoveCommand implements IUndoCommand {
-  constructor(
-    private id: UniqueId,
-    private startingPosition: IStoredPositionInfo,
-    private endingPosition: IStoredPositionInfo,
-  ) {}
-
-  undo(context: IContext): void | Promise<void> {
-    let controlContainer = context.editor.getControlContainer(this.id);
-    controlContainer.positionInfo = this.startingPosition;
-    context.editor.selectAndMarkActive(controlContainer);
-  }
-
-  redo(context: IContext): void | Promise<void> {
-    let controlContainer = context.editor.getControlContainer(this.id);
-    controlContainer.positionInfo = this.endingPosition;
-    context.editor.selectAndMarkActive(controlContainer);
-  }
+interface UndoArgs {
+  id: UniqueId;
+  startingPosition: IStoredPositionInfo;
+  endingPosition: IStoredPositionInfo;
 }
+
+let moveUndoHandler = registerUndoHandler<UndoArgs>('moveControl', () => ({
+  undo() {
+    let controlContainer = this.context.editor.getControlContainer(this.id);
+    controlContainer.positionInfo = this.startingPosition;
+    this.context.editor.selectAndMarkActive(controlContainer);
+  },
+
+  redo() {
+    let controlContainer = this.context.editor.getControlContainer(this.id);
+    controlContainer.positionInfo = this.endingPosition;
+    this.context.editor.selectAndMarkActive(controlContainer);
+  },
+}));

@@ -1,6 +1,6 @@
 import { DesignSurfaceElement, selectedControlChanges } from './design-surface';
 
-import { IUndoCommand, IContext, undoCommandCreated, UndoRedoQueue } from '../../framework/undoCommand';
+import { IContext, undoCommandCreated, UndoRedoQueue, IUndoEntry } from '../../framework/undoCommand';
 import { appRoutedCommands, RoutedCommand } from '../../framework/appRoutedCommands';
 import { registerShortcuts } from '../../app/keyboardShortcuts';
 import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
@@ -53,8 +53,8 @@ export class DesignApp extends CustomHtmlElement {
     }
   }
 
-  public onUndoEventGenerated(command: IUndoCommand) {
-    this.undoRedoQueue.addUndo(this.getContext(), command);
+  public onUndoEventGenerated(entry: IUndoEntry) {
+    this.undoRedoQueue.addUndo(this.getContext(), entry);
     return true;
   }
 
