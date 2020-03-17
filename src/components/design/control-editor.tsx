@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { determineEditStyle, calculateSnapTo } from '../../framework/positioner';
 import { Anchor, Point, AnchoredBoundary, IStoredPositionInfo } from '../../framework/layout';
-import { registerUndoHandler } from '../../framework/undoCommand';
+import { registerUndoHandler } from '../../framework/undoRedo';
 import { ControlContainer } from './control-container';
 import { DragHandle } from './drag-handle';
 import { DesignSurfaceElement } from './design-surface';

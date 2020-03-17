@@ -1,5 +1,5 @@
 import { IStoredPositionInfo, snapLayout } from '../../framework/layout';
-import { registerUndoHandler } from '../../framework/undoCommand';
+import { registerUndoHandler } from '../../framework/undoRedo';
 import { ControlContainer } from './control-container';
 import { ControlEditor } from './control-editor';
 import { IControlDescriptor, IControlSerializedData } from '../../framework/controlsRegistry';

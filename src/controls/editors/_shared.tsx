@@ -1,4 +1,4 @@
-import { registerUndoHandler } from '../../framework/undoCommand';
+import { registerUndoHandler } from '../../framework/undoRedo';
 import { UniqueId } from '../../framework/util';
 import { IPropertyDescriptor } from '../commonDescriptors';
 

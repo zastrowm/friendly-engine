@@ -1,6 +1,6 @@
 import { DesignSurfaceElement, selectedControlChanges } from './design-surface';
 
-import { IContext, undoCommandCreated, UndoRedoQueue, IUndoEntry } from '../../framework/undoCommand';
+import { IContext, undoCommandCreated, UndoRedoQueue, IUndoEntry } from '../../framework/undoRedo';
 import { appRoutedCommands, RoutedCommand } from '../../framework/appRoutedCommands';
 import { registerShortcuts } from '../../app/keyboardShortcuts';
 import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
