@@ -28,6 +28,7 @@ export class TextContentProperty extends GettableSettableProperty<string> {
         property: this,
         originalValue,
         newValue,
+        canMerge: true,
       });
     });
 

@@ -38,6 +38,11 @@ class DateInfo implements IDateInfo {
 interface UndoableFunctionCallback<T> {
   (): {
     /**
+     * Provides any default values for properties on this object
+     */
+    initialize?: (this: T & IContextProvider) => void | Promise<void>;
+
+    /**
      * Undoes the operation that was originally performed
      */
     undo: (this: T & IContextProvider) => void | Promise<void>;
@@ -84,6 +89,8 @@ export class UndoRedoQueue {
    */
   public async addUndo(context: IContext, newEntry: IUndoEntry) {
     let undoEntry = newEntry as UndoEntry<any>;
+    undoEntry.initialize(context);
+
     undoEntry.do(context);
 
     if (this.undoQueue.length > 0) {
@@ -145,6 +152,14 @@ class UndoEntry<T> implements IUndoEntry {
   handler: CommandCreator<T>;
   data: T;
 
+  initialize(context: IContext) {
+    let initializeCallback = this.handler.callback().initialize;
+    if (initializeCallback != null) {
+      let self: T & IContextProvider = { context: context, ...this.data };
+      initializeCallback.apply(self);
+    }
+  }
+
   do(context: IContext) {
     let doCallback = this.handler.callback().do;
     if (doCallback != null) {
@@ -171,31 +186,34 @@ class UndoEntry<T> implements IUndoEntry {
       return false;
     }
 
-    let dateInfo = new DateInfo(this);
-
-    let self: T & IContextProvider & IDateInfoProvider = {
+    let additional: IContextProvider & IDateInfoProvider = {
       context: context,
       dateInfo: new DateInfo(this),
-      ...this.data,
     };
 
-    let didMerge = tryMerge.apply(self, [rhs.data]) as boolean;
-    // if we merged, we need to save any data changes that might have been made
-    // TODO - we could have this be done as part of a setter on self instead
-    if (didMerge) {
-      // delete any properties that *we* added, preserving all others that might have been
-      // set by the callback
-      if (self.dateInfo == dateInfo) {
-        delete self.dateInfo;
-      }
-      if (self.context == context) {
-        delete self.context;
-      }
+    let self = this.createProxy(additional);
+    return tryMerge.apply(self, [rhs.data]) as boolean;
+  }
 
-      this.data = self;
-    }
+  createProxy(secondary: any) {
+    let primary = this.data as any;
 
-    return didMerge;
+    return new Proxy(primary, {
+      get(_, prop) {
+        if (prop in primary) {
+          return primary[prop];
+        } else if (prop in secondary) {
+          return secondary[prop];
+        } else {
+          return undefined;
+        }
+      },
+
+      set(_, prop, value) {
+        primary[prop] = value;
+        return true;
+      },
+    });
   }
 }
 

@@ -10,6 +10,7 @@ import { ControlContainer } from './control-container';
 import './design-app.css';
 import { PropertyPanelElement } from './property-panel';
 import { installCommonDescriptors, controlDescriptors, IControlDescriptor } from '../../controls/commonDescriptors';
+import { registerFocusCounter, unregisterFocusCounter } from '../../framework/focusService';
 
 /**
  * A control that hosts the DesignSurface and provides related controls to manipulating
@@ -39,6 +40,16 @@ export class DesignApp extends CustomHtmlElement {
     installCommonDescriptors();
 
     controlDescriptors.addChangeListener(() => this.onControlsChange());
+  }
+
+  /** override */
+  public onConnected() {
+    registerFocusCounter(this);
+  }
+
+  /** override */
+  public onDisconnected() {
+    unregisterFocusCounter(this);
   }
 
   private addControl(descriptor: IControlDescriptor) {
