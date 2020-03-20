@@ -39,8 +39,8 @@ export class ControlEditor extends CustomHtmlJsxElement {
 
   public designEditor: DesignSurfaceElement;
 
-  private get elementToMove(): HTMLElement {
-    return this.parentElement;
+  public get elementToMove(): ControlContainer {
+    return this.parentElement as ControlContainer;
   }
 
   /** override */

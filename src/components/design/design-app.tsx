@@ -113,7 +113,12 @@ export class DesignApp extends CustomHtmlJsxElement {
   }
 
   private onSelectedControlChanged(container: ControlContainer): void {
-    console.log(`Focus changed to Transferring focus to: ${container.uniqueId}`);
+    if (container == null) {
+      console.log('Focus was removed');
+    } else {
+      console.log(`Focus changed to Transferring focus to: ${container.uniqueId}`);
+    }
+
     this.propertyPanel.container = container;
   }
 

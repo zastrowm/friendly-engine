@@ -71,6 +71,11 @@ export class DesignSurfaceElement extends CustomHtmlElement {
     return true;
   }
 
+  private clearActiveEditor() {
+    this.activeEditor.remove();
+    selectedControlChanges.trigger(this, null);
+  }
+
   public addControl(descriptor: IControlDescriptor, layout: IStoredPositionInfo = null): ControlContainer {
     // TODO copy the data
     let data: IControlSerializedData = {
@@ -136,6 +141,11 @@ export class DesignSurfaceElement extends CustomHtmlElement {
    */
   public removeControlNoUndo(id: UniqueId) {
     let container = this.getControlContainer(id);
+
+    if (this.activeEditor.elementToMove == container) {
+      this.clearActiveEditor();
+    }
+
     this.removeChild(container);
   }
 }
