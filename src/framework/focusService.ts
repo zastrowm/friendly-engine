@@ -1,7 +1,7 @@
 /**
  * Type alias for a simple number that represents the currently focused item.  When the
  * focus changes, this will be incremented, which can be useful to determine if the focus
- *  has changed controls since the last time it was queried
+ * has changed controls since the last time it was queried.
  */
 export interface FocusCount {}
 

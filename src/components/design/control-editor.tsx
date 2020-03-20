@@ -5,13 +5,13 @@ import { registerUndoHandler } from '../../framework/undoRedo';
 import { ControlContainer } from './control-container';
 import { DragHandle } from './drag-handle';
 import { DesignSurfaceElement } from './design-surface';
-import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 
 import './control-editor.css';
 import { UniqueId } from '../../framework/util';
+import { CustomHtmlJsxElement, customElement } from '../../../lib/friendlee/CustomHtmlJsxElement';
 
 @customElement(ControlEditor.tagName)
-export class ControlEditor extends CustomHtmlElement {
+export class ControlEditor extends CustomHtmlJsxElement {
   public static readonly tagName = 'control-editor';
 
   private mouseUpListener: (MouseEvent: MouseEvent) => void;
@@ -50,7 +50,7 @@ export class ControlEditor extends CustomHtmlElement {
 
   /** override */
   public onRender() {
-    this.renderJsx([
+    return [
       <drag-handle anchorMode={Anchor.west} />,
       <drag-handle anchorMode={Anchor.north} />,
       <drag-handle anchorMode={Anchor.east} />,
@@ -60,7 +60,7 @@ export class ControlEditor extends CustomHtmlElement {
       <drag-handle anchorMode={Anchor.ne} />,
       <drag-handle anchorMode={Anchor.se} />,
       <drag-handle anchorMode={Anchor.sw} />,
-    ]);
+    ];
   }
 
   /** Transfer the mouse-down to be handled as if the event occurred on this element directly. */

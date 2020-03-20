@@ -1,7 +1,3 @@
-import { render, ComponentChild, h } from 'preact';
-
-export { h };
-
 let knownCustomElements = new Map<string, Function>();
 
 /**
@@ -84,19 +80,6 @@ export abstract class CustomHtmlElement extends HTMLElement {
     if (this.isConnected) {
       this.onRender();
     }
-  }
-
-  // :: Not directly related, but since it was PITA to realize ::
-  // If we use this, it's important that the properties definitely exist on the type
-  // that we're trying set it on; that is `propName in instance` returns true.
-  //
-  // This means that for custom elements, you can't just rely on a typescript public
-  // property, but you actually have to assign a value to the property.
-  // see https://github.com/preactjs/preact/blob/master/src/diff/props.js#L116
-  // Eventually we should add decorators or something
-  public renderJsx(tree: ComponentChild) {
-    render(tree, this);
-    this.appendInlineStyle();
   }
 
   /**

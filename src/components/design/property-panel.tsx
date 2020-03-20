@@ -1,4 +1,4 @@
-import { CustomHtmlElement, h, customElement } from '../../../lib/friendlee/CustomHtmlElement';
+import { h, customElement, CustomHtmlJsxElement } from '../../../lib/friendlee/CustomHtmlJsxElement';
 import { ControlContainer } from './control-container';
 import { IPropertyDescriptor } from '../../framework/controlsRegistry';
 import { ref } from '../componentUtils';
@@ -7,7 +7,7 @@ import { ref } from '../componentUtils';
  * Allows editing of the properties for a specific container.
  */
 @customElement(PropertyPanelElement.tagName)
-export class PropertyPanelElement extends CustomHtmlElement {
+export class PropertyPanelElement extends CustomHtmlJsxElement {
   public static readonly tagName = 'property-panel';
 
   constructor() {
@@ -20,30 +20,25 @@ export class PropertyPanelElement extends CustomHtmlElement {
 
   public set container(value: ControlContainer) {
     this._container = value;
-    this.onRender();
+    this.invalidate();
   }
 
   private _container: ControlContainer;
 
   /** Override */
   public onRender(): void {
-    if (!this.isConnected) {
-      return;
-    }
-
     if (this._container == null) {
-      this.renderJsx(<span>No Active Element</span>);
-      return;
+      return <span>No Active Element</span>;
     }
 
     let descriptor = this._container.descriptor;
 
-    this.renderJsx(
+    return (
       <div>
         {descriptor.getProperties().map(p => (
           <PropertyEntry container={this._container} property={p} />
         ))}
-      </div>,
+      </div>
     );
   }
 }

@@ -3,7 +3,6 @@ import { DesignSurfaceElement, selectedControlChanges } from './design-surface';
 import { IContext, undoCommandCreated, UndoRedoQueue, IUndoEntry } from '../../framework/undoRedo';
 import { appRoutedCommands, RoutedCommand } from '../../framework/appRoutedCommands';
 import { registerShortcuts } from '../../app/keyboardShortcuts';
-import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
 import { h } from 'preact';
 import { ControlContainer } from './control-container';
 
@@ -11,13 +10,14 @@ import './design-app.css';
 import { PropertyPanelElement } from './property-panel';
 import { installCommonDescriptors, controlDescriptors, IControlDescriptor } from '../../controls/commonDescriptors';
 import { registerFocusCounter, unregisterFocusCounter } from '../../framework/focusService';
+import { CustomHtmlJsxElement, customElement } from '../../../lib/friendlee/CustomHtmlJsxElement';
 
 /**
  * A control that hosts the DesignSurface and provides related controls to manipulating
  * the design surface.
  */
 @customElement(DesignApp.tagName)
-export class DesignApp extends CustomHtmlElement {
+export class DesignApp extends CustomHtmlJsxElement {
   public static readonly tagName = 'design-app';
 
   private readonly undoRedoQueue = new UndoRedoQueue();
@@ -119,7 +119,7 @@ export class DesignApp extends CustomHtmlElement {
 
   /* override */
   public onRender() {
-    this.renderJsx(
+    return (
       <div>
         <header>
           <h1>Web HMI Builder</h1>
@@ -139,7 +139,7 @@ export class DesignApp extends CustomHtmlElement {
         <aside>
           <property-panel ref={it => (this.propertyPanel = it)}></property-panel>
         </aside>
-      </div>,
+      </div>
     );
   }
 }
