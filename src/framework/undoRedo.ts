@@ -1,4 +1,3 @@
-import { DesignSurfaceElement } from '../components/design/design-surface.e';
 import { RoutedEventDescriptor } from './routedEvents';
 
 interface IContextProvider {
@@ -69,9 +68,7 @@ interface UndoableFunctionCallback<T> {
   };
 }
 
-export interface IContext {
-  editor: DesignSurfaceElement;
-}
+export interface IContext {}
 
 /**
  * Represents a queue of commands that can be done/undone.
