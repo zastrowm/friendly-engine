@@ -1,6 +1,6 @@
 import { GettableSettableProperty, PropertyType } from '../../framework/controlsRegistry';
 import { ControlContainer } from '../../components/design/control-container.e';
-import { renderToFragment, Fragment, h, VNode } from '../../../lib/friendlee/jsxElements';
+import { renderToFragment, Fragment, h, VNode } from '@friendly/elements/jsxElements';
 import { setPropertyUndoRedo } from './_shared';
 
 export class TextAlignmentProperty extends GettableSettableProperty<string> {

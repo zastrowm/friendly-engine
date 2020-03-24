@@ -1,4 +1,4 @@
-import { h, customElement, CustomHtmlJsxElement } from '../../../lib/friendlee/CustomHtmlJsxElement';
+import { h, customElement, CustomHtmlJsxElement } from '@friendly/elements/CustomHtmlJsxElement';
 import { ControlContainer } from './control-container.e';
 import { IPropertyDescriptor } from '../../framework/controlsRegistry';
 import { ref } from '../componentUtils';

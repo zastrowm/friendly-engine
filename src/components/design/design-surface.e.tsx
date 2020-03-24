@@ -4,7 +4,7 @@ import { ControlContainer } from './control-container.e';
 import { ControlEditor } from './control-editor.e';
 import { IControlDescriptor, IControlSerializedData } from '../../framework/controlsRegistry';
 import { generateGuid, UniqueId } from '../../framework/util';
-import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
+import { CustomHtmlElement, customElement } from '@friendly/elements/CustomHtmlElement';
 
 import './design-surface.css';
 import { RoutedEventDescriptor } from '../../framework/routedEvents';

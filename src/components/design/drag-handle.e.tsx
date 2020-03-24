@@ -1,5 +1,5 @@
 import { Anchor } from '../../framework/layout';
-import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
+import { CustomHtmlElement, customElement } from '@friendly/elements/CustomHtmlElement';
 
 @customElement(DragHandle.tagName)
 export class DragHandle extends CustomHtmlElement {

@@ -1,7 +1,7 @@
 import { determineEditStyle } from '../../framework/positioner';
 import { IStoredPositionInfo } from '../../framework/layout';
 import { DesignSurfaceElement } from './design-surface.e';
-import { CustomHtmlElement, customElement } from '../../../lib/friendlee/CustomHtmlElement';
+import { CustomHtmlElement, customElement } from '@friendly/elements/CustomHtmlElement';
 import { IControlDescriptor, IControlSerializedData } from '../../framework/controlsRegistry';
 import { UniqueId } from '../../framework/util';
 

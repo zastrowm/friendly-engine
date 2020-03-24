@@ -8,7 +8,7 @@ import { DesignSurfaceElement } from './design-surface.e';
 
 import './control-editor.css';
 import { UniqueId } from '../../framework/util';
-import { CustomHtmlJsxElement, customElement } from '../../../lib/friendlee/CustomHtmlJsxElement';
+import { CustomHtmlJsxElement, customElement } from '@friendly/elements/CustomHtmlJsxElement';
 
 @customElement(ControlEditor.tagName)
 export class ControlEditor extends CustomHtmlJsxElement {

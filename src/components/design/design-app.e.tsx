@@ -10,7 +10,7 @@ import './design-app.css';
 import { PropertyPanelElement } from './property-panel.e';
 import { installCommonDescriptors, controlDescriptors, IControlDescriptor } from '../../controls/commonDescriptors';
 import { registerFocusCounter, unregisterFocusCounter } from '../../framework/focusService';
-import { CustomHtmlJsxElement, customElement } from '../../../lib/friendlee/CustomHtmlJsxElement';
+import { CustomHtmlJsxElement, customElement } from '@friendly/elements/CustomHtmlJsxElement';
 
 /**
  * A control that hosts the DesignSurface and provides related controls to manipulating

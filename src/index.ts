@@ -1,4 +1,4 @@
-import { getCustomElementNames } from '../lib/friendlee/CustomHtmlElement';
+import { getCustomElementNames } from '@friendly/elements/CustomHtmlElement';
 
 declare var require: any;
 
