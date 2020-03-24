@@ -1,13 +1,13 @@
-import { DesignSurfaceElement, selectedControlChanges } from './design-surface';
+import { DesignSurfaceElement, selectedControlChanges } from './design-surface.e';
 
 import { IContext, undoCommandCreated, UndoRedoQueue, IUndoEntry } from '../../framework/undoRedo';
 import { appRoutedCommands, RoutedCommand } from '../../framework/appRoutedCommands';
 import { registerShortcuts } from '../../app/keyboardShortcuts';
 import { h } from 'preact';
-import { ControlContainer } from './control-container';
+import { ControlContainer } from './control-container.e';
 
 import './design-app.css';
-import { PropertyPanelElement } from './property-panel';
+import { PropertyPanelElement } from './property-panel.e';
 import { installCommonDescriptors, controlDescriptors, IControlDescriptor } from '../../controls/commonDescriptors';
 import { registerFocusCounter, unregisterFocusCounter } from '../../framework/focusService';
 import { CustomHtmlJsxElement, customElement } from '../../../lib/friendlee/CustomHtmlJsxElement';

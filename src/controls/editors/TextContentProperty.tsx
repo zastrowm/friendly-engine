@@ -1,5 +1,5 @@
 import { GettableSettableProperty, PropertyType } from '../../framework/controlsRegistry';
-import { ControlContainer } from '../../components/design/control-container';
+import { ControlContainer } from '../../components/design/control-container.e';
 import { setPropertyUndoRedo } from './_shared';
 
 export class TextContentProperty extends GettableSettableProperty<string> {

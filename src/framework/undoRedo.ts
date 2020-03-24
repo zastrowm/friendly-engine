@@ -1,4 +1,4 @@
-import { DesignSurfaceElement } from '../components/design/design-surface';
+import { DesignSurfaceElement } from '../components/design/design-surface.e';
 import { RoutedEventDescriptor } from './routedEvents';
 
 interface IContextProvider {

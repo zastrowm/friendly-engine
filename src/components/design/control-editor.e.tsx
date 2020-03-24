@@ -2,9 +2,9 @@ import { h } from 'preact';
 import { determineEditStyle, calculateSnapTo } from '../../framework/positioner';
 import { Anchor, Point, AnchoredBoundary, IStoredPositionInfo } from '../../framework/layout';
 import { registerUndoHandler } from '../../framework/undoRedo';
-import { ControlContainer } from './control-container';
-import { DragHandle } from './drag-handle';
-import { DesignSurfaceElement } from './design-surface';
+import { ControlContainer } from './control-container.e';
+import { DragHandle } from './drag-handle.e';
+import { DesignSurfaceElement } from './design-surface.e';
 
 import './control-editor.css';
 import { UniqueId } from '../../framework/util';

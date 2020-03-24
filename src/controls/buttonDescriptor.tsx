@@ -1,5 +1,5 @@
 import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
-import { ControlContainer } from '../components/design/control-container';
+import { ControlContainer } from '../components/design/control-container.e';
 import { IPropertyDescriptor, GettableSettableProperty, IControlDescriptor } from '../framework/controlsRegistry';
 import { TextContentProperty } from './editors/TextContentProperty';
 

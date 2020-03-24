@@ -1,5 +1,5 @@
 import { IStoredPositionInfo } from './layout';
-import { ControlContainer } from '../components/design/control-container';
+import { ControlContainer } from '../components/design/control-container.e';
 import { UniqueId } from './util';
 
 /**

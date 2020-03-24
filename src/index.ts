@@ -1,18 +1,22 @@
-import { DesignApp } from './components/design/design-app';
-import { DesignSurfaceElement } from './components/design/design-surface';
-import { DragHandle } from './components/design/drag-handle';
-import { ControlContainer } from './components/design/control-container';
-import { ControlEditor } from './components/design/control-editor';
-import { PropertyPanelElement } from './components/design/property-panel';
 import { getCustomElementNames } from '../lib/friendlee/CustomHtmlElement';
 
-(async () => {
-  let elements = [DesignApp, DesignSurfaceElement, DragHandle, ControlContainer, ControlEditor];
-  console.log('Registered Custom Elements Count', elements.length);
+declare var require: any;
+
+async function waitForCustomElements() {
+  /*
+   * Import all "*.e.tsx" element files automatically, preventing the application from starting until all custom elements
+   * have loaded
+   */
+  // function from https://webpack.js.org/guides/dependency-management/#context-module-api
+  let importAll = r => r.keys().forEach(r);
+  importAll(require.context('./components/', /*includeSubdirs*/ true, /\.e\.tsx$/, /*mode*/ 'eager'));
+
   let customElementNames = Array.from(getCustomElementNames());
 
   await Promise.all(customElementNames.map(name => customElements.whenDefined(name)));
-  await customElements.whenDefined(PropertyPanelElement.tagName);
+}
 
+(async () => {
+  await waitForCustomElements();
   document.body.append(document.createElement('design-app'));
 })();

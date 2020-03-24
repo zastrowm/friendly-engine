@@ -1,12 +1,12 @@
-import { DesignApp } from './components/design/design-app';
-import { DesignSurfaceElement } from './components/design/design-surface';
-import { DragHandle } from './components/design/drag-handle';
-import { ControlContainer } from './components/design/control-container';
-import { ControlEditor } from './components/design/control-editor';
+import { DesignApp } from './components/design/design-app.e';
+import { DesignSurfaceElement } from './components/design/design-surface.e';
+import { DragHandle } from './components/design/drag-handle.e';
+import { ControlContainer } from './components/design/control-container.e';
+import { ControlEditor } from './components/design/control-editor.e';
 
 import * as PJSX from 'preact/src/jsx';
 import * as preact from 'preact';
-import { PropertyPanelElement, SinglePropertyElement } from './components/design/property-panel';
+import { PropertyPanelElement, SinglePropertyElement } from './components/design/property-panel.e';
 
 declare global {
   interface HTMLElementTagNameMap {
