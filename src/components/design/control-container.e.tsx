@@ -1,7 +1,7 @@
 import { determineEditStyle } from '../../framework/positioner';
 import { IStoredPositionInfo } from '../../framework/layout';
 import { DesignSurfaceElement } from './design-surface.e';
-import { CustomHtmlElement, customElement } from '@friendly/elements/CustomHtmlElement';
+import { CustomHtmlElement, customElement, property } from '@friendly/elements/CustomHtmlElement';
 import { IControlDescriptor, IControlSerializedData } from '../../framework/controlsRegistry';
 import { UniqueId } from '../../framework/util';
 
@@ -15,20 +15,12 @@ export class ControlContainer extends CustomHtmlElement {
 
   public descriptor: IControlDescriptor;
 
-  public get uniqueId(): UniqueId {
-    return this._uniqueId;
-  }
+  @property({ attributeName: 'unique-id' })
+  public uniqueId: UniqueId;
 
   public get control(): HTMLElement {
     return this.firstElementChild as HTMLElement;
   }
-
-  public set uniqueId(value: UniqueId) {
-    this._uniqueId = value;
-    this.setAttribute('unique-id', value as string);
-  }
-
-  private _uniqueId: UniqueId;
 
   /**
    * Populate the container with the data provided.

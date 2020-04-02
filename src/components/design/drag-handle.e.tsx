@@ -1,5 +1,5 @@
 import { Anchor } from '../../framework/layout';
-import { CustomHtmlElement, customElement } from '@friendly/elements/CustomHtmlElement';
+import { CustomHtmlElement, customElement, property } from '@friendly/elements/CustomHtmlElement';
 
 @customElement(DragHandle.tagName)
 export class DragHandle extends CustomHtmlElement {
@@ -7,11 +7,10 @@ export class DragHandle extends CustomHtmlElement {
 
   constructor() {
     super();
-
-    this.anchorMode = Anchor.none;
   }
 
   /** What anchor this handle represents. */
+  @property({ default: Anchor.none })
   public anchorMode: Anchor;
 
   /** Override */

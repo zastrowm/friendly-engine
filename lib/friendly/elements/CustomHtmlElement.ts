@@ -13,6 +13,46 @@ export function customElement(tagName: string) {
 }
 
 /**
+ * All of the options that can be configured when using the `property` decorator.
+ */
+interface PropertyOptions {
+  /* True to call Invalidate() when the property is set */
+  invalidateOnSet?: boolean;
+  /* Set to initialize a default value on creation */
+  default?: any;
+  /* The name of the attribute that should be updated when the property is updated */
+  attributeName?: string;
+}
+
+/**
+ * Decorator to automatically create a property instead of a field
+ * @param options the options to use when creating the property
+ */
+export function property(options?: PropertyOptions) {
+  return function(target: any, propertyKey: string) {
+    Object.defineProperty(target, propertyKey, {
+      get: function() {
+        return this['__' + propertyKey];
+      },
+
+      set: function(value) {
+        this['__' + propertyKey] = value;
+        if (options.attributeName != null) {
+          this.setAttribute(options.attributeName, value);
+        }
+        if (options.invalidateOnSet) {
+          this.invalidate();
+        }
+      },
+    });
+
+    if (options.default !== undefined) {
+      target['__' + propertyKey] = options.default;
+    }
+  };
+}
+
+/**
  * Retrieves all of the names for known elements
  */
 export function getCustomElementNames() {

@@ -2,6 +2,7 @@ import { h, customElement, CustomHtmlJsxElement } from '@friendly/elements/Custo
 import { ControlContainer } from './control-container.e';
 import { IPropertyDescriptor } from '../../framework/controlsRegistry';
 import { ref } from '../componentUtils';
+import { property } from '@friendly/elements/CustomHtmlElement';
 
 /**
  * Allows editing of the properties for a specific container.
@@ -14,29 +15,21 @@ export class PropertyPanelElement extends CustomHtmlJsxElement {
     super();
   }
 
-  public get container() {
-    return this._container;
-  }
-
-  public set container(value: ControlContainer) {
-    this._container = value;
-    this.invalidate();
-  }
-
-  private _container: ControlContainer;
+  @property({ invalidateOnSet: true })
+  public container: ControlContainer;
 
   /** Override */
   public onRender(): void {
-    if (this._container == null) {
+    if (this.container == null) {
       return <span>No Active Element</span>;
     }
 
-    let descriptor = this._container.descriptor;
+    let descriptor = this.container.descriptor;
 
     return (
       <div>
         {descriptor.getProperties().map(p => (
-          <PropertyEntry container={this._container} property={p} />
+          <PropertyEntry container={this.container} property={p} />
         ))}
       </div>
     );
