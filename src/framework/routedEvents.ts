@@ -39,14 +39,23 @@ export class RoutedEventDescriptor<T> {
 
   /**
    * Adds a routed command listener on the given element.
+   * @returns a function, then when executed, will remove the listener
    */
-  public addListener(element: HTMLElement, callback: (data: T) => BooleanOrVoid) {
-    element.addEventListener(this.configuration.id, function(evt: CustomEvent<T>) {
+  public addListener(element: HTMLElement, callback: (data: T) => BooleanOrVoid): () => void {
+    let configurationId = this.configuration.id;
+
+    let listener = function (evt: CustomEvent<T>) {
       let command = evt.detail;
       let didHandle = callback(command);
       if (didHandle === true) {
         evt.preventDefault();
       }
-    });
+    };
+
+    element.addEventListener(configurationId, listener);
+
+    return function () {
+      element.removeEventListener(configurationId, listener);
+    };
   }
 }

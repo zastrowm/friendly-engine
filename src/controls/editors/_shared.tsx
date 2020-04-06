@@ -12,6 +12,8 @@ interface SetPropertyUndoArgs {
   focusCount?: FocusCount;
 }
 
+export const undoRedoValueChangeId = 'undoRedo';
+
 export let setPropertyUndoRedo = registerUndoHandler<SetPropertyUndoArgs>('setProperty', () => ({
   initialize() {
     if (this.focusCount == null) {
@@ -22,13 +24,13 @@ export let setPropertyUndoRedo = registerUndoHandler<SetPropertyUndoArgs>('setPr
   undo() {
     let container = this.context.editor.getControlContainer(this.id);
     let descriptor = container.descriptor;
-    descriptor.setValue(container, this.property, this.originalValue);
+    descriptor.setValue(container, this.property, this.originalValue, undoRedoValueChangeId);
   },
 
   redo() {
     let container = this.context.editor.getControlContainer(this.id);
     let descriptor = container.descriptor;
-    descriptor.setValue(container, this.property, this.newValue);
+    descriptor.setValue(container, this.property, this.newValue, undoRedoValueChangeId);
   },
 
   tryMerge(rhs: SetPropertyUndoArgs) {
