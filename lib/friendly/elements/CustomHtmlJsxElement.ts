@@ -26,10 +26,8 @@ export class CustomHtmlJsxElement extends CustomHtmlElement {
    * Force the object to immediately re-render if all criteria are met.
    **/
   public invalidate() {
-    console.log(this.isConnected, this);
     if (this.isConnected) {
       let retValue = this.onRender();
-      console.info(retValue);
       if (retValue != null) {
         this.renderJsx((retValue as any) as ComponentChild);
       }

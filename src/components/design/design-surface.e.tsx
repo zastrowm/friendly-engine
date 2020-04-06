@@ -100,7 +100,9 @@ export class DesignSurfaceElement extends CustomHtmlElement {
    * Gets the default layout information for the given control
    */
   private getDefaultLayoutInfo(descriptor: IControlDescriptor): IStoredPositionInfo {
-    console.log(descriptor);
+    if (descriptor == null) {
+      throw new Error('Null Descriptor');
+    }
 
     return {
       left: 20,

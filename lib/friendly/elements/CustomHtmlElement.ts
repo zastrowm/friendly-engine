@@ -5,7 +5,7 @@ let knownCustomElements = new Map<string, Function>();
  * @param tagName the html tag name to register the element with
  */
 export function customElement(tagName: string) {
-  return function<T extends { new (...args: any[]): any }>(constructor: T) {
+  return function <T extends { new (...args: any[]): any }>(constructor: T) {
     knownCustomElements.set(tagName, constructor);
     window.customElements.define(tagName, constructor);
     return constructor;
@@ -29,13 +29,13 @@ interface PropertyOptions {
  * @param options the options to use when creating the property
  */
 export function property(options?: PropertyOptions) {
-  return function(target: any, propertyKey: string) {
+  return function (target: any, propertyKey: string) {
     Object.defineProperty(target, propertyKey, {
-      get: function() {
+      get: function () {
         return this['__' + propertyKey];
       },
 
-      set: function(value) {
+      set: function (value) {
         this['__' + propertyKey] = value;
         if (options.attributeName != null) {
           this.setAttribute(options.attributeName, value);
