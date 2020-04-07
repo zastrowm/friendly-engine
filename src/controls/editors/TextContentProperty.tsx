@@ -1,6 +1,6 @@
 import { GettableSettableProperty, PropertyType } from '../../framework/controlsRegistry';
 import { ControlContainer } from '../../components/design/control-container.e';
-import { setPropertyUndoRedo } from './_shared';
+import { setPropertyUndoRedo, createTextBoxEditor } from './_shared';
 
 export class TextContentProperty extends GettableSettableProperty<string> {
   constructor() {
@@ -33,5 +33,16 @@ export class TextContentProperty extends GettableSettableProperty<string> {
     });
 
     return { elementToMount: input };
+  }
+}
+
+/** Base class for a text property */
+export abstract class BaseTextProperty extends GettableSettableProperty<string> {
+  constructor() {
+    super('text.text', 'Text', PropertyType.string);
+  }
+
+  public getEditor(instance: ControlContainer) {
+    return createTextBoxEditor(this, instance);
   }
 }

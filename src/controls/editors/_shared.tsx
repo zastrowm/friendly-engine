@@ -1,9 +1,9 @@
 import { registerUndoHandler } from '../../framework/undoRedo';
 import { UniqueId } from '../../framework/util';
-import { IPropertyDescriptor } from '../commonDescriptors';
 import { getFocusCount, FocusCount } from '../../framework/focusService';
 import { ControlContainer } from 'src/components/design/control-container.e';
 import { RoutedEventDescriptor } from 'src/framework/routedEvents';
+import { IPropertyDescriptor, GettableSettableProperty, IPropertyEditor } from 'src/framework/controlsRegistry';
 
 interface SetPropertyUndoArgs {
   id: UniqueId;
@@ -80,4 +80,29 @@ export interface IControlValueChangedArguments {
   instance: ControlContainer;
   value: any;
   property: IPropertyDescriptor;
+}
+
+/** Implements a text-box that changes the property. */
+export function createTextBoxEditor(
+  self: GettableSettableProperty<string>,
+  instance: ControlContainer,
+): IPropertyEditor {
+  let input = document.createElement('input');
+  input.value = self.getValue(instance);
+
+  input.addEventListener('input', function () {
+    let originalValue = self.getValue(instance);
+    let newValue = input.value;
+    self.setValue(instance, newValue);
+
+    setPropertyUndoRedo.trigger(input, {
+      id: instance.uniqueId,
+      property: self,
+      originalValue,
+      newValue,
+      canMerge: true,
+    });
+  });
+
+  return { elementToMount: input };
 }

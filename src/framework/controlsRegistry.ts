@@ -83,6 +83,7 @@ export interface IControlSerializedData {
 export enum PropertyType {
   string,
   number,
+  action,
 }
 
 export interface IPropertyEditor {
@@ -100,7 +101,7 @@ export interface IPropertyDescriptor {
 export abstract class GettableSettableProperty<T> implements IPropertyDescriptor {
   constructor(public name: string, public displayName, public type: PropertyType) {}
 
-  abstract setValue(instance: ControlContainer, value: T, source?: any);
+  abstract setValue(instance: ControlContainer, value: T);
   abstract getValue(instance: ControlContainer): T;
 
   abstract getEditor(instance: ControlContainer): IPropertyEditor;
