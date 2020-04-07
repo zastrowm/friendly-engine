@@ -1,7 +1,6 @@
 import { IStoredPositionInfo } from './layout';
 import { ControlContainer } from '../components/design/control-container.e';
 import { UniqueId } from './util';
-import { RoutedEventDescriptor } from './routedEvents';
 
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
@@ -29,7 +28,7 @@ export interface IControlDescriptor {
    * @param value the value of the property
    * @param source where value originated (undo/redo, user interaction, etc.)
    **/
-  setValue(element: ControlContainer, property: IPropertyDescriptor, value: any, source?: any);
+  setValue(element: ControlContainer, property: IPropertyDescriptor, value: any);
 
   /**
    * Gets the value of the given property
@@ -54,16 +53,9 @@ export abstract class BaseControlDescriptor implements IControlDescriptor {
   public abstract createInstance();
 
   /** inheritdoc */
-  public setValue(element: ControlContainer, property: IPropertyDescriptor, value: any, source?: any) {
+  public setValue(element: ControlContainer, property: IPropertyDescriptor, value: any) {
     if (property instanceof GettableSettableProperty) {
-      let ret = property.setValue(element, value, source);
-      controlValueChanged.trigger(element, {
-        instance: element,
-        property: property,
-        value: value,
-        source: source,
-      });
-      return ret;
+      return property.setValue(element, value);
     }
 
     throw new Error('Property set not supported: ' + property.name);
@@ -147,16 +139,3 @@ class ControlDescriptors {
 }
 
 export let controlDescriptors = new ControlDescriptors();
-
-export interface IControlValueChangedArguments {
-  instance: ControlContainer;
-  value: any;
-  property: IPropertyDescriptor;
-  source?: any;
-}
-
-/** Updated when a control's value changes through an instance of IPropertyDescriptor */
-export let controlValueChanged = new RoutedEventDescriptor<IControlValueChangedArguments>({
-  id: 'controlValueChanged',
-  mustBeHandled: false,
-});
