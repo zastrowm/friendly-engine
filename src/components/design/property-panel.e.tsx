@@ -5,6 +5,8 @@ import { ref } from '../componentUtils';
 import { property } from '@friendly/elements/CustomHtmlElement';
 import { controlValueChanged as propertyChangedFromUndoRedo } from 'src/controls/editors/_shared';
 
+import './property-panel.css';
+
 /**
  * Allows editing of the properties for a specific container.
  */
@@ -51,6 +53,7 @@ export class PropertyPanelElement extends CustomHtmlJsxElement {
 
     return (
       <div>
+        <span class="name">{this.container.uniqueId}</span>
         {descriptor.getProperties().map((p) => (
           <PropertyEntry container={this.container} property={p} />
         ))}
