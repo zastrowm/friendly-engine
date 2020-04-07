@@ -3,7 +3,10 @@ import { ControlContainer } from './control-container.e';
 import { IPropertyDescriptor } from '../../framework/controlsRegistry';
 import { ref } from '../componentUtils';
 import { property } from '@friendly/elements/CustomHtmlElement';
-import { controlValueChanged as propertyChangedFromUndoRedo } from 'src/controls/editors/_shared';
+import {
+  controlValueChanged as propertyChangedFromUndoRedo,
+  IControlValueChangedArguments,
+} from 'src/controls/editors/_shared';
 
 import './property-panel.css';
 
@@ -32,8 +35,8 @@ export class PropertyPanelElement extends CustomHtmlJsxElement {
 
   /** Override */
   public onConnected() {
-    this._undoRedoListener = propertyChangedFromUndoRedo.addListener(document.body, (_) => {
-      this.onControlPropertyChanged();
+    this._undoRedoListener = propertyChangedFromUndoRedo.addListener(document.body, (args) => {
+      this.onControlPropertyChanged(args);
     });
   }
 
@@ -62,8 +65,10 @@ export class PropertyPanelElement extends CustomHtmlJsxElement {
   }
 
   /** Invoked when one of the controls' properties changes */
-  public onControlPropertyChanged(): void {
-    this.invalidate();
+  public onControlPropertyChanged(args: IControlValueChangedArguments): void {
+    if (args.instance == this.container) {
+      this.invalidate();
+    }
   }
 }
 

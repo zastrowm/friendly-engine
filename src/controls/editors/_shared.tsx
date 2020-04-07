@@ -31,6 +31,8 @@ export let setPropertyUndoRedo = registerUndoHandler<SetPropertyUndoArgs>('setPr
       property: this.property,
       value: this.originalValue,
     });
+
+    this.context.editor.selectAndMarkActive(container);
   },
 
   redo() {
@@ -43,6 +45,8 @@ export let setPropertyUndoRedo = registerUndoHandler<SetPropertyUndoArgs>('setPr
       property: this.property,
       value: this.newValue,
     });
+
+    this.context.editor.selectAndMarkActive(container);
   },
 
   tryMerge(rhs: SetPropertyUndoArgs) {
