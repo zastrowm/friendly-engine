@@ -8,7 +8,12 @@ import { ControlContainer } from './control-container.e';
 
 import './design-app.css';
 import { PropertyPanelElement } from './property-panel.e';
-import { installCommonDescriptors, controlDescriptors, IControlDescriptor } from '../../controls/commonDescriptors';
+import {
+  installCommonDescriptors,
+  controlDescriptors,
+  IControlDescriptor,
+  IControlSerializedData,
+} from '../../controls/commonDescriptors';
 import { registerFocusCounter, unregisterFocusCounter } from '../../framework/focusService';
 import { CustomHtmlJsxElement, customElement } from '@friendly/elements/CustomHtmlJsxElement';
 
@@ -28,14 +33,14 @@ export class DesignApp extends CustomHtmlJsxElement {
   constructor() {
     super();
 
-    undoCommandCreated.addListener(this, command => this.onUndoEventGenerated(command));
+    undoCommandCreated.addListener(this, (command) => this.onUndoEventGenerated(command));
 
     let listener = RoutedCommand.createListener(this);
     listener.set(appRoutedCommands.undo, () => this.doUndo());
     listener.set(appRoutedCommands.redo, () => this.doRedo());
     listener.set(appRoutedCommands.delete, () => this.deleteCurrent());
 
-    selectedControlChanges.addListener(this, c => this.onSelectedControlChanged(c));
+    selectedControlChanges.addListener(this, (c) => this.onSelectedControlChanged(c));
 
     installCommonDescriptors();
 
@@ -122,6 +127,36 @@ export class DesignApp extends CustomHtmlJsxElement {
     this.propertyPanel.container = container;
   }
 
+  /** Saves the current control layout to LocalStorage */
+  private saveLayout() {
+    let controls = this.querySelectorAll(ControlContainer.tagName);
+    let json = JSON.stringify(Array.from(controls).map((it) => it.serialize()));
+    window.localStorage.setItem('layout', json);
+  }
+
+  /** Restores the previously-saved control layout from LocalStorage */
+  private loadLayout() {
+    this.querySelectorAll(ControlContainer.tagName).forEach((e) => e.remove());
+    this.undoRedoQueue.clear();
+
+    let jsonLayout = window.localStorage.getItem('layout');
+    if (jsonLayout == null) {
+      alert('No layout saved');
+      return;
+    }
+
+    let layout = JSON.parse(jsonLayout) as IControlSerializedData[];
+    let lastControl: ControlContainer;
+    for (let serialized of layout) {
+      let descriptor = controlDescriptors.getDescriptor(serialized.typeId);
+      lastControl = this.editor.addControlNoUndo(descriptor, serialized);
+    }
+
+    if (lastControl != null) {
+      this.editor.selectAndMarkActive(lastControl);
+    }
+  }
+
   /* override */
   public onRender() {
     return (
@@ -129,20 +164,22 @@ export class DesignApp extends CustomHtmlJsxElement {
         <header>
           <h1>Web HMI Builder</h1>
           {/* Render each control as a button that inserts it */}
-          {Array.from(controlDescriptors.getDescriptors()).map(d => (
+          {Array.from(controlDescriptors.getDescriptors()).map((d) => (
             <button onClick={() => this.addControl(d)}>Add {d.id}</button>
           ))}
           <button onClick={() => this.deleteCurrent()}>Delete</button>
           <button onClick={() => this.doUndo()}>Undo</button>
           <button onClick={() => this.doRedo()}>Redo</button>
+          <button onClick={() => this.saveLayout()}>Save Layout</button>
+          <button onClick={() => this.loadLayout()}>Load Layout</button>
         </header>
         <main>
           <div>
-            <design-surface ref={it => (this.editor = it)} />
+            <design-surface ref={(it) => (this.editor = it)} />
           </div>
         </main>
         <aside>
-          <property-panel ref={it => (this.propertyPanel = it)}></property-panel>
+          <property-panel ref={(it) => (this.propertyPanel = it)}></property-panel>
         </aside>
       </div>
     );

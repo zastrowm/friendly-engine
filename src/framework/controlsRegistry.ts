@@ -71,6 +71,45 @@ export abstract class BaseControlDescriptor implements IControlDescriptor {
   }
 }
 
+/**
+ * Serializes the properties of the given descriptor for the control
+ * @param descriptor the descriptor that determines which properties are serialized
+ * @param control the control whose properties are serialized
+ * @returns an object containing key-value pairs of the properties to persist
+ */
+export function serializeProperties(descriptor: IControlDescriptor, control: ControlContainer): { [key: string]: any } {
+  let data = {};
+
+  for (let prop of descriptor.getProperties()) {
+    data[prop.name] = descriptor.getValue(control, prop);
+  }
+
+  return data;
+}
+
+/**
+ * Deserializes (previously-serialized) properties from the given data collection into the given control
+ * @param descriptor the descriptor that determines which properties are deserialized
+ * @param control the control whose properties are deserialized
+ * @param data the data source from which property values are retrieved
+ */
+export function deserializeProperties(
+  descriptor: IControlDescriptor,
+  control: ControlContainer,
+  data: { [key: string]: any },
+) {
+  if (data == null) {
+    return;
+  }
+
+  for (let prop of descriptor.getProperties()) {
+    let value = data[prop.name];
+    if (value !== undefined) {
+      descriptor.setValue(control, prop, value);
+    }
+  }
+}
+
 export interface IControlSerializedProperties {}
 
 export interface IControlSerializedData {

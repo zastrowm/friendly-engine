@@ -126,6 +126,14 @@ export class UndoRedoQueue {
     await redoEntry.redo(context);
     this.undoQueue.push(redoEntry);
   }
+
+  /**
+   * Clears the undo/redo queue
+   */
+  public clear() {
+    this.redoQueue.length = 0;
+    this.undoQueue.length = 0;
+  }
 }
 
 /** The routed event for undo commands being created. */

@@ -2,7 +2,12 @@ import { determineEditStyle } from '../../framework/positioner';
 import { IStoredPositionInfo } from '../../framework/layout';
 import { DesignSurfaceElement } from './design-surface.e';
 import { CustomHtmlElement, customElement, property } from '@friendly/elements/CustomHtmlElement';
-import { IControlDescriptor, IControlSerializedData } from '../../framework/controlsRegistry';
+import {
+  IControlDescriptor,
+  IControlSerializedData,
+  serializeProperties,
+  deserializeProperties,
+} from '../../framework/controlsRegistry';
 import { UniqueId } from '../../framework/util';
 
 @customElement(ControlContainer.tagName)
@@ -37,6 +42,8 @@ export class ControlContainer extends CustomHtmlElement {
     this.firstChild?.remove();
 
     this.appendChild(nestedControl);
+
+    deserializeProperties(this.descriptor, this, data.properties);
   }
 
   /**
@@ -46,7 +53,7 @@ export class ControlContainer extends CustomHtmlElement {
     return {
       id: this.uniqueId,
       position: this.positionInfo,
-      properties: {},
+      properties: serializeProperties(this.descriptor, this),
       typeId: this.descriptor.id,
     };
   }
@@ -78,7 +85,7 @@ export class ControlContainer extends CustomHtmlElement {
 
     anchorAndBoundary.boundaries.applyTo(this);
 
-    this.addEventListener('mousedown', e => this.onMouseDown(e));
+    this.addEventListener('mousedown', (e) => this.onMouseDown(e));
     this.designCanvas = this.closest(DesignSurfaceElement.tagName);
   }
 
