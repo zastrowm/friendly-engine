@@ -15,8 +15,9 @@
     "baseUrl": "./",
     "paths": {
       "@friendly/elements/*": ["lib/friendly/elements/*"],
+      "@friendly/wapp/*": ["lib/friendly/wapp/*"],
     }
   },
-  "include": ["src", "lib/friendly/elements"],
+  "include": ["src", "lib/friendly/elements", "lib/friendly/wapp"],
   "exclude": ["node_modules"]
 }

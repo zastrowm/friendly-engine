@@ -7,54 +7,52 @@ import {
   IPropertyEditor,
 } from 'src/framework/controlsRegistry';
 import { ControlContainer } from 'src/components/design/control-container.e';
-import { createTextBoxEditor } from './editors/_shared';
+import { renderToFragment, h } from '@friendly/elements/jsxElements';
+import { CodeDialog } from 'src/components/code/code-dialog.e';
+
+let codeDialog = CodeDialog.createInstance();
+
+document.body.append(codeDialog);
 
 /**
  * The text that should be shown when the button is clicked
  */
-class AlertTextProperty extends GettableSettableProperty<string> {
+class ClickActionProperty extends GettableSettableProperty<string> {
   constructor() {
-    super('button.alert.text', 'Alert Text', PropertyType.string);
+    super('button.click.script', '', PropertyType.string);
   }
 
   setValue(instance: ControlContainer, value: string) {
-    (instance as any).alertText = value;
+    (instance as any).scriptsClick = value;
   }
   getValue(instance: ControlContainer): string {
-    return (instance as any).alertText ?? '';
+    return (instance as any).scriptsClick ?? '';
   }
 
   getEditor(instance: ControlContainer): IPropertyEditor {
-    return createTextBoxEditor(this, instance);
-  }
-}
+    let onEditScript = async () => {
+      let response = await codeDialog.showDialog(`${instance.uniqueId}.click`, this.getValue(instance));
+      if (response.didSave) {
+        this.setValue(instance, response.code);
+      }
+    };
 
-/**
- * Stubbed property merely for exposing an editor that allows the user to test the button.
- */
-class ButtonClickProperty extends GettableSettableProperty<void> {
-  constructor() {
-    super('button.action', '', PropertyType.action);
-  }
+    let onTestScript = () => {
+      eval(this.getValue(instance));
+    };
 
-  setValue(_1: ControlContainer, _2: void) {
-    /* no-op */
-  }
-
-  getValue(_: ControlContainer): void {
-    /* no-op */
-  }
-
-  getEditor(instance: ControlContainer): IPropertyEditor {
-    let button = document.createElement('button');
-    button.addEventListener('click', function () {
-      let alertText = new AlertTextProperty().getValue(instance);
-      alert(alertText);
-    });
-    button.textContent = 'Test Alert';
+    let fragment = renderToFragment([
+      <a href="#" onClick={onEditScript}>
+        Edit Script
+      </a>,
+      <br />,
+      <a href="#" onClick={onTestScript}>
+        Test Script
+      </a>,
+    ]);
 
     return {
-      elementToMount: button,
+      elementToMount: fragment as any,
     };
   }
 }
@@ -62,12 +60,7 @@ class ButtonClickProperty extends GettableSettableProperty<void> {
 class ButtonDescriptor extends BaseControlDescriptor {
   public id = 'button';
 
-  private static properties = [
-    new TextContentProperty(),
-    new TextAlignmentProperty(),
-    new AlertTextProperty(),
-    new ButtonClickProperty(),
-  ];
+  private static properties = [new TextContentProperty(), new TextAlignmentProperty(), new ClickActionProperty()];
 
   public createInstance(): HTMLElement {
     return document.createElement('button');

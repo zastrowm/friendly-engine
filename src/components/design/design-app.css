@@ -1,4 +1,4 @@
-h1 {
+design-app h1 {
   font-size: 1.4rem;
   font-weight: 500;
   color: #fff;
@@ -50,6 +50,6 @@ design-app>div aside {
   width: 180px;
 }
 
-button[selected] {
+design-app button[selected] {
   background-color: #ccc;
 }

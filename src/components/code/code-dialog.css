@@ -1,0 +1,58 @@
+code-dialog {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+}
+
+code-dialog dialog {
+  width: calc(100% - 40px);
+  overflow: hidden;
+  height: unset;
+  position: fixed;
+  left: 20px;
+  top: 20px;
+  right: 20px;
+  bottom: 20px;
+
+  margin: 0px;
+  padding: 0px;
+}
+
+code-dialog dialog:not([open]) {
+  display: none;
+}
+
+code-dialog dialog::backdrop {
+  background-color: black;
+  opacity: .4;
+}
+
+code-dialog dialog {
+  display: grid;
+
+  grid-template-rows: auto 1fr auto;
+
+  grid-template-areas:
+    "header"
+    "code"
+    "actions"
+  ;
+}
+
+code-dialog dialog>h1 {
+  grid-area: header;
+  margin: 0px;
+}
+
+code-dialog dialog>div.code {
+  grid-area: code;
+  margin: 10px;
+  overflow: hidden;
+  background-color: blue;
+}
+
+code-dialog dialog>div.actions {
+  grid-area: actions;
+}

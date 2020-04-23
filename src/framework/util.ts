@@ -32,17 +32,17 @@ interface CancellablePromise<T> extends Promise<T> {
 export function delay(timeInMs: number): CancellablePromise<boolean> {
   let cancelCallback: () => void;
 
-  var promise = new Promise<boolean>(function(resolve) {
+  var promise = new Promise<boolean>(function (resolve) {
     let timerId = 0;
 
-    timerId = window.setTimeout(function() {
+    timerId = window.setTimeout(function () {
       if (timerId != 0) {
         resolve(true);
         timerId = 0;
       }
     }, timeInMs);
 
-    cancelCallback = function() {
+    cancelCallback = function () {
       window.clearTimeout(timerId);
 
       if (timerId != 0) {
@@ -55,4 +55,18 @@ export function delay(timeInMs: number): CancellablePromise<boolean> {
   let cancellable = promise as CancellablePromise<boolean>;
   cancellable.cancel = cancelCallback;
   return cancellable;
+}
+
+/**
+ * Adds a one time event listener for the given element
+ * @param element the element to which the one-time event should be added
+ * @param eventName the name of the event listener that resolves the promise
+ * @returns a promise that resolves when the event is fired
+ */
+export function addEventListenerAsync<TData = any>(element: HTMLElement, eventName: string): Promise<TData> {
+  return new Promise<TData>(function (resolve) {
+    element.addEventListener(eventName, function (evtData: any) {
+      resolve(evtData);
+    });
+  });
 }

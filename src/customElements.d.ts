@@ -7,6 +7,7 @@ import { ControlEditor } from './components/design/control-editor.e';
 import * as PJSX from 'preact/src/jsx';
 import * as preact from 'preact';
 import { PropertyPanelElement } from './components/design/property-panel.e';
+import { CodeDialog } from './components/code/code-dialog.e';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -16,6 +17,7 @@ declare global {
     [DesignSurfaceElement.tagName]: DesignSurfaceElement;
     [PropertyPanelElement.tagName]: PropertyPanelElement;
     [DragHandle.tagName]: DragHandle;
+    [CodeDialog.tagName]: CodeDialog;
   }
 }
 
@@ -40,6 +42,7 @@ declare module 'preact' {
       [DesignSurfaceElement.tagName]: JSXType<DesignSurfaceElement>;
       [PropertyPanelElement.tagName]: JSXType<PropertyPanelElement>;
       [DragHandle.tagName]: JSXType<DragHandle>;
+      [CodeDialog.tagName]: JSXType<CodeDialog>;
     }
   }
 }

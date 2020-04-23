@@ -1,5 +1,6 @@
 const path = require("path");
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -23,6 +24,7 @@ module.exports = {
 
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".json"],
+    /* For resolving TS settings to the correct .tsconfig */
     plugins: [new TsconfigPathsPlugin({})]
   },
 
@@ -38,8 +40,17 @@ module.exports = {
       {
         test: /\.tsx?$/,
         loader: "ts-loader"
+      },
+      /** typescript font files */
+      {
+        test: /\.ttf$/,
+        use: ['file-loader']
       }
-    ]
+    ],
   },
 
+  /* for loading the monaco editor */
+  plugins: [
+    new MonacoWebpackPlugin()
+  ]
 };

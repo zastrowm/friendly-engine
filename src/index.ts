@@ -8,15 +8,16 @@ async function waitForCustomElements() {
    * have loaded
    */
   // function from https://webpack.js.org/guides/dependency-management/#context-module-api
-  let importAll = r => r.keys().forEach(r);
+  let importAll = (r) => r.keys().forEach(r);
   importAll(require.context('./components/', /*includeSubdirs*/ true, /\.e\.tsx$/, /*mode*/ 'eager'));
 
   let customElementNames = Array.from(getCustomElementNames());
 
-  await Promise.all(customElementNames.map(name => customElements.whenDefined(name)));
+  await Promise.all(customElementNames.map((name) => customElements.whenDefined(name)));
 }
 
-(async () => {
+window.addEventListener('load', async () => {
   await waitForCustomElements();
+
   document.body.append(document.createElement('design-app'));
-})();
+});
