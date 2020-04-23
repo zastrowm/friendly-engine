@@ -1,6 +1,6 @@
 # Web-Based Editor
 
-Source code for a web-based WYSIWYG web page editor used to create HMIs displaying live data from external devices.
+Source code for a web-based WYSIWYG web page editor used to create apps displaying live data from external data sources.
 
 Totally a learning prototype.
 

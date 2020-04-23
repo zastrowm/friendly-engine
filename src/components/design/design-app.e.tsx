@@ -162,7 +162,7 @@ export class DesignApp extends CustomHtmlJsxElement {
     return (
       <div>
         <header>
-          <h1>Web HMI Builder</h1>
+          <h1>Web App Builder</h1>
           {/* Render each control as a button that inserts it */}
           {Array.from(controlDescriptors.getDescriptors()).map((d) => (
             <button onClick={() => this.addControl(d)}>Add {d.id}</button>
