@@ -1,6 +1,8 @@
 import { IStoredPositionInfo } from './layout';
 import { ControlContainer } from '../components/design/control-container.e';
 import { UniqueId } from './util';
+import { render, ComponentChild } from 'preact';
+import { setPropertyUndoRedo } from 'src/controls/editors/_shared';
 
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
@@ -123,6 +125,7 @@ export enum PropertyType {
   string,
   number,
   action,
+  boolean,
 }
 
 export interface IPropertyEditor {
@@ -137,9 +140,63 @@ export interface IPropertyDescriptor {
   getEditor(instance: ControlContainer): IPropertyEditor;
 }
 
-export abstract class GettableSettableProperty<T> implements IPropertyDescriptor {
+interface JsxEditorRefreshArguments<T> {
+  old: T;
+  new: T;
+  canMerge?: boolean;
+}
+
+/**
+ * Base class for an implementation of IPropertyDescriptor
+ */
+export abstract class BasePropertyDescriptor<T> implements IPropertyDescriptor {
   constructor(public name: string, public displayName, public type: PropertyType) {}
 
+  /* inheritdoc */
+  abstract getEditor(instance: ControlContainer): IPropertyEditor;
+
+  /**
+   * Creates an editor that uses JSX to provide the contents.
+   * @param instance the instance for which the editor is valid
+   * @param callback a callback that can be used to re-render the editor
+   * @returns an IPropertyEditor that edits the given property
+   */
+  protected createJsxEditor(
+    instance: ControlContainer,
+    callback: (refreshCallback: (arg?: JsxEditorRefreshArguments<T>) => void) => ComponentChild,
+  ): IPropertyEditor {
+    let element = document.createElement('span');
+
+    // callback that can be used to force JSX to re-render
+    let invalidateCallback = (data?: JsxEditorRefreshArguments<T>) => {
+      // if they passed in options, that means we should trigger an undo event
+      if (data != null) {
+        instance.descriptor.setValue(instance, this, data.new);
+
+        setPropertyUndoRedo.trigger(element, {
+          id: instance.uniqueId,
+          property: this,
+          originalValue: data.old,
+          newValue: data.new,
+          canMerge: data?.canMerge ?? false,
+        });
+      }
+
+      // actually re-render
+      let jsx = callback(invalidateCallback);
+      render(jsx, element);
+    };
+
+    // first time rendering
+    invalidateCallback();
+
+    return {
+      elementToMount: element,
+    };
+  }
+}
+
+export abstract class GettableSettableProperty<T> extends BasePropertyDescriptor<T> {
   abstract setValue(instance: ControlContainer, value: T);
   abstract getValue(instance: ControlContainer): T;
 

@@ -8,8 +8,8 @@ import { IPropertyDescriptor, GettableSettableProperty, IPropertyEditor } from '
 interface SetPropertyUndoArgs {
   id: UniqueId;
   property: IPropertyDescriptor;
-  originalValue: string;
-  newValue: string;
+  originalValue: any;
+  newValue: any;
   canMerge?: boolean;
   focusCount?: FocusCount;
 }
