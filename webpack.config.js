@@ -1,10 +1,10 @@
-const path = require("path");
+const path = require('path');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
-module.exports = {
+module.exports = (env, argv) => ({
   entry: {
-    main: path.resolve("./src/index.ts")
+    main: path.resolve('./src/index.ts'),
   },
 
   //...
@@ -12,20 +12,20 @@ module.exports = {
     port: 4297,
     overlay: {
       warnings: true,
-      errors: true
-    }
+      errors: true,
+    },
   },
 
   output: {
-    filename: "bundle.js",
-    publicPath: "./",
-    path: path.resolve(__dirname, "dist")
+    filename: 'bundle.js',
+    publicPath: '',
+    path: path.resolve(__dirname, 'dist'),
   },
 
   resolve: {
-    extensions: [".ts", ".tsx", ".js", ".json"],
+    extensions: ['.ts', '.tsx', '.js', '.json'],
     /* For resolving TS settings to the correct .tsconfig */
-    plugins: [new TsconfigPathsPlugin({})]
+    plugins: [new TsconfigPathsPlugin({})],
   },
 
   module: {
@@ -39,18 +39,16 @@ module.exports = {
       // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
       {
         test: /\.tsx?$/,
-        loader: "ts-loader"
+        loader: 'ts-loader',
       },
       /** typescript font files */
       {
         test: /\.ttf$/,
-        use: ['file-loader']
-      }
+        use: ['file-loader'],
+      },
     ],
   },
 
   /* for loading the monaco editor */
-  plugins: [
-    new MonacoWebpackPlugin()
-  ]
-};
+  plugins: [new MonacoWebpackPlugin()],
+});
