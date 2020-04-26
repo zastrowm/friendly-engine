@@ -7,3 +7,9 @@ export function renderToFragment(tree: ComponentChild): DocumentFragment {
   render(tree, fragment);
   return fragment;
 }
+
+export function renderToElement(elementName: string, tree: ComponentChild): HTMLElement {
+  let element = document.createElement(elementName);
+  render(tree, element);
+  return element;
+}
