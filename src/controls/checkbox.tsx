@@ -1,16 +1,10 @@
 import { h, Fragment, renderToElement } from '@friendly/elements/jsxElements';
 
 import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
-import {
-  ControlProperty,
-  IPropertyEditor,
-  IControlDescriptor,
-  Control,
-  controlProperty,
-  ReflectionBasedDescriptor,
-} from 'src/framework/controlsRegistry';
+import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
 import { ControlContainer } from 'src/components/design/control-container.e';
 import { TextContentProperty } from './editors/TextContentProperty';
+import { ControlProperty, IPropertyEditor, Control, controlProperty } from './Control';
 
 /**
  * Whether or not the checkbox is checked

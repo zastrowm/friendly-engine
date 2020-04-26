@@ -2,14 +2,15 @@ import { determineEditStyle } from '../../framework/positioner';
 import { IStoredPositionInfo } from '../../framework/layout';
 import { DesignSurfaceElement } from './design-surface.e';
 import { CustomHtmlElement, customElement, property } from '@friendly/elements/CustomHtmlElement';
+
+import { UniqueId } from '../../framework/util';
 import {
+  Control,
   IControlDescriptor,
   IControlSerializedData,
-  serializeProperties,
   deserializeProperties,
-  Control,
-} from '../../framework/controlsRegistry';
-import { UniqueId } from '../../framework/util';
+  serializeProperties,
+} from 'src/controls/commonControls';
 
 @customElement(ControlContainer.tagName)
 export class ControlContainer extends CustomHtmlElement {

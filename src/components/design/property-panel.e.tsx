@@ -8,7 +8,7 @@ import {
 } from 'src/controls/editors/_shared';
 
 import './property-panel.css';
-import { ControlProperty } from 'src/framework/controlsRegistry';
+import { ControlProperty } from 'src/controls/commonControls';
 
 /**
  * Allows editing of the properties for a specific container.

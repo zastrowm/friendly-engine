@@ -9,4 +9,11 @@ export function installCommonDescriptors() {
   controlDescriptors.add(checkboxDescriptor);
 }
 
-export { Control, controlDescriptors, IControlDescriptor, IControlSerializedData } from '../framework/controlsRegistry';
+export {
+  controlDescriptors,
+  IControlDescriptor,
+  IControlSerializedData,
+  deserializeProperties,
+  serializeProperties,
+} from '../framework/controlsRegistry';
+export { Control, ControlProperty, IPropertyEditor } from './Control';

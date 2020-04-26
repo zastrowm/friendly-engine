@@ -3,7 +3,7 @@ import { UniqueId } from '../../framework/util';
 import { getFocusCount, FocusCount } from '../../framework/focusService';
 import { ControlContainer } from 'src/components/design/control-container.e';
 import { RoutedEventDescriptor } from 'src/framework/routedEvents';
-import { ControlProperty } from 'src/framework/controlsRegistry';
+import { ControlProperty } from '../Control';
 
 interface SetPropertyUndoArgs {
   id: UniqueId;

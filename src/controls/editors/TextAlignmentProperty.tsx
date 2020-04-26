@@ -1,7 +1,7 @@
 import { ControlContainer } from '../../components/design/control-container.e';
 import { renderToFragment, Fragment, h, VNode } from '@friendly/elements/jsxElements';
 import { setPropertyUndoRedo } from './_shared';
-import { ControlProperty } from 'src/framework/controlsRegistry';
+import { ControlProperty } from '../Control';
 
 export class TextAlignmentProperty extends ControlProperty<string> {
   id: 'text.alignment';

@@ -1,11 +1,7 @@
 import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
 import { TextContentProperty } from './editors/TextContentProperty';
-import {
-  Control,
-  controlProperty,
-  IControlDescriptor,
-  ReflectionBasedDescriptor,
-} from 'src/framework/controlsRegistry';
+import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
+import { Control, controlProperty } from './Control';
 
 export class Label extends Control {
   private labelElement: HTMLDivElement;

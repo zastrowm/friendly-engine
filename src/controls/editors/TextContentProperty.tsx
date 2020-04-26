@@ -1,6 +1,6 @@
-import { ControlProperty } from '../../framework/controlsRegistry';
 import { ControlContainer } from '../../components/design/control-container.e';
 import { setPropertyUndoRedo } from './_shared';
+import { ControlProperty } from '../Control';
 
 export class TextContentProperty extends ControlProperty<string> {
   id: 'text.text';

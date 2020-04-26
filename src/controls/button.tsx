@@ -1,16 +1,10 @@
 import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
 import { TextContentProperty } from './editors/TextContentProperty';
-import {
-  IPropertyEditor,
-  ControlProperty,
-  Control,
-  IControlDescriptor,
-  ReflectionBasedDescriptor,
-  controlProperty,
-} from 'src/framework/controlsRegistry';
+import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
 import { ControlContainer } from 'src/components/design/control-container.e';
 import { renderToFragment, h } from '@friendly/elements/jsxElements';
 import { CodeDialog } from 'src/components/code/code-dialog.e';
+import { ControlProperty, IPropertyEditor, Control, controlProperty } from './Control';
 
 let codeDialog = CodeDialog.createInstance();
 
