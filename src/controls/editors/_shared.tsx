@@ -3,11 +3,11 @@ import { UniqueId } from '../../framework/util';
 import { getFocusCount, FocusCount } from '../../framework/focusService';
 import { ControlContainer } from 'src/components/design/control-container.e';
 import { RoutedEventDescriptor } from 'src/framework/routedEvents';
-import { IPropertyDescriptor, GettableSettableProperty, IPropertyEditor } from 'src/framework/controlsRegistry';
+import { ControlProperty } from 'src/framework/controlsRegistry';
 
 interface SetPropertyUndoArgs {
   id: UniqueId;
-  property: IPropertyDescriptor;
+  property: ControlProperty<any>;
   originalValue: any;
   newValue: any;
   canMerge?: boolean;
@@ -23,8 +23,7 @@ export let setPropertyUndoRedo = registerUndoHandler<SetPropertyUndoArgs>('setPr
 
   undo() {
     let container = this.context.editor.getControlContainer(this.id);
-    let descriptor = container.descriptor;
-    descriptor.setValue(container, this.property, this.originalValue);
+    this.property.setValue(container.control, this.originalValue);
 
     controlValueChanged.trigger(container, {
       instance: container,
@@ -37,8 +36,7 @@ export let setPropertyUndoRedo = registerUndoHandler<SetPropertyUndoArgs>('setPr
 
   redo() {
     let container = this.context.editor.getControlContainer(this.id);
-    let descriptor = container.descriptor;
-    descriptor.setValue(container, this.property, this.newValue);
+    this.property.setValue(container.control, this.newValue);
 
     controlValueChanged.trigger(container, {
       instance: container,
@@ -79,30 +77,5 @@ export let controlValueChanged = new RoutedEventDescriptor<IControlValueChangedA
 export interface IControlValueChangedArguments {
   instance: ControlContainer;
   value: any;
-  property: IPropertyDescriptor;
-}
-
-/** Implements a text-box that changes the property. */
-export function createTextBoxEditor(
-  self: GettableSettableProperty<string>,
-  instance: ControlContainer,
-): IPropertyEditor {
-  let input = document.createElement('input');
-  input.value = self.getValue(instance);
-
-  input.addEventListener('input', function () {
-    let originalValue = self.getValue(instance);
-    let newValue = input.value;
-    self.setValue(instance, newValue);
-
-    setPropertyUndoRedo.trigger(input, {
-      id: instance.uniqueId,
-      property: self,
-      originalValue,
-      newValue,
-      canMerge: true,
-    });
-  });
-
-  return { elementToMount: input };
+  property: ControlProperty<any>;
 }

@@ -13,64 +13,18 @@ import { setPropertyUndoRedo } from 'src/controls/editors/_shared';
 /**
  * Defines the controls that are available to be placed + modified via the design surface
  **/
-export interface IControlDescriptor {
+export interface IControlDescriptor<T extends Control = Control> {
   /** The unique id of the type of control described. */
   id: string;
 
   /** Creates an instance of the type of control. */
-  createInstance(): HTMLElement;
+  createInstance(): T;
 
   /** Gets the editable properties for the given element. */
-  getProperties(): IPropertyDescriptor[];
+  getProperties(): ControlProperty<any>[];
 
-  /**
-   * Sets the value of the given property
-   * @param element the element on which the property should be set
-   * @param property the property that should be set on the instance
-   * @param value the value of the property
-   * @param source where value originated (undo/redo, user interaction, etc.)
-   **/
-  setValue(element: ControlContainer, property: IPropertyDescriptor, value: any);
-
-  /**
-   * Gets the value of the given property
-   * @param element the element from which the value should be retrieved
-   * @param property the property describing the value to retrieve
-   * @returns the value of the given property for the instance
-   **/
-  getValue(element: ControlContainer, property: IPropertyDescriptor): any;
-}
-
-/**
- * Basic implementation of IControlDescriptor
- */
-export abstract class BaseControlDescriptor implements IControlDescriptor {
-  /** inheritdoc */
-  public abstract id: string;
-
-  /** inheritdoc */
-  public abstract getProperties();
-
-  /** inheritdoc */
-  public abstract createInstance();
-
-  /** inheritdoc */
-  public setValue(element: ControlContainer, property: IPropertyDescriptor, value: any) {
-    if (property instanceof GettableSettableProperty) {
-      return property.setValue(element, value);
-    }
-
-    throw new Error('Property set not supported: ' + property.name);
-  }
-
-  /** inheritdoc */
-  public getValue(element: ControlContainer, property: IPropertyDescriptor) {
-    if (property instanceof GettableSettableProperty) {
-      return property.getValue(element);
-    }
-
-    throw new Error('Property get not supported: ' + property.name);
-  }
+  /** Gets a property with the given name */
+  getProperty<T>(id: string): ControlProperty<T>;
 }
 
 /**
@@ -79,11 +33,14 @@ export abstract class BaseControlDescriptor implements IControlDescriptor {
  * @param control the control whose properties are serialized
  * @returns an object containing key-value pairs of the properties to persist
  */
-export function serializeProperties(descriptor: IControlDescriptor, control: ControlContainer): { [key: string]: any } {
+export function serializeProperties(
+  descriptor: IControlDescriptor,
+  container: ControlContainer,
+): { [key: string]: any } {
   let data = {};
 
   for (let prop of descriptor.getProperties()) {
-    data[prop.name] = descriptor.getValue(control, prop);
+    data[prop.id] = prop.getValue(container.control);
   }
 
   return data;
@@ -97,7 +54,7 @@ export function serializeProperties(descriptor: IControlDescriptor, control: Con
  */
 export function deserializeProperties(
   descriptor: IControlDescriptor,
-  control: ControlContainer,
+  container: ControlContainer,
   data: { [key: string]: any },
 ) {
   if (data == null) {
@@ -105,9 +62,9 @@ export function deserializeProperties(
   }
 
   for (let prop of descriptor.getProperties()) {
-    let value = data[prop.name];
+    let value = data[prop.id];
     if (value !== undefined) {
-      descriptor.setValue(control, prop, value);
+      prop.setValue(container.control, value);
     }
   }
 }
@@ -121,23 +78,8 @@ export interface IControlSerializedData {
   typeId: string;
 }
 
-export enum PropertyType {
-  string,
-  number,
-  action,
-  boolean,
-}
-
 export interface IPropertyEditor {
   elementToMount: HTMLElement;
-}
-
-export interface IPropertyDescriptor {
-  name: string;
-  displayName: string;
-  type: PropertyType;
-
-  getEditor(instance: ControlContainer): IPropertyEditor;
 }
 
 interface JsxEditorRefreshArguments<T> {
@@ -147,10 +89,28 @@ interface JsxEditorRefreshArguments<T> {
 }
 
 /**
- * Base class for an implementation of IPropertyDescriptor
+ * Base class for a property descriptor
  */
-export abstract class BasePropertyDescriptor<T> implements IPropertyDescriptor {
-  constructor(public name: string, public displayName, public type: PropertyType) {}
+export abstract class ControlProperty<T> {
+  abstract id: string;
+  abstract displayName: string;
+
+  callback: (element: any) => HTMLElement;
+
+  constructor(callback: (element: any) => HTMLElement) {
+    this.callback = callback;
+  }
+
+  public getValue(control: Control): T {
+    return this.getValueRaw(this.callback(control));
+  }
+
+  public setValue(control: Control, value: T) {
+    this.setValueRaw(this.callback(control), value);
+  }
+
+  protected abstract getValueRaw(e: HTMLElement): T;
+  protected abstract setValueRaw(e: HTMLElement, value: T): void;
 
   /* inheritdoc */
   abstract getEditor(instance: ControlContainer): IPropertyEditor;
@@ -171,7 +131,7 @@ export abstract class BasePropertyDescriptor<T> implements IPropertyDescriptor {
     let invalidateCallback = (data?: JsxEditorRefreshArguments<T>) => {
       // if they passed in options, that means we should trigger an undo event
       if (data != null) {
-        instance.descriptor.setValue(instance, this, data.new);
+        this.setValue(instance.control, data.new);
 
         setPropertyUndoRedo.trigger(element, {
           id: instance.uniqueId,
@@ -194,13 +154,6 @@ export abstract class BasePropertyDescriptor<T> implements IPropertyDescriptor {
       elementToMount: element,
     };
   }
-}
-
-export abstract class GettableSettableProperty<T> extends BasePropertyDescriptor<T> {
-  abstract setValue(instance: ControlContainer, value: T);
-  abstract getValue(instance: ControlContainer): T;
-
-  abstract getEditor(instance: ControlContainer): IPropertyEditor;
 }
 
 class ControlDescriptors {
@@ -232,6 +185,57 @@ class ControlDescriptors {
     for (let callback of this.callbacks) {
       callback();
     }
+  }
+}
+
+export abstract class Control {
+  public uniqueId: UniqueId;
+
+  public createElement(): HTMLElement {
+    return this.initialize();
+  }
+
+  protected abstract initialize(): HTMLElement;
+  protected target: HTMLElement | null;
+
+  public abstract get descriptor(): IControlDescriptor<Control>;
+}
+
+let data = new Map<any, ControlProperty<any>[]>();
+
+export function controlProperty(property: ControlProperty<any>) {
+  return function (target: any, key: string) {
+    let existing = data.get(target);
+    if (existing == null) {
+      existing = [];
+      data.set(target, existing);
+    }
+
+    existing.push(property);
+    // TODO define property on the class itself
+
+    console.log('Adding property', target, key);
+  };
+}
+
+export class ReflectionBasedDescriptor<T extends Control> implements IControlDescriptor<T> {
+  constructor(public readonly id: string, private readonly typeDef: new () => T) {}
+  getProperties(): ControlProperty<any>[] {
+    return data.get(this.typeDef.prototype) ?? [];
+  }
+
+  public createInstance(): T {
+    return new this.typeDef();
+  }
+
+  public getProperty<T>(id: string): ControlProperty<T> {
+    for (let prop of this.getProperties()) {
+      if (prop.id == id) {
+        return prop;
+      }
+    }
+
+    return null;
   }
 }
 

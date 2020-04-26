@@ -1,24 +1,23 @@
-import { GettableSettableProperty, PropertyType } from '../../framework/controlsRegistry';
 import { ControlContainer } from '../../components/design/control-container.e';
 import { renderToFragment, Fragment, h, VNode } from '@friendly/elements/jsxElements';
 import { setPropertyUndoRedo } from './_shared';
+import { ControlProperty } from 'src/framework/controlsRegistry';
 
-export class TextAlignmentProperty extends GettableSettableProperty<string> {
-  constructor() {
-    super('text.alignment', 'Alignment', PropertyType.string);
-  }
+export class TextAlignmentProperty extends ControlProperty<string> {
+  id: 'text.alignment';
+  displayName: 'Alignment';
 
-  public setValue(instance: ControlContainer, value: string) {
-    instance.control.style.textAlign = value;
+  protected getValueRaw(e: HTMLElement) {
+    return getComputedStyle(e).textAlign;
   }
-  public getValue(instance: ControlContainer): string {
-    return getComputedStyle(instance.control).textAlign;
+  protected setValueRaw(e: HTMLElement, value: string) {
+    e.style.textAlign = value;
   }
 
   public getEditor(instance: ControlContainer) {
     let onValueChanged = (data: string, element: HTMLElement) => {
-      let originalValue = this.getValue(instance);
-      this.setValue(instance, data);
+      let originalValue = this.getValue(instance.control);
+      this.setValue(instance.control, data);
 
       setPropertyUndoRedo.trigger(element, {
         id: instance.uniqueId,
@@ -28,7 +27,7 @@ export class TextAlignmentProperty extends GettableSettableProperty<string> {
       });
     };
 
-    let currentValue = this.getValue(instance);
+    let currentValue = this.getValue(instance.control);
 
     let fragment = renderToFragment(
       <Fragment>
@@ -70,7 +69,7 @@ function OptionsSelector(props: {
 
   return (
     <span>
-      {props.children.map(it => (
+      {props.children.map((it) => (
         <button
           onClick={handleClick}
           data-data={(it.props as any).data}

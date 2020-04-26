@@ -7,6 +7,7 @@ import {
   IControlSerializedData,
   serializeProperties,
   deserializeProperties,
+  Control,
 } from '../../framework/controlsRegistry';
 import { UniqueId } from '../../framework/util';
 
@@ -23,7 +24,9 @@ export class ControlContainer extends CustomHtmlElement {
   @property({ attributeName: 'unique-id' })
   public uniqueId: UniqueId;
 
-  public get control(): HTMLElement {
+  public control: Control;
+
+  public get rawElement(): HTMLElement {
     return this.firstElementChild as HTMLElement;
   }
 
@@ -35,13 +38,8 @@ export class ControlContainer extends CustomHtmlElement {
     this.positionInfo = data.position;
     this.uniqueId = data.id;
 
-    let nestedControl = this.descriptor.createInstance();
-    nestedControl.textContent = 'This is a ' + this.descriptor.id;
-
-    // since we're deserializing, make sure we don't have existing content
-    this.firstChild?.remove();
-
-    this.appendChild(nestedControl);
+    this.control = this.descriptor.createInstance();
+    this.appendChild(this.control.createElement());
 
     deserializeProperties(this.descriptor, this, data.properties);
   }

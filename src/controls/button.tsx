@@ -1,54 +1,84 @@
-import { h, Fragment, renderToElement } from '@friendly/elements/jsxElements';
+import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
+import { TextContentProperty } from './editors/TextContentProperty';
 import {
+  IPropertyEditor,
   ControlProperty,
   Control,
-  controlProperty,
-  Descriptor,
+  IControlDescriptor,
   ReflectionBasedDescriptor,
-} from 'src/framework/descriptors';
+  controlProperty,
+} from 'src/framework/controlsRegistry';
+import { ControlContainer } from 'src/components/design/control-container.e';
+import { renderToFragment, h } from '@friendly/elements/jsxElements';
+import { CodeDialog } from 'src/components/code/code-dialog.e';
 
-class TextAlignmentProperty extends ControlProperty<string> {
-  id: 'text.alignment';
-  displayName: 'Text Alignment';
+let codeDialog = CodeDialog.createInstance();
 
-  getValue = (e: HTMLElement) => e.style.textAlign;
-  setValue = (e: HTMLElement, value: string) => (e.style.textAlign = value);
+document.body.append(codeDialog);
+
+/**
+ * The text that should be shown when the button is clicked
+ */
+class ClickActionProperty extends ControlProperty<string> {
+  id: 'button.scripts.click';
+  displayName: '';
+
+  getValueRaw(e: HTMLElement): string {
+    return (e as any).scriptsClick ?? '';
+  }
+
+  setValueRaw(e: HTMLElement, value: string) {
+    (e as any).scriptsClick = value;
+  }
+
+  getEditor(instance: ControlContainer): IPropertyEditor {
+    let onEditScript = async () => {
+      let response = await codeDialog.showDialog(`${instance.uniqueId}.click`, this.getValue(instance.control));
+      if (response.didSave) {
+        this.setValue(instance.control, response.code);
+      }
+    };
+
+    let onTestScript = () => {
+      eval(this.getValue(instance.control));
+    };
+
+    let fragment = renderToFragment([
+      <a href="#" onClick={onEditScript}>
+        Edit Script
+      </a>,
+      <br />,
+      <a href="#" onClick={onTestScript}>
+        Test Script
+      </a>,
+    ]);
+
+    return {
+      elementToMount: fragment as any,
+    };
+  }
 }
 
-class TextContentProperty extends ControlProperty<string> {
-  id: 'text.text';
-  displayName: 'Text';
+class Button extends Control {
+  private buttonElement: HTMLButtonElement;
 
-  getValue = (e: HTMLElement) => e.textContent;
-  setValue = (e: HTMLElement, value: string) => (e.textContent = value);
-}
-
-class Checkbox extends Control {
-  private input: HTMLInputElement;
-  private textElement: HTMLElement;
-
-  @controlProperty(new TextAlignmentProperty((c: Checkbox) => c.textElement))
+  @controlProperty(new TextAlignmentProperty((c: Button) => c.buttonElement))
   public text: string;
 
-  @controlProperty(new TextContentProperty((c: Checkbox) => c.input))
+  @controlProperty(new TextContentProperty((c: Button) => c.buttonElement))
   public textAlignment: string;
 
-  @controlProperty('Checked', 'checkbox.isChecked', (c: Checkbox) => c.input.checked)
-  public clickScript: boolean;
-
-  public get descriptor(): Descriptor<Checkbox> {
-    return checkboxDescriptor;
-  }
+  @controlProperty(new ClickActionProperty((c: Button) => (c.buttonElement as any).scriptsClick))
+  public isChecked: string;
 
   protected initialize(): HTMLElement {
-    return renderToElement(
-      'div',
-      <Fragment>
-        <input type="checkbox" />
-        <span></span>
-      </Fragment>,
-    );
+    this.buttonElement = document.createElement('button');
+    return this.buttonElement;
+  }
+
+  public get descriptor(): IControlDescriptor<Control> {
+    return buttonDescriptor;
   }
 }
 
-export let checkboxDescriptor = new ReflectionBasedDescriptor(Checkbox);
+export let buttonDescriptor = new ReflectionBasedDescriptor('button', Button);
