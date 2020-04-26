@@ -10,8 +10,8 @@ import { ControlProperty, IPropertyEditor, Control, controlProperty } from './Co
  * Whether or not the checkbox is checked
  */
 class CheckedProperty extends ControlProperty<boolean> {
-  id: 'checkbox.isChecked';
-  displayName: 'Checked';
+  public id = 'checkbox.isChecked';
+  public displayName = 'Checked';
 
   protected getValueRaw(e: HTMLInputElement) {
     return e.checked;

@@ -4,8 +4,8 @@ import { setPropertyUndoRedo } from './_shared';
 import { ControlProperty } from '../Control';
 
 export class TextAlignmentProperty extends ControlProperty<string> {
-  id: 'text.alignment';
-  displayName: 'Alignment';
+  public id = 'text.alignment';
+  public displayName = 'Alignment';
 
   protected getValueRaw(e: HTMLElement) {
     return getComputedStyle(e).textAlign;

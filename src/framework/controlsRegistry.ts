@@ -62,6 +62,7 @@ export function deserializeProperties(
 
   for (let prop of descriptor.getProperties()) {
     let value = data[prop.id];
+    console.log(prop.id, value, prop);
     if (value !== undefined) {
       prop.setValue(container.control, value);
     }

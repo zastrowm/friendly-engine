@@ -38,22 +38,27 @@ export function getControlPropertiesFor(controlConstructor: any) {
  * Base class for a property descriptor
  */
 export abstract class ControlProperty<T> {
-  abstract id: string;
-
-  abstract displayName: string;
-
-  callback: (element: any) => HTMLElement;
+  /* The callback which retrieves the actual element where the property value can be set and retrieved */
+  protected _callback: (element: any) => HTMLElement;
 
   constructor(callback: (element: any) => HTMLElement) {
-    this.callback = callback;
+    this._callback = callback;
   }
 
+  /* The id of the property */
+  public abstract id: string;
+
+  /* This human-readable name of the property */
+  public abstract displayName: string;
+
+  /* Gets the value from the control */
   public getValue(control: Control): T {
-    return this.getValueRaw(this.callback(control));
+    return this.getValueRaw(this._callback(control));
   }
 
+  /* Sets the value for control */
   public setValue(control: Control, value: T) {
-    this.setValueRaw(this.callback(control), value);
+    this.setValueRaw(this._callback(control), value);
   }
 
   protected abstract getValueRaw(e: HTMLElement): T;
@@ -105,12 +110,16 @@ export abstract class ControlProperty<T> {
 
 /** Base class for all controls that can be created */
 export abstract class Control {
+  /**
+   * Creates the DOM elements for this control.
+   */
   public createElement(): HTMLElement {
     return this.initialize();
   }
 
+  /** Initializes the DOM elements for this control and returns it. */
   protected abstract initialize(): HTMLElement;
-  protected target: HTMLElement | null;
 
+  /** The control descriptor for this control. */
   public abstract get descriptor(): IControlDescriptor<Control>;
 }

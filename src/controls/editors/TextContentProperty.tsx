@@ -3,8 +3,8 @@ import { setPropertyUndoRedo } from './_shared';
 import { ControlProperty } from '../Control';
 
 export class TextContentProperty extends ControlProperty<string> {
-  id: 'text.text';
-  displayName: 'Text';
+  public id = 'text.text';
+  public displayName = 'Text';
 
   /* override */
   protected getValueRaw(e: HTMLElement) {
