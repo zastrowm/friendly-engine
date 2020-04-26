@@ -1,7 +1,7 @@
 import { controlDescriptors } from '../framework/controlsRegistry';
-import { buttonDescriptor } from './button';
-import { labelDescriptor } from './label';
-import { checkboxDescriptor } from './checkbox';
+import { buttonDescriptor } from './button2';
+import { labelDescriptor } from './label2';
+import { checkboxDescriptor } from './checkbox2';
 
 export function installCommonDescriptors() {
   controlDescriptors.add(buttonDescriptor);
