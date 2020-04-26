@@ -62,7 +62,7 @@ class Button extends Control {
   @controlProperty(new TextContentProperty((c: Button) => c.buttonElement))
   public textAlignment: string;
 
-  @controlProperty(new ClickActionProperty((c: Button) => (c.buttonElement as any).scriptsClick))
+  @controlProperty(new ClickActionProperty((c: Button) => c.buttonElement))
   public isChecked: string;
 
   protected initialize(): HTMLElement {
