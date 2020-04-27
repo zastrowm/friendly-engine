@@ -1,6 +1,5 @@
 import { ControlContainer } from '../../components/design/control-container.e';
-import { renderToFragment, Fragment, h, VNode } from '@friendly/elements/jsxElements';
-import { setPropertyUndoRedo } from './_shared';
+import { Fragment, h, VNode } from '@friendly/elements/jsxElements';
 import { ControlProperty } from '../Control';
 
 export class TextAlignmentProperty extends ControlProperty<string> {
@@ -15,65 +14,38 @@ export class TextAlignmentProperty extends ControlProperty<string> {
   }
 
   public getEditor(instance: ControlContainer) {
-    let onValueChanged = (data: string, element: HTMLElement) => {
-      let originalValue = this.getValue(instance.control);
-      this.setValue(instance.control, data);
-
-      setPropertyUndoRedo.trigger(element, {
-        id: instance.uniqueId,
-        property: this,
-        originalValue,
-        newValue: data,
-      });
-    };
-
-    let currentValue = this.getValue(instance.control);
-
-    let fragment = renderToFragment(
+    return this.createJsxEditor(instance, (refresh) => (
       <Fragment>
-        <OptionsSelector onChanged={onValueChanged} current={currentValue}>
+        <OptionsSelector
+          current={this.getValue(instance.control)}
+          onChanged={(newValue) => {
+            let oldValue = this.getValue(instance.control);
+            refresh({ old: oldValue, new: newValue });
+          }}
+        >
           <Option data="left">L</Option>
           <Option data="center">C</Option>
           <Option data="right">R</Option>
         </OptionsSelector>
-      </Fragment>,
-    );
-
-    return { elementToMount: fragment as any };
+      </Fragment>
+    ));
   }
 }
 
-function Option<T>(props: { data: T }) {
-  console.log(props);
-}
+function Option<T>(_: { data: T }) {}
 
 function OptionsSelector(props: {
   onChanged: (data: string, targetElement?: HTMLElement) => void;
-  children?: VNode[];
+  children?: (VNode & { props: { data: any } })[];
   current: string;
 }) {
-  let handleClick = (evt: MouseEvent) => {
-    let button = evt.target as HTMLButtonElement;
-    let previous = button.parentElement.querySelector('button[selected]');
-    if (previous == button) {
-      return;
-    }
-
-    if (previous != null) {
-      previous.removeAttribute('selected');
-    }
-    button.setAttribute('selected', 'true');
-    let data = button.dataset.data;
-    props.onChanged(data, evt.target as HTMLElement);
-  };
-
   return (
     <span>
       {props.children.map((it) => (
         <button
-          onClick={handleClick}
-          data-data={(it.props as any).data}
-          selected={(it.props as any).data == props.current ? true : undefined}
+          onClick={() => props.onChanged(it.props.data)}
+          data-data={it.props.data}
+          selected={it.props.data == props.current ? true : undefined}
         >
           {it.props.children}
         </button>

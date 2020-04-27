@@ -16,7 +16,7 @@ export interface IPropertyEditor {
 let data = new Map<any, ControlProperty<any>[]>();
 
 export function controlProperty(property: ControlProperty<any>) {
-  return function (target: any, key: string) {
+  return function (target: any, propertyKey: string) {
     let existing = data.get(target);
     if (existing == null) {
       existing = [];
@@ -24,9 +24,16 @@ export function controlProperty(property: ControlProperty<any>) {
     }
 
     existing.push(property);
-    // TODO define property on the class itself
 
-    console.log('Adding property', target, key);
+    Object.defineProperty(target, propertyKey, {
+      get: function () {
+        return property.getValue(this);
+      },
+
+      set: function (value) {
+        property.setValue(this, value);
+      },
+    });
   };
 }
 
