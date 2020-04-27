@@ -1,27 +1,30 @@
-import { GettableSettableProperty, PropertyType } from '../../framework/controlsRegistry';
 import { ControlContainer } from '../../components/design/control-container.e';
-import { setPropertyUndoRedo, createTextBoxEditor } from './_shared';
+import { setPropertyUndoRedo } from './_shared';
+import { ControlProperty } from '../Control';
 
-export class TextContentProperty extends GettableSettableProperty<string> {
-  constructor() {
-    super('text.text', 'Text', PropertyType.string);
+export class TextContentProperty extends ControlProperty<string> {
+  public id = 'text.text';
+  public displayName = 'Text';
+
+  /* override */
+  protected getValueRaw(e: HTMLElement) {
+    return e.textContent;
   }
 
-  public setValue(instance: ControlContainer, value: string) {
-    instance.control.textContent = value;
-  }
-  public getValue(instance: ControlContainer): string {
-    return instance.control.textContent;
+  /* override */
+  protected setValueRaw(e: HTMLElement, value: string) {
+    e.textContent = value;
   }
 
+  /* override */
   public getEditor(instance: ControlContainer) {
     let input = document.createElement('input');
-    input.value = this.getValue(instance);
+    input.value = this.getValue(instance.control);
 
     input.addEventListener('input', () => {
-      let originalValue = this.getValue(instance);
+      let originalValue = this.getValue(instance.control);
       let newValue = input.value;
-      this.setValue(instance, newValue);
+      this.setValue(instance.control, newValue);
 
       setPropertyUndoRedo.trigger(input, {
         id: instance.uniqueId,
@@ -33,16 +36,5 @@ export class TextContentProperty extends GettableSettableProperty<string> {
     });
 
     return { elementToMount: input };
-  }
-}
-
-/** Base class for a text property */
-export abstract class BaseTextProperty extends GettableSettableProperty<string> {
-  constructor() {
-    super('text.text', 'Text', PropertyType.string);
-  }
-
-  public getEditor(instance: ControlContainer) {
-    return createTextBoxEditor(this, instance);
   }
 }

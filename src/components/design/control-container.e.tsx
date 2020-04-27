@@ -2,13 +2,15 @@ import { determineEditStyle } from '../../framework/positioner';
 import { IStoredPositionInfo } from '../../framework/layout';
 import { DesignSurfaceElement } from './design-surface.e';
 import { CustomHtmlElement, customElement, property } from '@friendly/elements/CustomHtmlElement';
+
+import { UniqueId } from '../../framework/util';
 import {
+  Control,
   IControlDescriptor,
   IControlSerializedData,
-  serializeProperties,
   deserializeProperties,
-} from '../../framework/controlsRegistry';
-import { UniqueId } from '../../framework/util';
+  serializeProperties,
+} from 'src/controls/commonControls';
 
 @customElement(ControlContainer.tagName)
 export class ControlContainer extends CustomHtmlElement {
@@ -23,7 +25,9 @@ export class ControlContainer extends CustomHtmlElement {
   @property({ attributeName: 'unique-id' })
   public uniqueId: UniqueId;
 
-  public get control(): HTMLElement {
+  public control: Control;
+
+  public get rawElement(): HTMLElement {
     return this.firstElementChild as HTMLElement;
   }
 
@@ -35,13 +39,8 @@ export class ControlContainer extends CustomHtmlElement {
     this.positionInfo = data.position;
     this.uniqueId = data.id;
 
-    let nestedControl = this.descriptor.createInstance();
-    nestedControl.textContent = 'This is a ' + this.descriptor.id;
-
-    // since we're deserializing, make sure we don't have existing content
-    this.firstChild?.remove();
-
-    this.appendChild(nestedControl);
+    this.control = this.descriptor.createInstance();
+    this.appendChild(this.control.createElement());
 
     deserializeProperties(this.descriptor, this, data.properties);
   }

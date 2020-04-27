@@ -13,7 +13,7 @@ import {
   controlDescriptors,
   IControlDescriptor,
   IControlSerializedData,
-} from '../../controls/commonDescriptors';
+} from '../../controls/commonControls';
 import { registerFocusCounter, unregisterFocusCounter } from '../../framework/focusService';
 import { CustomHtmlJsxElement, customElement } from '@friendly/elements/CustomHtmlJsxElement';
 
@@ -107,14 +107,14 @@ export class DesignApp extends CustomHtmlJsxElement {
       width: 100,
       height: 100,
     });
-    container.control.textContent = 'First Button';
+    container.rawElement.textContent = 'First Button';
     container = this.editor.addControl(buttonDescriptor, {
       right: 20,
       top: 100,
       width: 100,
       height: 100,
     });
-    container.control.textContent = 'Second Button';
+    container.rawElement.textContent = 'Second Button';
   }
 
   private onSelectedControlChanged(container: ControlContainer): void {

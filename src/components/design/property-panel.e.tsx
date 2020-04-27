@@ -1,6 +1,5 @@
 import { h, customElement, CustomHtmlJsxElement } from '@friendly/elements/CustomHtmlJsxElement';
 import { ControlContainer } from './control-container.e';
-import { IPropertyDescriptor } from '../../framework/controlsRegistry';
 import { ref } from '../componentUtils';
 import { property } from '@friendly/elements/CustomHtmlElement';
 import {
@@ -9,6 +8,7 @@ import {
 } from 'src/controls/editors/_shared';
 
 import './property-panel.css';
+import { ControlProperty } from 'src/controls/commonControls';
 
 /**
  * Allows editing of the properties for a specific container.
@@ -72,7 +72,7 @@ export class PropertyPanelElement extends CustomHtmlJsxElement {
   }
 }
 
-function PropertyEntry(props: { property: IPropertyDescriptor; container: ControlContainer }) {
+function PropertyEntry(props: { property: ControlProperty<any>; container: ControlContainer }) {
   let editor = props.property.getEditor(props.container);
 
   return (
