@@ -31,10 +31,10 @@ export class ControlEditor extends CustomHtmlJsxElement {
   constructor() {
     super();
 
-    this.addEventListener('mousedown', e => this.doMouseDown(e));
+    this.addEventListener('mousedown', (e) => this.doMouseDown(e));
 
     this.mouseUpListener = () => this.onMouseUp();
-    this.mouseMoveListener = mouseEvent => this.onMouseMove(mouseEvent);
+    this.mouseMoveListener = (mouseEvent) => this.onMouseMove(mouseEvent);
   }
 
   public designEditor: DesignSurfaceElement;
@@ -121,7 +121,7 @@ export class ControlEditor extends CustomHtmlJsxElement {
     controlContainer.positionInfo = this.lastUpdatedBoundary;
 
     moveUndoHandler.trigger(this, {
-      id: controlContainer.uniqueId,
+      id: controlContainer.id,
       startingPosition: this.originalPosition.clone(),
       endingPosition: this.lastUpdatedBoundary.clone(),
     });

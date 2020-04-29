@@ -52,11 +52,11 @@ export class PropertyPanelElement extends CustomHtmlJsxElement {
       return <span>No Active Element</span>;
     }
 
-    let descriptor = this.container.descriptor;
+    let descriptor = this.container.control.descriptor;
 
     return (
       <div>
-        <span class="name">{this.container.uniqueId}</span>
+        <span class="name">{this.container.control.id}</span>
         {descriptor.getProperties().map((p) => (
           <PropertyEntry container={this.container} property={p} />
         ))}

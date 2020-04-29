@@ -1,6 +1,3 @@
-import { IStoredPositionInfo } from './layout';
-import { ControlContainer } from '../components/design/control-container.e';
-import { UniqueId } from './util';
 import { Control, ControlProperty, getControlPropertiesFor } from 'src/controls/Control';
 
 /**
@@ -24,58 +21,6 @@ export interface IControlDescriptor<T extends Control = Control> {
 
   /** Gets a property with the given name */
   getProperty<T>(id: string): ControlProperty<T>;
-}
-
-/**
- * Serializes the properties of the given descriptor for the control
- * @param descriptor the descriptor that determines which properties are serialized
- * @param control the control whose properties are serialized
- * @returns an object containing key-value pairs of the properties to persist
- */
-export function serializeProperties(
-  descriptor: IControlDescriptor,
-  container: ControlContainer,
-): { [key: string]: any } {
-  let data = {};
-
-  for (let prop of descriptor.getProperties()) {
-    data[prop.id] = prop.getValue(container.control);
-  }
-
-  return data;
-}
-
-/**
- * Deserializes (previously-serialized) properties from the given data collection into the given control
- * @param descriptor the descriptor that determines which properties are deserialized
- * @param control the control whose properties are deserialized
- * @param data the data source from which property values are retrieved
- */
-export function deserializeProperties(
-  descriptor: IControlDescriptor,
-  container: ControlContainer,
-  data: { [key: string]: any },
-) {
-  if (data == null) {
-    return;
-  }
-
-  for (let prop of descriptor.getProperties()) {
-    let value = data[prop.id];
-    console.log(prop.id, value, prop);
-    if (value !== undefined) {
-      prop.setValue(container.control, value);
-    }
-  }
-}
-
-export interface IControlSerializedProperties {}
-
-export interface IControlSerializedData {
-  id: UniqueId;
-  position: IStoredPositionInfo;
-  properties: { [name: string]: any };
-  typeId: string;
 }
 
 class ControlDescriptors {

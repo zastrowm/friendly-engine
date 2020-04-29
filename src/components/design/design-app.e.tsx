@@ -58,14 +58,14 @@ export class DesignApp extends CustomHtmlJsxElement {
   }
 
   private addControl(descriptor: IControlDescriptor) {
-    let newControl = this.editor.addControl(descriptor);
+    let newControl = this.editor.addNewControl(descriptor);
     this.editor.selectAndMarkActive(newControl);
   }
 
   public deleteCurrent() {
     let container = this.editor.getActiveControlContainer();
     if (container != null) {
-      this.editor.removeControl(container.uniqueId as string);
+      this.editor.removeControl(this.editor.getControl(this.editor.getActiveControlContainer()));
     }
   }
 
@@ -101,27 +101,37 @@ export class DesignApp extends CustomHtmlJsxElement {
     this.invalidate();
 
     let buttonDescriptor = controlDescriptors.getDescriptor('button');
-    let container = this.editor.addControl(buttonDescriptor, {
-      left: 20,
-      top: 70,
-      width: 100,
-      height: 100,
-    });
-    container.rawElement.textContent = 'First Button';
-    container = this.editor.addControl(buttonDescriptor, {
-      right: 20,
-      top: 100,
-      width: 100,
-      height: 100,
-    });
-    container.rawElement.textContent = 'Second Button';
+    this.editor.addNewControl(
+      buttonDescriptor,
+      {
+        left: 20,
+        top: 70,
+        width: 100,
+        height: 100,
+      },
+      {
+        'text.text': 'First Button',
+      },
+    );
+    this.editor.addNewControl(
+      buttonDescriptor,
+      {
+        right: 20,
+        top: 100,
+        width: 100,
+        height: 100,
+      },
+      {
+        'text.text': 'Second Button',
+      },
+    );
   }
 
   private onSelectedControlChanged(container: ControlContainer): void {
     if (container == null) {
       console.log('Focus was removed');
     } else {
-      console.log(`Focus changed to Transferring focus to: ${container.uniqueId}`);
+      console.log(`Focus changed to Transferring focus to: ${container.control.id}`);
     }
 
     this.propertyPanel.container = container;
@@ -130,7 +140,7 @@ export class DesignApp extends CustomHtmlJsxElement {
   /** Saves the current control layout to LocalStorage */
   private saveLayout() {
     let controls = this.querySelectorAll(ControlContainer.tagName);
-    let json = JSON.stringify(Array.from(controls).map((it) => it.serialize()));
+    let json = JSON.stringify(Array.from(controls).map((it) => it.control.serialize()));
     window.localStorage.setItem('layout', json);
   }
 
@@ -149,7 +159,9 @@ export class DesignApp extends CustomHtmlJsxElement {
     let lastControl: ControlContainer;
     for (let serialized of layout) {
       let descriptor = controlDescriptors.getDescriptor(serialized.typeId);
-      lastControl = this.editor.addControlNoUndo(descriptor, serialized);
+      let control = descriptor.createInstance();
+      control.deserialize(serialized);
+      lastControl = this.editor.addControlNoUndo(control);
     }
 
     if (lastControl != null) {

@@ -13,12 +13,19 @@ class CheckedProperty extends ControlProperty<boolean> {
   public id = 'checkbox.isChecked';
   public displayName = 'Checked';
 
+  /* override */
   protected getValueRaw(e: HTMLInputElement) {
     return e.checked;
   }
 
+  /* override */
   protected setValueRaw(e: HTMLInputElement, value: boolean) {
     e.checked = value;
+  }
+
+  /* override */
+  protected hasDefaultValueRaw(e: HTMLInputElement): boolean {
+    return e.checked == false;
   }
 
   public getEditor(instance: ControlContainer): IPropertyEditor {

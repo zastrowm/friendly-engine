@@ -6,11 +6,19 @@ export class TextAlignmentProperty extends ControlProperty<string> {
   public id = 'text.alignment';
   public displayName = 'Alignment';
 
+  /* override */
   protected getValueRaw(e: HTMLElement) {
     return getComputedStyle(e).textAlign;
   }
+
+  /* override */
   protected setValueRaw(e: HTMLElement, value: string) {
     e.style.textAlign = value;
+  }
+
+  /* override */
+  protected hasDefaultValueRaw(e: HTMLElement): boolean {
+    return e.style.textAlign == null;
   }
 
   public getEditor(instance: ControlContainer) {

@@ -17,17 +17,24 @@ class ClickActionProperty extends ControlProperty<string> {
   id: 'button.scripts.click';
   displayName: '';
 
+  /* override */
   getValueRaw(e: HTMLElement): string {
     return (e as any).scriptsClick ?? '';
   }
 
+  /* override */
   setValueRaw(e: HTMLElement, value: string) {
     (e as any).scriptsClick = value;
   }
 
+  /* override */
+  protected hasDefaultValueRaw(e: HTMLElement): boolean {
+    return (e as any).scriptsClick == null;
+  }
+
   getEditor(instance: ControlContainer): IPropertyEditor {
     let onEditScript = async () => {
-      let response = await codeDialog.showDialog(`${instance.uniqueId}.click`, this.getValue(instance.control));
+      let response = await codeDialog.showDialog(`${instance.control.id}.click`, this.getValue(instance.control));
       if (response.didSave) {
         this.setValue(instance.control, response.code);
       }
@@ -53,7 +60,7 @@ class ClickActionProperty extends ControlProperty<string> {
   }
 }
 
-class Button extends Control {
+export class Button extends Control {
   private buttonElement: HTMLButtonElement;
 
   @controlProperty(new TextAlignmentProperty((c: Button) => c.buttonElement))
@@ -63,7 +70,7 @@ class Button extends Control {
   public textAlignment: string;
 
   @controlProperty(new ClickActionProperty((c: Button) => c.buttonElement))
-  public isChecked: string;
+  public clickScript: string;
 
   protected initialize(): HTMLElement {
     this.buttonElement = document.createElement('button');

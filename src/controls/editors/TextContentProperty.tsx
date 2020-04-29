@@ -17,6 +17,11 @@ export class TextContentProperty extends ControlProperty<string> {
   }
 
   /* override */
+  protected hasDefaultValueRaw(e: HTMLElement): boolean {
+    return e.textContent == null || e.textContent == '';
+  }
+
+  /* override */
   public getEditor(instance: ControlContainer) {
     let input = document.createElement('input');
     input.value = this.getValue(instance.control);
@@ -27,7 +32,7 @@ export class TextContentProperty extends ControlProperty<string> {
       this.setValue(instance.control, newValue);
 
       setPropertyUndoRedo.trigger(input, {
-        id: instance.uniqueId,
+        id: instance.control.id,
         property: this,
         originalValue,
         newValue,
