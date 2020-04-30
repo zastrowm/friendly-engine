@@ -16,6 +16,9 @@ import {
 } from '../../controls/commonControls';
 import { registerFocusCounter, unregisterFocusCounter } from '../../framework/focusService';
 import { CustomHtmlJsxElement, customElement } from '@friendly/elements/CustomHtmlJsxElement';
+import {config, development} from "../../runtime";
+
+declare var module;
 
 /**
  * A control that hosts the DesignSurface and provides related controls to manipulating
@@ -26,12 +29,30 @@ export class DesignApp extends CustomHtmlJsxElement {
   public static readonly tagName = 'design-app';
 
   private readonly undoRedoQueue = new UndoRedoQueue();
-
   private propertyPanel: PropertyPanelElement;
   private editor: DesignSurfaceElement;
 
   constructor() {
     super();
+
+    // during development, auto-reload the last layout session
+    if (config.isDevelopment()) {
+      console.warn("preparing development layout");
+
+      module.hot.addStatusHandler(status => {
+        if (status == 'ready') {
+          this.saveLayout('development');
+        }
+      });
+
+      window.addEventListener('beforeunload', () => {
+        if (!development.hasErrorOccurred() && !development.isReloadingDueToHmr()) {
+          this.saveLayout('development');
+          console.log(module.hot.status())
+          console.error("Child COunt", this.editor.children.length);
+        }
+      }, { once: true });
+    }
 
     undoCommandCreated.addListener(this, (command) => this.onUndoEventGenerated(command));
 
@@ -41,7 +62,6 @@ export class DesignApp extends CustomHtmlJsxElement {
     listener.set(appRoutedCommands.delete, () => this.deleteCurrent());
 
     selectedControlChanges.addListener(this, (c) => this.onSelectedControlChanged(c));
-
     installCommonDescriptors();
 
     controlDescriptors.addChangeListener(() => this.onControlsChange());
@@ -100,31 +120,11 @@ export class DesignApp extends CustomHtmlJsxElement {
 
     this.invalidate();
 
-    let buttonDescriptor = controlDescriptors.getDescriptor('button');
-    this.editor.addNewControl(
-      buttonDescriptor,
-      {
-        left: 20,
-        top: 70,
-        width: 100,
-        height: 100,
-      },
-      {
-        'text.text': 'First Button',
-      },
-    );
-    this.editor.addNewControl(
-      buttonDescriptor,
-      {
-        right: 20,
-        top: 100,
-        width: 100,
-        height: 100,
-      },
-      {
-        'text.text': 'Second Button',
-      },
-    );
+    if (config.isDevelopment()) {
+      console.warn("Loading development layout");
+      this.loadLayout('development');
+      return;
+    }
   }
 
   private onSelectedControlChanged(container: ControlContainer): void {
@@ -138,18 +138,21 @@ export class DesignApp extends CustomHtmlJsxElement {
   }
 
   /** Saves the current control layout to LocalStorage */
-  private saveLayout() {
+  private saveLayout(layoutName: string) {
     let controls = this.querySelectorAll(ControlContainer.tagName);
     let json = JSON.stringify(Array.from(controls).map((it) => it.control.serialize()));
-    window.localStorage.setItem('layout', json);
+
+    window.localStorage.setItem(`layout_${layoutName}`, json);
   }
 
   /** Restores the previously-saved control layout from LocalStorage */
-  private loadLayout() {
+  private loadLayout(layoutName: string) {
     this.querySelectorAll(ControlContainer.tagName).forEach((e) => e.remove());
     this.undoRedoQueue.clear();
 
-    let jsonLayout = window.localStorage.getItem('layout');
+    console.log("loading layout", layoutName);
+
+    let jsonLayout = window.localStorage.getItem(`layout_${layoutName}`);
     if (jsonLayout == null) {
       alert('No layout saved');
       return;
@@ -182,8 +185,8 @@ export class DesignApp extends CustomHtmlJsxElement {
           <button onClick={() => this.deleteCurrent()}>Delete</button>
           <button onClick={() => this.doUndo()}>Undo</button>
           <button onClick={() => this.doRedo()}>Redo</button>
-          <button onClick={() => this.saveLayout()}>Save Layout</button>
-          <button onClick={() => this.loadLayout()}>Load Layout</button>
+          <button onClick={() => this.saveLayout('manual')}>Save Layout</button>
+          <button onClick={() => this.loadLayout('manual')}>Load Layout</button>
         </header>
         <main>
           <div>

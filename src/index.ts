@@ -1,5 +1,5 @@
 import { getCustomElementNames } from '@friendly/elements/CustomHtmlElement';
-import {config} from "./config";
+import {config} from "./runtime";
 
 declare var require: any;
 
