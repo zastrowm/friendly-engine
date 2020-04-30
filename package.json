@@ -4,8 +4,8 @@
   "description": "WYSIWYG Web App Builder",
   "private": true,
   "scripts": {
-    "build": "webpack --mode production",
-    "dev": "webpack-dev-server --mode development --open --hot"
+    "build": "webpack --mode production --env.NODE_ENV=production",
+    "dev": "webpack-dev-server --mode development --open --hot --env.NODE_ENV=development"
   },
   "main": "dist/bundle.js",
   "types": "dist/types/index.d.ts",

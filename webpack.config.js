@@ -1,4 +1,6 @@
 const path = require('path');
+const webpack = require('webpack');
+
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
@@ -50,5 +52,8 @@ module.exports = (env, argv) => ({
   },
 
   /* for loading the monaco editor */
-  plugins: [new MonacoWebpackPlugin()],
+  plugins: [new MonacoWebpackPlugin(),
+    new webpack.DefinePlugin({
+      'GLOBAL_CONFIG.mode': JSON.stringify(env.NODE_ENV),
+    })],
 });

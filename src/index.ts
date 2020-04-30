@@ -1,6 +1,13 @@
 import { getCustomElementNames } from '@friendly/elements/CustomHtmlElement';
+import {config} from "./config";
 
 declare var require: any;
+
+if (config.isProduction()) {
+  console.log("Running Production");
+} else if (config.isDevelopment()) {
+  console.log("Running Development");
+}
 
 async function waitForCustomElements() {
   /*
