@@ -35,6 +35,7 @@ export class DesignSurfaceElement extends CustomHtmlElement {
     super();
 
     this.activeEditor = document.createElement('control-editor');
+    this.addEventListener('mousedown', (evt) => this.onMouseDown(evt));
   }
 
   /** Determines the grid-snap for the controls */
@@ -78,6 +79,11 @@ export class DesignSurfaceElement extends CustomHtmlElement {
     selectedControlChanges.trigger(this, container);
 
     return true;
+  }
+
+  private onMouseDown(eventArgs: MouseEvent) {
+    eventArgs.stopPropagation();
+    this.clearActiveEditor();
   }
 
   private clearActiveEditor() {

@@ -14,6 +14,8 @@ export class ControlContainer extends CustomHtmlElement implements IControlDesig
 
   constructor() {
     super();
+
+    this.addEventListener('mousedown', (e) => this.onMouseDown(e));
   }
 
   public get control(): Control {
@@ -67,7 +69,6 @@ export class ControlContainer extends CustomHtmlElement implements IControlDesig
 
     anchorAndBoundary.boundaries.applyTo(this);
 
-    this.addEventListener('mousedown', (e) => this.onMouseDown(e));
     this.designCanvas = this.closest(DesignSurfaceElement.tagName);
   }
 
@@ -75,7 +76,8 @@ export class ControlContainer extends CustomHtmlElement implements IControlDesig
    * On mouse down if we're not the active editor, make ourselves the active editor.  Then
    * pass the mouse event down into the editor.
    */
-  public async onMouseDown(mouseEvent: MouseEvent) {
+  public onMouseDown(mouseEvent: MouseEvent) {
+    mouseEvent.stopPropagation();
     this.designCanvas.selectAndMarkActive(this, mouseEvent);
   }
 }
