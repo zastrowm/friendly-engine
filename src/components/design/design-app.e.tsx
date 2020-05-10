@@ -89,7 +89,7 @@ export class DesignApp extends CustomHtmlJsxElement {
   public deleteCurrent() {
     let container = this.editor.getActiveControlContainer();
     if (container != null) {
-      this.editor.removeControl(this.editor.getControl(this.editor.getActiveControlContainer()));
+      this.editor.removeControl(this.editor.getActiveControl());
     }
   }
 

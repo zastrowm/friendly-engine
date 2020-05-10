@@ -4,6 +4,12 @@ const webpack = require('webpack');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
+/** Helper method to output a value */
+function output(title, value) {
+  console.log(title, value);
+  return value;
+}
+
 module.exports = (env, argv) => ({
   entry: {
     main: path.resolve('./src/index.ts'),
@@ -17,6 +23,8 @@ module.exports = (env, argv) => ({
       errors: true,
     },
   },
+
+  devtool: output('Source Maps are:', env.NODE_ENV == 'development' ? 'inline-source-map' : 'cheap-source-map'),
 
   output: {
     filename: 'bundle.js',

@@ -42,8 +42,13 @@ export class DesignSurfaceElement extends CustomHtmlElement {
   public gridSnap = 8;
 
   /** obvious */
-  public getActiveControlContainer(): ControlContainer {
+  public getActiveControlContainer(): ControlContainer | null {
     return this.activeEditor.parentElement as ControlContainer;
+  }
+
+  /** obvious */
+  public getActiveControl(): Control | null {
+    return this.getActiveControlContainer()?.control;
   }
 
   public getControlContainer(id: UniqueId): ControlContainer {
@@ -51,7 +56,11 @@ export class DesignSurfaceElement extends CustomHtmlElement {
   }
 
   public getControl(id: UniqueId): Control {
-    return this.childControls.get(id);
+    let control = this.childControls.get(id);
+    if (control == null)
+      throw new Error(`No control with id '${id}' exists`);
+
+    return control;
   }
 
   /** Returns all of the controls in the editor */

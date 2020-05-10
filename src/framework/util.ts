@@ -14,7 +14,9 @@ export function generateGuid(): UniqueId {
   );
 }
 
-export interface UniqueId {}
+export interface UniqueId {
+  ___notreal___: string;
+}
 
 /**
  * A promise which can be cancelled

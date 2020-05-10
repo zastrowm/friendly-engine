@@ -121,7 +121,7 @@ export class ControlEditor extends CustomHtmlJsxElement {
     controlContainer.positionInfo = this.lastUpdatedBoundary;
 
     moveUndoHandler.trigger(this, {
-      id: controlContainer.id,
+      id: controlContainer.control.id,
       startingPosition: this.originalPosition.clone(),
       endingPosition: this.lastUpdatedBoundary.clone(),
     });
