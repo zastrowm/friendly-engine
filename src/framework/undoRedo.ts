@@ -35,38 +35,54 @@ class DateInfo implements IDateInfo {
  * An callback that generates undo/redo callbacks that performs undo/redo as part of an undo/redo queue.
  */
 interface UndoableFunctionCallback<T> {
-  (): {
-    /**
-     * Provides any default values for properties on this object
-     */
-    initialize?: (this: T & IContextProvider) => void | Promise<void>;
-
-    /**
-     * Undoes the operation that was originally performed
-     */
-    undo: (this: T & IContextProvider) => void | Promise<void>;
-
-    /**
-     * Redoes the operation that was originally performed
-     */
-    redo: (this: T & IContextProvider) => void | Promise<void>;
-
-    /**
-     * If present, indicates the operation that should be performed when the action
-     * is added to the undo queue.
-     */
-    do?: (this: T & IContextProvider) => void | Promise<void>;
-
-    /**
-     * Checks if, and does a merges the given command into the current command, mutating
-     * the state of the *this* object.
-     *
-     * @param rhs the command to attempt to merge into this one
-     * @returns true if the command was merged, false if it was not
-     */
-    tryMerge?: (this: T & IContextProvider & IDateInfoProvider, rhs: T) => boolean;
-  };
+  (): IUndoCallbackDefinition<T>;
 }
+
+/**
+ * The callbacks required to be implemented for an undo/redo handler.
+ *
+ * The *this* argument of the callbacks is special - it provides both the data of `T` and the undo/redo context
+ * as if they were member data - this is to facilitate writing undo/redo handlers without the need to declare
+ * an excessive number of arguments.
+ *
+ * With the exception of TryMerge, no function should attempt to write data to *this* as it will not be persisted.
+ */
+interface IUndoCallbackDefinition<T> {
+  /**
+   * Provides any default values for properties on this object
+   */
+  initialize?: (this: IUndoCallbackThisType<T>) => void | Promise<void>;
+
+  /**
+   * Undoes the operation that was originally performed
+   */
+  undo: (this: IUndoCallbackThisType<T>) => void | Promise<void>;
+
+  /**
+   * Redoes the operation that was originally performed
+   */
+  redo: (this: IUndoCallbackThisType<T>) => void | Promise<void>;
+
+  /**
+   * If present, indicates the operation that should be performed when the action
+   * is added to the undo queue.
+   */
+  do?: (this: IUndoCallbackThisType<T>) => void | Promise<void>;
+
+  /**
+   * Checks if, and does a merges the given command into the current command, mutating
+   * the state of the *this* object.
+   *
+   * @param rhs the command to attempt to merge into this one
+   * @returns true if the command was merged, false if it was not
+   */
+  tryMerge?: (this: IUndoCallbackThisType<T> & IDateInfoProvider, rhs: T) => boolean;
+}
+
+/**
+ * Type helper to provide the type of *this* for the undo/redo callbacks.
+ */
+declare type IUndoCallbackThisType<T> = T & IContextProvider & IUndoCallbackDefinition<T>;
 
 export interface IContext {}
 
@@ -144,6 +160,9 @@ export let undoCommandCreated = new RoutedEventDescriptor<IUndoEntry>({
 
 export interface IUndoEntry {}
 
+// NOTE: the implementation of the undo entry methods are bit complicated do the nature of IUndoCallbackDefinition<T>.
+//       in that the "this" object does not actually exist and is created on demand as needed.  See
+//       IUndoCallbackDefinition for in-depth explanation of the "this" for callbacks
 class UndoEntry<T> implements IUndoEntry {
   constructor(handler: CommandCreator<T>, data: T) {
     this.dateAdded = Date.now();
@@ -158,35 +177,43 @@ class UndoEntry<T> implements IUndoEntry {
   data: T;
 
   initialize(context: IContext) {
-    let initializeCallback = this.handler.callback().initialize;
+    let undoDefinition = this.handler.callback();
+    let initializeCallback = undoDefinition.initialize;
     if (initializeCallback != null) {
-      let self: T & IContextProvider = { context: context, ...this.data };
+      let self: T & IContextProvider = { context: context, ...undoDefinition, ...this.data };
       initializeCallback.apply(self);
     }
   }
 
   do(context: IContext) {
-    let doCallback = this.handler.callback().do;
+    let undoDefinition = this.handler.callback();
+    let doCallback = undoDefinition.do;
     if (doCallback != null) {
-      let self: T & IContextProvider = { context: context, ...this.data };
+      let self: T & IContextProvider = { context: context, ...undoDefinition, ...this.data };
       doCallback.apply(self);
     }
   }
 
   redo(context: IContext) {
-    let redoCallback = this.handler.callback().redo;
-    let self: T & IContextProvider = { context: context, ...this.data };
+    let undoDefinition = this.handler.callback();
+    let redoCallback = undoDefinition.redo;
+    let self: T & IContextProvider = { context: context, ...undoDefinition, ...this.data };
     redoCallback.apply(self);
   }
 
   undo(context: IContext) {
-    let undoCallback = this.handler.callback().undo;
-    let self: T & IContextProvider = { context: context, ...this.data };
+    let undoDefinition = this.handler.callback();
+    let undoCallback = undoDefinition.undo;
+    let self: T & IContextProvider = { context: context, ...undoDefinition, ...this.data };
     undoCallback.apply(self);
   }
 
   tryMerge(context: IContext, rhs: UndoEntry<T>): boolean {
-    let tryMerge = this.handler.callback().tryMerge;
+    // Try merge is a special case, because we allow the internal state of the undo object to be modified
+    // (if we did not, there would be no point in offering try-merge), and thus we create a proxy instead
+    // of the concrete object so that any writes are persisted back into the object
+    let undoDefinition = this.handler.callback();
+    let tryMerge = undoDefinition.tryMerge;
     if (tryMerge == null) {
       return false;
     }
@@ -194,6 +221,7 @@ class UndoEntry<T> implements IUndoEntry {
     let additional: IContextProvider & IDateInfoProvider = {
       context: context,
       dateInfo: new DateInfo(this),
+      ...undoDefinition,
     };
 
     let self = this.createProxy(additional);
@@ -201,12 +229,12 @@ class UndoEntry<T> implements IUndoEntry {
   }
 
   createProxy(secondary: any) {
-    let primary = this.data as any;
+    let secondarySource = this.data as any;
 
-    return new Proxy(primary, {
+    return new Proxy(secondarySource, {
       get(_, prop) {
-        if (prop in primary) {
-          return primary[prop];
+        if (prop in secondarySource) {
+          return secondarySource[prop];
         } else if (prop in secondary) {
           return secondary[prop];
         } else {
@@ -215,7 +243,7 @@ class UndoEntry<T> implements IUndoEntry {
       },
 
       set(_, prop, value) {
-        primary[prop] = value;
+        secondarySource[prop] = value;
         return true;
       },
     });

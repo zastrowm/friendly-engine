@@ -176,6 +176,11 @@ export class DesignApp extends CustomHtmlJsxElement {
     }
   }
 
+  /** Deletes all controls in the editor **/
+  private resetCanvas() {
+    this.editor.removeControls(Array.from(this.editor.controls));
+  }
+
   /* override */
   public onRender() {
     return (
@@ -191,6 +196,7 @@ export class DesignApp extends CustomHtmlJsxElement {
           <button onClick={() => this.doRedo()}>Redo</button>
           <button onClick={() => this.saveLayout('manual')}>Save Layout</button>
           <button onClick={() => this.loadLayout('manual')}>Load Layout</button>
+          <button onClick={() => this.resetCanvas()}>Reset Canvas</button>
         </header>
         <main>
           <div>

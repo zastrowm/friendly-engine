@@ -8,7 +8,6 @@ function trigger(shortcut, command: RoutedCommand) {
   });
 }
 
-
 export function registerShortcuts() {
   trigger('ctrl+z', appRoutedCommands.undo);
   trigger('ctrl+y', appRoutedCommands.redo);
