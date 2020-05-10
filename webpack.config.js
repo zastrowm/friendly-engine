@@ -24,7 +24,7 @@ module.exports = (env, argv) => ({
     },
   },
 
-  devtool: output('Source Maps are:', env.NODE_ENV == 'development' ? 'inline-source-map' : 'cheap-source-map'),
+  devtool: output('Source Maps are:', env.NODE_ENV == 'development' ? 'eval-source-map' : 'cheap-source-map'),
 
   output: {
     filename: 'bundle.js',
