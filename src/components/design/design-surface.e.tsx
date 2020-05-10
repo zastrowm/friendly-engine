@@ -171,19 +171,19 @@ export class DesignSurfaceElement extends CustomHtmlElement {
     };
   }
 
-  public removeControl(control: Control) {
+  /**
+   * Removes all of the controls from the editor
+   * @param controls the controls to remove
+   */
+  public removeControls(controls: Control[]) {
+    // TODO switch to iterators
+    let serializedControlData = controls.map((control) => ({
+      descriptor: control.descriptor,
+      data: control.serialize(),
+    }));
+
     removeControlsUndoHandler.trigger(this, {
-      entries: [
-        {
-          descriptor: control.descriptor,
-          data: {
-            id: control.id,
-            position: control.layout,
-            properties: control.serialize(),
-            typeId: control.descriptor.id,
-          },
-        },
-      ],
+      entries: serializedControlData,
     });
   }
 
@@ -210,27 +210,6 @@ export class DesignSurfaceElement extends CustomHtmlElement {
     }
 
     return container;
-  }
-
-  /**
-   * Removes all of the controls from the editor
-   * @param controls the controls to remove
-   */
-  public removeControls(controls: Control[]) {
-    // TODO switch to iterators
-    let serializedControlData = controls.map((control) => ({
-      descriptor: control.descriptor,
-      data: {
-        id: control.id,
-        position: control.layout,
-        properties: control.serialize(),
-        typeId: control.descriptor.id,
-      },
-    }));
-
-    removeControlsUndoHandler.trigger(this, {
-      entries: serializedControlData,
-    });
   }
 }
 

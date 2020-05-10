@@ -63,18 +63,18 @@ export abstract class Control {
    * @returns an object containing key-value pairs of the properties to persist
    */
   public serialize(): IControlSerializedData {
-    let data = {};
+    let propertyBag = {};
 
     for (let prop of this.descriptor.getProperties()) {
       if (!prop.hasDefaultValue(this)) {
-        data[prop.id] = prop.getValue(this);
+        propertyBag[prop.id] = prop.getValue(this);
       }
     }
 
     return {
       id: this.id,
       typeId: this.descriptor.id,
-      properties: data,
+      properties: propertyBag,
       position: this.layout,
     };
   }
