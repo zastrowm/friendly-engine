@@ -52,8 +52,10 @@ module.exports = (env, argv) => ({
   },
 
   /* for loading the monaco editor */
-  plugins: [new MonacoWebpackPlugin(),
+  plugins: [
+    new MonacoWebpackPlugin(),
     new webpack.DefinePlugin({
       'GLOBAL_CONFIG.mode': JSON.stringify(env.NODE_ENV),
-    })],
+    }),
+  ],
 });

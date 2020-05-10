@@ -16,7 +16,7 @@ import {
 } from '../../controls/commonControls';
 import { registerFocusCounter, unregisterFocusCounter } from '../../framework/focusService';
 import { CustomHtmlJsxElement, customElement } from '@friendly/elements/CustomHtmlJsxElement';
-import {config, development} from "../../runtime";
+import { config, development } from '../../runtime';
 
 declare var module;
 
@@ -37,21 +37,25 @@ export class DesignApp extends CustomHtmlJsxElement {
 
     // during development, auto-reload the last layout session
     if (config.isDevelopment()) {
-      console.warn("preparing development layout");
+      console.warn('preparing development layout');
 
-      module.hot.addStatusHandler(status => {
+      module.hot.addStatusHandler((status) => {
         if (status == 'ready') {
           this.saveLayout('development');
         }
       });
 
-      window.addEventListener('beforeunload', () => {
-        if (!development.hasErrorOccurred() && !development.isReloadingDueToHmr()) {
-          this.saveLayout('development');
-          console.log(module.hot.status())
-          console.error("Child COunt", this.editor.children.length);
-        }
-      }, { once: true });
+      window.addEventListener(
+        'beforeunload',
+        () => {
+          if (!development.hasErrorOccurred() && !development.isReloadingDueToHmr()) {
+            this.saveLayout('development');
+            console.log(module.hot.status());
+            console.error('Child COunt', this.editor.children.length);
+          }
+        },
+        { once: true },
+      );
     }
 
     undoCommandCreated.addListener(this, (command) => this.onUndoEventGenerated(command));
@@ -121,7 +125,7 @@ export class DesignApp extends CustomHtmlJsxElement {
     this.invalidate();
 
     if (config.isDevelopment()) {
-      console.warn("Loading development layout");
+      console.warn('Loading development layout');
       this.loadLayout('development');
       return;
     }
@@ -150,7 +154,7 @@ export class DesignApp extends CustomHtmlJsxElement {
     this.querySelectorAll(ControlContainer.tagName).forEach((e) => e.remove());
     this.undoRedoQueue.clear();
 
-    console.log("loading layout", layoutName);
+    console.log('loading layout', layoutName);
 
     let jsonLayout = window.localStorage.getItem(`layout_${layoutName}`);
     if (jsonLayout == null) {
