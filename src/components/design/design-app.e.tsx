@@ -82,8 +82,7 @@ export class DesignApp extends CustomHtmlJsxElement {
   }
 
   private addControl(descriptor: IControlDescriptor) {
-    let newControl = this.editor.addNewControl(descriptor);
-    this.editor.selectAndMarkActive(newControl);
+    this.editor.addNewControl(descriptor);
   }
 
   public deleteCurrent() {

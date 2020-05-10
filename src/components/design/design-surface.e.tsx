@@ -57,8 +57,7 @@ export class DesignSurfaceElement extends CustomHtmlElement {
 
   public getControl(id: UniqueId): Control {
     let control = this.childControls.get(id);
-    if (control == null)
-      throw new Error(`No control with id '${id}' exists`);
+    if (control == null) throw new Error(`No control with id '${id}' exists`);
 
     return control;
   }
@@ -116,7 +115,7 @@ export class DesignSurfaceElement extends CustomHtmlElement {
     descriptor: IControlDescriptor,
     layout: IStoredPositionInfo = null,
     properties: ISerializedPropertyBag = null,
-  ): ControlContainer {
+  ) {
     let control = descriptor.createInstance();
 
     // TODO copy the data
@@ -130,13 +129,14 @@ export class DesignSurfaceElement extends CustomHtmlElement {
     control.deserialize(data);
     snapLayout(data.position, this.gridSnap);
 
-    let container = this.addControlNoUndo(control);
-    addControlUndoHandler.trigger(this, {
-      descriptor: descriptor,
-      data,
+    addControlsUndoHandler.trigger(this, {
+      entries: [
+        {
+          descriptor: descriptor,
+          data,
+        },
+      ],
     });
-
-    return container;
   }
 
   /**
@@ -172,16 +172,18 @@ export class DesignSurfaceElement extends CustomHtmlElement {
   }
 
   public removeControl(control: Control) {
-    this.removeControlNoUndo(control);
-
-    removeControlUndoHandler.trigger(this, {
-      descriptor: control.descriptor,
-      data: {
-        id: control.id,
-        position: control.layout,
-        properties: control.serialize(),
-        typeId: control.descriptor.id,
-      },
+    removeControlsUndoHandler.trigger(this, {
+      entries: [
+        {
+          descriptor: control.descriptor,
+          data: {
+            id: control.id,
+            position: control.layout,
+            properties: control.serialize(),
+            typeId: control.descriptor.id,
+          },
+        },
+      ],
     });
   }
 
@@ -214,9 +216,9 @@ export class DesignSurfaceElement extends CustomHtmlElement {
    * Removes all of the controls from the editor
    * @param controls the controls to remove
    */
-  public removeControls(controls: Control[])  {
+  public removeControls(controls: Control[]) {
     // TODO switch to iterators
-    let serializedControlData = controls.map(control => ({
+    let serializedControlData = controls.map((control) => ({
       descriptor: control.descriptor,
       data: {
         id: control.id,
@@ -226,73 +228,60 @@ export class DesignSurfaceElement extends CustomHtmlElement {
       },
     }));
 
-    removeAllControlsUndoHandler.trigger(this, {
-      entries: serializedControlData
+    removeControlsUndoHandler.trigger(this, {
+      entries: serializedControlData,
     });
   }
 }
 
-interface UndoArgs {
-  descriptor: IControlDescriptor;
-  data: IControlSerializedData;
-}
-
-function addControl(editor: DesignSurfaceElement, arg: UndoArgs) {
-  let control = arg.descriptor.createInstance();
-  control.deserialize(arg.data);
-  let container = editor.addControlNoUndo(control);
-  editor.selectAndMarkActive(container);
-}
-
-function removeControl(editor: DesignSurfaceElement, arg: UndoArgs) {
-  editor.removeControlNoUndo(editor.getControl(arg.data.id));
-}
-
-/**
- * Undo event for adding a control to the design surface.
- */
-let addControlUndoHandler = registerUndoHandler<UndoArgs>('addControl', () => ({
-  undo() {
-    removeControl(this.context.editor, this);
-  },
-
-  redo() {
-    addControl(this.context.editor, this);
-  },
-}));
-
-/**
- * Undo event for removing a control from the design surface.
- */
-let removeControlUndoHandler = registerUndoHandler<UndoArgs>('removeControl', () => ({
-  undo() {
-    addControl(this.context.editor, this);
-  },
-
-  redo() {
-    removeControl(this.context.editor, this);
-  },
-}));
-
 interface IUndoRemoveControlsArgs {
-  entries: UndoArgs[];
+  entries: {
+    descriptor: IControlDescriptor;
+    data: IControlSerializedData;
+  }[];
 }
 
-let removeAllControlsUndoHandler = registerUndoHandler<IUndoRemoveControlsArgs>('removeControls', () => ({
+/** Add controls for undo/redo */
+function addControls(editor: DesignSurfaceElement, arg: IUndoRemoveControlsArgs) {
+  for (let entry of arg.entries) {
+    let control = entry.descriptor.createInstance();
+    control.deserialize(entry.data);
+    let container = editor.addControlNoUndo(control);
+    editor.selectAndMarkActive(container);
+  }
+}
 
+/** Remove controls for undo/redo */
+function removeControls(editor: DesignSurfaceElement, arg: IUndoRemoveControlsArgs) {
+  for (let entry of arg.entries) {
+    editor.removeControlNoUndo(editor.getControl(entry.data.id));
+  }
+}
+
+let addControlsUndoHandler = registerUndoHandler<IUndoRemoveControlsArgs>('removeControls', () => ({
   do() {
     this.redo();
   },
 
   undo() {
-    for (let undoArg of this.entries) {
-      addControl(this.context.editor, undoArg);
-    }
+    removeControls(this.context.editor, this);
   },
 
   redo() {
-    for (let undoArg of this.entries) {
-      removeControl(this.context.editor, undoArg);
-    }
-  }
-}))
+    addControls(this.context.editor, this);
+  },
+}));
+
+let removeControlsUndoHandler = registerUndoHandler<IUndoRemoveControlsArgs>('removeControls', () => ({
+  do() {
+    this.redo();
+  },
+
+  undo() {
+    addControls(this.context.editor, this);
+  },
+
+  redo() {
+    removeControls(this.context.editor, this);
+  },
+}));
