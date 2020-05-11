@@ -1,10 +1,11 @@
-import { h, Fragment, renderToElement } from '@friendly/elements/jsxElements';
+import { Fragment, h, renderToElement } from '@friendly/elements/jsxElements';
 
 import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
 import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
 import { ControlContainer } from 'src/components/design/control-container.e';
 import { TextContentProperty } from './editors/TextContentProperty';
-import { ControlProperty, IPropertyEditor, Control, controlProperty } from './Control';
+import { Control, ControlProperty, controlProperty, IPropertyEditor } from './Control';
+import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
 
 /**
  * Whether or not the checkbox is checked
@@ -48,6 +49,9 @@ export class Checkbox extends Control {
 
   @controlProperty(new TextAlignmentProperty((c: Checkbox) => c.textElement))
   public text: string;
+
+  @controlProperty(new TextFormattingProperty((c: Checkbox) => c.textElement))
+  public textFormatting: Formatting;
 
   @controlProperty(new TextContentProperty((c: Checkbox) => c.textElement))
   public textAlignment: string;

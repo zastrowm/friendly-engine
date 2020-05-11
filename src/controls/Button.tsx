@@ -2,9 +2,10 @@ import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
 import { TextContentProperty } from './editors/TextContentProperty';
 import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
 import { ControlContainer } from 'src/components/design/control-container.e';
-import { renderToFragment, h } from '@friendly/elements/jsxElements';
+import { h, renderToFragment } from '@friendly/elements/jsxElements';
 import { CodeDialog } from 'src/components/code/code-dialog.e';
-import { ControlProperty, IPropertyEditor, Control, controlProperty } from './Control';
+import { Control, ControlProperty, controlProperty, IPropertyEditor } from './Control';
+import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
 
 let codeDialog = CodeDialog.createInstance();
 
@@ -65,6 +66,9 @@ export class Button extends Control {
 
   @controlProperty(new TextAlignmentProperty((c: Button) => c.buttonElement))
   public text: string;
+
+  @controlProperty(new TextFormattingProperty((c: Button) => c.buttonElement))
+  public textFormatting: Formatting;
 
   @controlProperty(new TextContentProperty((c: Button) => c.buttonElement))
   public textAlignment: string;
