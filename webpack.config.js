@@ -56,6 +56,11 @@ module.exports = (env, argv) => ({
         test: /\.ttf$/,
         use: ['file-loader'],
       },
+      /** Font-Awesome files **/
+      {
+        test: /\.(svg|eot|woff|woff2|ttf)$/,
+        use: ['file-loader']
+      }
     ],
   },
 

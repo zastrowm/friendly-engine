@@ -2,6 +2,7 @@ import { ControlContainer } from '../../components/design/control-container.e';
 import { Fragment, h } from '@friendly/elements/jsxElements';
 import { ControlProperty } from '../Control';
 import { Enums } from '../../framework/Enums';
+import { Icon } from '../icon';
 
 export enum Formatting {
   None = 0,
@@ -33,9 +34,15 @@ export class TextFormattingProperty extends ControlProperty<Formatting> {
 
       return (
         <span>
-          <Button format={Formatting.Bold}>B</Button>
-          <Button format={Formatting.Italics}>I</Button>
-          <Button format={Formatting.Underline}>U</Button>
+          <Button format={Formatting.Bold}>
+            <Icon type="bold" />
+          </Button>
+          <Button format={Formatting.Italics}>
+            <Icon type="italic" />
+          </Button>
+          <Button format={Formatting.Underline}>
+            <Icon type="underline" />
+          </Button>
         </span>
       );
     });

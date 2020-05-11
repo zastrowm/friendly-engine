@@ -1,12 +1,14 @@
 import { getCustomElementNames } from '@friendly/elements/CustomHtmlElement';
-import {config} from "./runtime";
+import { config } from './runtime';
+
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 declare var require: any;
 
 if (config.isProduction()) {
-  console.log("Running Production");
+  console.log('Running Production');
 } else if (config.isDevelopment()) {
-  console.log("Running Development");
+  console.log('Running Development');
 }
 
 async function waitForCustomElements() {

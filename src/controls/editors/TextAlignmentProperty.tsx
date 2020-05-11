@@ -1,6 +1,7 @@
 import { ControlContainer } from '../../components/design/control-container.e';
 import { Fragment, h, VNode } from '@friendly/elements/jsxElements';
 import { ControlProperty } from '../Control';
+import { Icon } from '../icon';
 
 export class TextAlignmentProperty extends ControlProperty<string> {
   public id = 'text.alignment';
@@ -31,9 +32,15 @@ export class TextAlignmentProperty extends ControlProperty<string> {
             refresh({ old: oldValue, new: newValue });
           }}
         >
-          <Option data="left">L</Option>
-          <Option data="center">C</Option>
-          <Option data="right">R</Option>
+          <Option data="left">
+            <Icon type="align-left" />
+          </Option>
+          <Option data="center">
+            <Icon type="align-center" />
+          </Option>
+          <Option data="right">
+            <Icon type="align-right" />
+          </Option>
         </OptionsSelector>
       </Fragment>
     ));
