@@ -6,6 +6,7 @@ import { h, renderToFragment } from '@friendly/elements/jsxElements';
 import { CodeDialog } from 'src/components/code/code-dialog.e';
 import { Control, ControlProperty, controlProperty, IPropertyEditor } from './Control';
 import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
+import { FontSizeProperty } from "./editors/FontSizeProperty";
 
 let codeDialog = CodeDialog.createInstance();
 
@@ -69,6 +70,9 @@ export class Button extends Control {
 
   @controlProperty(new TextFormattingProperty((c: Button) => c.buttonElement))
   public textFormatting: Formatting;
+
+  @controlProperty(new FontSizeProperty((c: Button) => c.buttonElement))
+  public fontSize: number;
 
   @controlProperty(new TextContentProperty((c: Button) => c.buttonElement))
   public textAlignment: string;

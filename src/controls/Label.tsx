@@ -3,12 +3,16 @@ import { TextContentProperty } from './editors/TextContentProperty';
 import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
 import { Control, controlProperty } from './Control';
 import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
+import { FontSizeProperty } from "./editors/FontSizeProperty";
 
 export class Label extends Control {
   private labelElement: HTMLDivElement;
 
   @controlProperty(new TextAlignmentProperty((c: Label) => c.labelElement))
   public text: string;
+
+  @controlProperty(new FontSizeProperty((c: Label) => c.labelElement))
+  public fontSize: number;
 
   @controlProperty(new TextFormattingProperty((c: Label) => c.labelElement))
   public textFormatting: Formatting;
