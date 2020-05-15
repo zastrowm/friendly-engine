@@ -1,8 +1,8 @@
 import { ControlContainer } from '../../components/design/control-container.e';
 import { Fragment, h } from '@friendly/elements/jsxElements';
-import { ControlProperty } from '../Control';
 import { Enums } from '../../framework/Enums';
 import { Icon } from '../icon';
+import { IOwnedProperty, PropertyType } from '../defineControl';
 
 export enum Formatting {
   None = 0,
@@ -11,12 +11,12 @@ export enum Formatting {
   Underline = 1 << 3,
 }
 
-export class TextFormattingProperty extends ControlProperty<Formatting> {
-  public id = 'text.formatting';
-  public displayName = 'Formatting';
+export const TextFormattingProperty: IOwnedProperty<HTMLElement, Formatting> = {
+  id: 'text.formatting',
+  displayName: 'Formatting',
+  propertyType: PropertyType.enum,
 
-  /* override */
-  public getEditor(instance: ControlContainer) {
+  getEditor(instance: ControlContainer) {
     return this.createJsxEditor(instance, (refresh) => {
       let originalValue = this.getValue(instance.control);
 
@@ -46,26 +46,19 @@ export class TextFormattingProperty extends ControlProperty<Formatting> {
         </span>
       );
     });
-  }
+  },
 
-  /* override */
-  protected getValueRaw(e: HTMLElement) {
+  getValue(e: HTMLElement) {
     return (
       (e.style.fontWeight == 'bold' ? Formatting.Bold : Formatting.None) |
       (e.style.textDecoration == 'underline' ? Formatting.Underline : Formatting.None) |
       (e.style.fontStyle == 'italic' ? Formatting.Italics : Formatting.None)
     );
-  }
+  },
 
-  /* override */
-  protected setValueRaw(e: HTMLElement, value: Formatting) {
+  setValue(e: HTMLElement, value: Formatting) {
     e.style.fontWeight = (value & Formatting.Bold) > 0 ? 'bold' : null;
     e.style.textDecoration = (value & Formatting.Underline) > 0 ? 'underline' : null;
     e.style.fontStyle = (value & Formatting.Italics) > 0 ? 'italic' : null;
-  }
-
-  /* override */
-  protected hasDefaultValueRaw(e: HTMLElement): boolean {
-    return this.getValueRaw(e) == Formatting.None;
-  }
-}
+  },
+};

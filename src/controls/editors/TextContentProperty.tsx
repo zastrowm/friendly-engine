@@ -1,24 +1,22 @@
 import { ControlContainer } from '../../components/design/control-container.e';
 import { setPropertyUndoRedo } from './_shared';
-import { ControlProperty } from '../Control';
+import { IOwnedProperty, IStateDefinition, PropertyType } from "../defineControl";
 
-export class TextContentProperty extends ControlProperty<string> {
-  public id = 'text.text';
-  public displayName = 'Text';
-
-  /* override */
-  protected getValueRaw(e: HTMLElement) {
-    return e.textContent;
+export class TextContentProperty<TState> implements IOwnedProperty<TState, string> {
+  constructor(stateDefinition: IStateDefinition<TState>, private getter: (TState) => HTMLElement) {
+    console.log(stateDefinition);
   }
 
-  /* override */
-  protected setValueRaw(e: HTMLElement, value: string) {
-    e.textContent = value;
+  public readonly id = 'text.text';
+  public readonly displayName = 'Text';
+  public readonly propertyType = PropertyType.string;
+
+  getValue(state: TState) {
+    return this.getter(state).textContent;
   }
 
-  /* override */
-  protected hasDefaultValueRaw(e: HTMLElement): boolean {
-    return e.textContent == null || e.textContent == '';
+  setValue(state: TState, value: string) {
+    this.getter(state).textContent = value;
   }
 
   /* override */

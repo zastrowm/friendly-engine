@@ -1,12 +1,13 @@
 import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
-import { TextContentProperty } from './editors/TextContentProperty';
+import { NewTextContentProperty, TextContentProperty } from './editors/TextContentProperty';
 import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
 import { ControlContainer } from 'src/components/design/control-container.e';
 import { h, renderToFragment } from '@friendly/elements/jsxElements';
 import { CodeDialog } from 'src/components/code/code-dialog.e';
 import { Control, ControlProperty, controlProperty, IPropertyEditor } from './Control';
 import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
-import { FontSizeProperty } from "./editors/FontSizeProperty";
+import { FontSizeProperty, NewFontSizeProperty } from "./editors/FontSizeProperty";
+import { createControlDefinition } from "./defineControl";
 
 let codeDialog = CodeDialog.createInstance();
 
@@ -91,3 +92,33 @@ export class Button extends Control {
 }
 
 export let buttonDescriptor = new ReflectionBasedDescriptor('button', Button);
+
+
+interface IButton {
+  /** The size of the font **/
+  fontSize: number;
+  /** The text of the button */
+  text: string;
+
+  textFormatting: Formatting;
+
+  textAlignment: string;
+
+  clickScript: string;
+}
+
+const NewButton = createControlDefinition<IButton>({
+  id: 'button',
+  displayName: 'Button',
+})
+  .withFactory(() => {
+    let button = document.createElement('button');
+    return {
+      root: button,
+      button: button,
+    };
+  })
+  .defineProperties((meta) => ({
+    text: new NewTextContentProperty(meta, (s) => s.button),
+    fontSize: meta.compose(NewFontSizeProperty, "button"),
+  }));

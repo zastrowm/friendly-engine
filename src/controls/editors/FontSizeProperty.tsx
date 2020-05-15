@@ -1,29 +1,28 @@
-import { ControlProperty, IPropertyEditor } from '../controlProperties';
+import { IPropertyEditor } from '../controlProperties';
 import { ControlContainer } from '../../components/design/control-container.e';
 import { Fragment, h } from '@friendly/elements/jsxElements';
 import { Icon } from '../icon';
+import { IOwnedProperty, PropertyType } from '../defineControl';
 
-export class FontSizeProperty extends ControlProperty<number> {
-  public id = 'text.size';
-  public displayName = 'Font Size';
+export const FontSizeProperty: IOwnedProperty<HTMLElement, number> = {
+  id: 'text.fontSize',
+  displayName: 'Font Size',
+  propertyType: PropertyType.number | PropertyType.enum,
 
-  /* override */
-  protected getValueRaw(e: HTMLElement) {
-    let fontSize = getComputedStyle(e).fontSize;
+  getValue(element: HTMLElement): number {
+    let fontSize = getComputedStyle(element).fontSize;
     return Number(fontSize.substr(0, fontSize.length - 2));
-  }
+  },
 
-  /* override */
-  protected setValueRaw(e: HTMLElement, value: number) {
-    e.style.fontSize = value + 'px';
-  }
+  setValue(element: HTMLElement, value: number) {
+    if (value < 1) {
+      throw new Error(`Font size cannot be < 1, but is ${value}`);
+    }
 
-  /* override */
-  protected hasDefaultValueRaw(e: HTMLElement): boolean {
-    return e.style.fontSize == null;
-  }
+    element.style.fontSize = value + 'px';
+  },
 
-  public getEditor(instance: ControlContainer): IPropertyEditor {
+  getEditor(instance: ControlContainer): IPropertyEditor {
     return this.createJsxEditor(instance, (refresh) => {
       let value = this.getValue(instance.control);
 
@@ -43,5 +42,5 @@ export class FontSizeProperty extends ControlProperty<number> {
         </Fragment>
       );
     });
-  }
-}
+  },
+};

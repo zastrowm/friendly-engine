@@ -2,6 +2,8 @@ import { getCustomElementNames } from '@friendly/elements/CustomHtmlElement';
 import { config } from './runtime';
 
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { Example } from "./controls/defineControl";
+
 
 declare var require: any;
 
@@ -29,4 +31,8 @@ window.addEventListener('load', async () => {
   await waitForCustomElements();
 
   document.body.append(document.createElement('design-app'));
+
+  let it = Example;
+  console.log(it);
+  console.log(new Example())
 });

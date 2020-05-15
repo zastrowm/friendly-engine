@@ -1,28 +1,22 @@
 import { ControlContainer } from '../../components/design/control-container.e';
 import { Fragment, h, VNode } from '@friendly/elements/jsxElements';
-import { ControlProperty } from '../Control';
 import { Icon } from '../icon';
+import { IOwnedProperty, PropertyType } from "../defineControl";
 
-export class TextAlignmentProperty extends ControlProperty<string> {
-  public id = 'text.alignment';
-  public displayName = 'Alignment';
+export const TextFormattingProperty: IOwnedProperty<HTMLElement, string> = {
+  id: 'text.alignment',
+  displayName: 'Alignment',
+  propertyType: PropertyType.string,
 
-  /* override */
-  protected getValueRaw(e: HTMLElement) {
+  getValue(e: HTMLElement) {
     return getComputedStyle(e).textAlign;
-  }
+  },
 
-  /* override */
-  protected setValueRaw(e: HTMLElement, value: string) {
+  setValue(e: HTMLElement, value: string) {
     e.style.textAlign = value;
-  }
+  },
 
-  /* override */
-  protected hasDefaultValueRaw(e: HTMLElement): boolean {
-    return e.style.textAlign == null;
-  }
-
-  public getEditor(instance: ControlContainer) {
+  getEditor(instance: ControlContainer) {
     return this.createJsxEditor(instance, (refresh) => (
       <Fragment>
         <OptionsSelector
