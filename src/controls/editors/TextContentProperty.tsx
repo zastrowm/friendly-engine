@@ -1,33 +1,28 @@
 import { ControlContainer } from '../../components/design/control-container.e';
 import { setPropertyUndoRedo } from './_shared';
-import { IOwnedProperty, IStateDefinition, PropertyType } from "../defineControl";
+import { IOwnedProperty, PropertyType } from "../defineControl";
 
-export class TextContentProperty<TState> implements IOwnedProperty<TState, string> {
-  constructor(stateDefinition: IStateDefinition<TState>, private getter: (TState) => HTMLElement) {
-    console.log(stateDefinition);
-  }
+export const TextContentProperty: IOwnedProperty<HTMLElement, string> = {
+  id: 'text.text',
+  displayName: 'Text',
+  propertyType: PropertyType.string,
 
-  public readonly id = 'text.text';
-  public readonly displayName = 'Text';
-  public readonly propertyType = PropertyType.string;
+  getValue(element: HTMLElement) {
+    return element.textContent;
+  },
 
-  getValue(state: TState) {
-    return this.getter(state).textContent;
-  }
+  setValue(element: HTMLElement, value: string) {
+    element.textContent = value;
+  },
 
-  setValue(state: TState, value: string) {
-    this.getter(state).textContent = value;
-  }
-
-  /* override */
-  public getEditor(instance: ControlContainer) {
+  getEditor(instance: ControlContainer) {
     let input = document.createElement('input');
-    input.value = this.getValue(instance.control);
+    input.value = this.getValue(instance.control.state);
 
     input.addEventListener('input', () => {
-      let originalValue = this.getValue(instance.control);
+      let originalValue = this.getValue(instance.control.state);
       let newValue = input.value;
-      this.setValue(instance.control, newValue);
+      this.setValue(instance.control.state, newValue);
 
       setPropertyUndoRedo.trigger(input, {
         id: instance.control.id,

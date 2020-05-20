@@ -1,33 +1,27 @@
 import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
 import { TextContentProperty } from './editors/TextContentProperty';
-import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
-import { Control, controlProperty } from './Control';
-import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
+import { TextFormattingProperty } from './editors/TextFormattingProperty';
 import { FontSizeProperty } from "./editors/FontSizeProperty";
+import { IControlWithText } from "./^TextControl";
+import { createControlDefinition } from "./defineControl";
 
-export class Label extends Control {
-  private labelElement: HTMLDivElement;
 
-  @controlProperty(new TextAlignmentProperty((c: Label) => c.labelElement))
-  public text: string;
-
-  @controlProperty(new FontSizeProperty((c: Label) => c.labelElement))
-  public fontSize: number;
-
-  @controlProperty(new TextFormattingProperty((c: Label) => c.labelElement))
-  public textFormatting: Formatting;
-
-  @controlProperty(new TextContentProperty((c: Label) => c.labelElement))
-  public textAlignment: string;
-
-  protected initialize(): HTMLElement {
-    this.labelElement = document.createElement('div');
-    return this.labelElement;
-  }
-
-  public get descriptor(): IControlDescriptor<Label> {
-    return labelDescriptor;
-  }
+interface ILabel extends IControlWithText {
 }
 
-export let labelDescriptor = new ReflectionBasedDescriptor('label', Label);
+export const Label = createControlDefinition<ILabel>({
+  id: 'label',
+  displayName: 'Label',
+})
+  .withFactory(() => {
+    let text = document.createElement('div');
+    return {
+      root: text,
+    };
+  })
+  .defineProperties((meta) => ({
+    text: meta.compose(TextContentProperty, 'root'),
+    fontSize: meta.compose(FontSizeProperty, 'root'),
+    textFormatting: meta.compose(TextFormattingProperty, 'root'),
+    textAlignment: meta.compose(TextAlignmentProperty, 'root'),
+  }));

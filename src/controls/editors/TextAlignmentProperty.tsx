@@ -3,7 +3,7 @@ import { Fragment, h, VNode } from '@friendly/elements/jsxElements';
 import { Icon } from '../icon';
 import { IOwnedProperty, PropertyType } from "../defineControl";
 
-export const TextFormattingProperty: IOwnedProperty<HTMLElement, string> = {
+export const TextAlignmentProperty: IOwnedProperty<HTMLElement, string> = {
   id: 'text.alignment',
   displayName: 'Alignment',
   propertyType: PropertyType.string,

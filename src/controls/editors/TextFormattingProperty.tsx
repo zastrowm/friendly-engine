@@ -18,7 +18,7 @@ export const TextFormattingProperty: IOwnedProperty<HTMLElement, Formatting> = {
 
   getEditor(instance: ControlContainer) {
     return this.createJsxEditor(instance, (refresh) => {
-      let originalValue = this.getValue(instance.control);
+      let originalValue = this.getValue(instance.control.state);
 
       let toggleFormatting = (format: Formatting) => {
         refresh({ old: originalValue, new: Enums.toggleFlag(originalValue, format) });

@@ -1,13 +1,13 @@
 import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
-import { NewTextContentProperty, TextContentProperty } from './editors/TextContentProperty';
-import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
+import { TextContentProperty } from './editors/TextContentProperty';
 import { ControlContainer } from 'src/components/design/control-container.e';
 import { h, renderToFragment } from '@friendly/elements/jsxElements';
 import { CodeDialog } from 'src/components/code/code-dialog.e';
-import { Control, ControlProperty, controlProperty, IPropertyEditor } from './Control';
-import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
-import { FontSizeProperty, NewFontSizeProperty } from "./editors/FontSizeProperty";
-import { createControlDefinition } from "./defineControl";
+import { TextFormattingProperty } from './editors/TextFormattingProperty';
+import { FontSizeProperty } from './editors/FontSizeProperty';
+import { IControlWithText } from './^TextControl';
+import { IPropertyEditor } from './framework/controlPropertyEditor';
+import { createControlDefinition, IOwnedProperty, PropertyType } from './framework/defineControl';
 
 let codeDialog = CodeDialog.createInstance();
 
@@ -16,35 +16,30 @@ document.body.append(codeDialog);
 /**
  * The text that should be shown when the button is clicked
  */
-class ClickActionProperty extends ControlProperty<string> {
-  id: 'button.scripts.click';
-  displayName: '';
+const ClickActionProperty: IOwnedProperty<HTMLElement, string> = {
+  id: 'button.scripts.click',
+  displayName: 'Click Script',
+  propertyType: PropertyType.string,
 
   /* override */
-  getValueRaw(e: HTMLElement): string {
-    return (e as any).scriptsClick ?? '';
-  }
+  getValue(element: HTMLElement) {
+    return (element as any).scriptsClick ?? '';
+  },
 
-  /* override */
-  setValueRaw(e: HTMLElement, value: string) {
-    (e as any).scriptsClick = value;
-  }
-
-  /* override */
-  protected hasDefaultValueRaw(e: HTMLElement): boolean {
-    return (e as any).scriptsClick == null;
-  }
+  setValue(element: HTMLElement, value: string) {
+    (element as any).scriptsClick = value;
+  },
 
   getEditor(instance: ControlContainer): IPropertyEditor {
     let onEditScript = async () => {
-      let response = await codeDialog.showDialog(`${instance.control.id}.click`, this.getValue(instance.control));
+      let response = await codeDialog.showDialog(`${instance.control.id}.click`, this.getValue(instance.control.state));
       if (response.didSave) {
-        this.setValue(instance.control, response.code);
+        this.setValue(instance.control.state, response.code);
       }
     };
 
     let onTestScript = () => {
-      eval(this.getValue(instance.control));
+      eval(this.getValue(instance.control.state));
     };
 
     let fragment = renderToFragment([
@@ -60,65 +55,35 @@ class ClickActionProperty extends ControlProperty<string> {
     return {
       elementToMount: fragment as any,
     };
-  }
-}
+  },
+};
 
-export class Button extends Control {
-  private buttonElement: HTMLButtonElement;
-
-  @controlProperty(new TextAlignmentProperty((c: Button) => c.buttonElement))
-  public text: string;
-
-  @controlProperty(new TextFormattingProperty((c: Button) => c.buttonElement))
-  public textFormatting: Formatting;
-
-  @controlProperty(new FontSizeProperty((c: Button) => c.buttonElement))
-  public fontSize: number;
-
-  @controlProperty(new TextContentProperty((c: Button) => c.buttonElement))
-  public textAlignment: string;
-
-  @controlProperty(new ClickActionProperty((c: Button) => c.buttonElement))
-  public clickScript: string;
-
-  protected initialize(): HTMLElement {
-    this.buttonElement = document.createElement('button');
-    return this.buttonElement;
-  }
-
-  public get descriptor(): IControlDescriptor<Control> {
-    return buttonDescriptor;
-  }
-}
-
-export let buttonDescriptor = new ReflectionBasedDescriptor('button', Button);
-
-
-interface IButton {
-  /** The size of the font **/
-  fontSize: number;
-  /** The text of the button */
-  text: string;
-
-  textFormatting: Formatting;
-
-  textAlignment: string;
-
+interface IButton extends IControlWithText {
   clickScript: string;
 }
 
-const NewButton = createControlDefinition<IButton>({
+interface IButtonState {
+  root: HTMLElement;
+}
+
+export const Button = createControlDefinition<IButton, IButtonState>({
   id: 'button',
   displayName: 'Button',
-})
-  .withFactory(() => {
+  factory: function () {
     let button = document.createElement('button');
     return {
       root: button,
       button: button,
     };
-  })
-  .defineProperties((meta) => ({
-    text: new NewTextContentProperty(meta, (s) => s.button),
-    fontSize: meta.compose(NewFontSizeProperty, "button"),
-  }));
+  },
+}).defineProperties((meta) => ({
+  text: meta.compose(TextContentProperty, 'root'),
+  fontSize: meta.compose(FontSizeProperty, 'root'),
+  textFormatting: meta.compose(TextFormattingProperty, 'root'),
+  textAlignment: meta.compose(TextAlignmentProperty, 'root'),
+  clickScript: meta.compose(ClickActionProperty, 'root'),
+}));
+
+let test = Button.descriptor;
+let button = new Button();
+button.textAlignment = 9;

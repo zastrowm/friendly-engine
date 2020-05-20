@@ -1,8 +1,5 @@
-import { IControlDescriptor } from 'src/framework/controlsRegistry';
 import { IStoredPositionInfo } from 'src/framework/layout';
 import { UniqueId } from 'src/framework/util';
-
-export * from './controlProperties';
 
 /**
  * A Designer environment for a control. It is assumed
@@ -23,14 +20,24 @@ export interface IControlSerializedData {
   typeId: string;
 }
 
+export interface IControl {
+  id: UniqueId;
+  layout: IStoredPositionInfo;
+  serialize(): IControlSerializedData;
+  deserialize(data: IControlSerializedData);
+}
+
 /** Base class for all controls that can be created */
 export abstract class Control {
   private _layout: IStoredPositionInfo = null;
   private _designer: IControlDesigner = null;
-  private _rootElement: HTMLElement;
 
-  constructor() {
-    this._rootElement = this.initialize();
+  protected __state: any;
+
+  public get state(): any {
+    // see NewControlDescriptor for the implementation
+    // @ts-ignore
+    return this.__state;
   }
 
   /** The id of the control */
@@ -45,18 +52,13 @@ export abstract class Control {
     this._designer?.notifyLayoutChanged(this);
   }
 
-  /**
-   * Creates the DOM elements for this control.
-   */
-  public createElement(): HTMLElement {
-    return this._rootElement;
+  /** Initializes the DOM elements for this control and returns it. */
+  protected initialize(): HTMLElement {
+    return this.__state.root;
   }
 
-  /** Initializes the DOM elements for this control and returns it. */
-  protected abstract initialize(): HTMLElement;
-
   /** The control descriptor for this control. */
-  public abstract get descriptor(): IControlDescriptor<Control>;
+  public abstract get descriptor(): any;
 
   /**
    * Serializes the properties of the control into a data-collection

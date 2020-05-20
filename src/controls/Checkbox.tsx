@@ -1,36 +1,28 @@
 import { Fragment, h, renderToElement } from '@friendly/elements/jsxElements';
 
 import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
-import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
 import { ControlContainer } from 'src/components/design/control-container.e';
 import { TextContentProperty } from './editors/TextContentProperty';
-import { Control, ControlProperty, controlProperty, IPropertyEditor } from './Control';
-import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
-import { FontSizeProperty } from "./editors/FontSizeProperty";
+import { IPropertyEditor } from './Control';
+import { TextFormattingProperty } from './editors/TextFormattingProperty';
+import { FontSizeProperty } from './editors/FontSizeProperty';
+import { IControlWithText } from './^TextControl';
+import { createControlDefinition, IOwnedProperty, PropertyType } from './defineControl';
 
-/**
- * Whether or not the checkbox is checked
- */
-class CheckedProperty extends ControlProperty<boolean> {
-  public id = 'checkbox.isChecked';
-  public displayName = 'Checked';
+export const CheckedProperty: IOwnedProperty<HTMLElement, boolean> = {
+  id: 'checkbox.isChecked',
+  displayName: 'Checked',
+  propertyType: PropertyType.boolean,
 
-  /* override */
-  protected getValueRaw(e: HTMLInputElement) {
+  getValue(e: HTMLInputElement) {
     return e.checked;
-  }
+  },
 
-  /* override */
-  protected setValueRaw(e: HTMLInputElement, value: boolean) {
+  setValue(e: HTMLInputElement, value: boolean) {
     e.checked = value;
-  }
+  },
 
-  /* override */
-  protected hasDefaultValueRaw(e: HTMLInputElement): boolean {
-    return e.checked == false;
-  }
-
-  public getEditor(instance: ControlContainer): IPropertyEditor {
+  getEditor(instance: ControlContainer): IPropertyEditor {
     return this.createJsxEditor(instance, (refresh) => (
       <input
         type="checkbox"
@@ -41,43 +33,39 @@ class CheckedProperty extends ControlProperty<boolean> {
         }}
       />
     ));
-  }
+  },
+};
+
+interface ICheckbox extends IControlWithText {
+  isChecked: boolean;
 }
 
-export class Checkbox extends Control {
-  private input: HTMLInputElement;
-  private textElement: HTMLElement;
+export const Checkbox = createControlDefinition<ICheckbox>({
+  id: 'checkbox',
+  displayName: 'Checkbox',
+})
+  .withFactory(() => {
+    let input: HTMLElement;
+    let textElement: HTMLElement;
 
-  @controlProperty(new TextAlignmentProperty((c: Checkbox) => c.textElement))
-  public text: string;
-
-  @controlProperty(new FontSizeProperty((c: Checkbox) => c.textElement))
-  public fontSize: number;
-
-  @controlProperty(new TextFormattingProperty((c: Checkbox) => c.textElement))
-  public textFormatting: Formatting;
-
-  @controlProperty(new TextContentProperty((c: Checkbox) => c.textElement))
-  public textAlignment: string;
-
-  @controlProperty(new CheckedProperty((c: Checkbox) => c.input))
-  public isChecked: boolean;
-
-  public get descriptor(): IControlDescriptor<Checkbox> {
-    return checkboxDescriptor;
-  }
-
-  protected initialize(): HTMLElement {
     let root = renderToElement(
       'div',
       <Fragment>
-        <input ref={(e) => (this.input = e)} type="checkbox" />
-        <span ref={(e) => (this.textElement = e)}></span>
+        <input ref={(e) => (input = e)} type="checkbox" />
+        <span ref={(e) => (textElement = e)} />
       </Fragment>,
     );
 
-    return root;
-  }
-}
-
-export let checkboxDescriptor = new ReflectionBasedDescriptor('checkbox', Checkbox);
+    return {
+      root,
+      input,
+      textElement,
+    };
+  })
+  .defineProperties((meta) => ({
+    text: meta.compose(TextContentProperty, 'textElement'),
+    fontSize: meta.compose(FontSizeProperty, 'textElement'),
+    textFormatting: meta.compose(TextFormattingProperty, 'textElement'),
+    textAlignment: meta.compose(TextAlignmentProperty, 'textElement'),
+    isChecked: meta.compose(CheckedProperty, 'input'),
+  }));
