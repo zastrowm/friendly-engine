@@ -1,4 +1,4 @@
-import { DesignSurfaceElement, selectedControlChanges } from './design-surface.e';
+import { DesignSurfaceElement, selectedControlChanged } from './design-surface.e';
 
 import { IContext, undoCommandCreated, UndoRedoQueue, IUndoEntry } from '../../framework/undoRedo';
 import { appRoutedCommands, RoutedCommand } from '../../framework/appRoutedCommands';
@@ -65,7 +65,7 @@ export class DesignApp extends CustomHtmlJsxElement {
     listener.set(appRoutedCommands.redo, () => this.doRedo());
     listener.set(appRoutedCommands.delete, () => this.deleteCurrent());
 
-    selectedControlChanges.addListener(this, (c) => this.onSelectedControlChanged(c));
+    selectedControlChanged.addListener(this, (c) => this.onSelectedControlChanged(c));
     installCommonDescriptors();
 
     controlDescriptors.addChangeListener(() => this.onControlsChange());
@@ -142,15 +142,15 @@ export class DesignApp extends CustomHtmlJsxElement {
 
   /** Saves the current control layout to LocalStorage */
   private saveLayout(layoutName: string) {
-    let controls = this.querySelectorAll(ControlContainer.tagName);
-    let json = JSON.stringify(Array.from(controls).map((it) => it.control.serialize()));
+    let controls = this.editor.controls;
+    let json = JSON.stringify(Array.from(controls).map((it) => it.serialize()));
 
     window.localStorage.setItem(`layout_${layoutName}`, json);
   }
 
   /** Restores the previously-saved control layout from LocalStorage */
   private loadLayout(layoutName: string) {
-    this.querySelectorAll(ControlContainer.tagName).forEach((e) => e.remove());
+    this.editor.removeAllControls();
     this.undoRedoQueue.clear();
 
     console.log('loading layout', layoutName);
@@ -177,7 +177,7 @@ export class DesignApp extends CustomHtmlJsxElement {
 
   /** Deletes all controls in the editor **/
   private resetCanvas() {
-    this.editor.removeControls(Array.from(this.editor.controls));
+    this.editor.removeAllControls();
   }
 
   /* override */

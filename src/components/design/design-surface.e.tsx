@@ -15,8 +15,9 @@ import {
   IControlSerializedData,
   ISerializedPropertyBag,
 } from 'src/controls/Control';
+import { UserControl, userControlDescriptor } from '../../controls/UserControl';
 
-export let selectedControlChanges = new RoutedEventDescriptor<ControlContainer>({
+export let selectedControlChanged = new RoutedEventDescriptor<ControlContainer>({
   id: 'selectedControlChanged',
   mustBeHandled: false,
 });
@@ -28,14 +29,37 @@ export let selectedControlChanges = new RoutedEventDescriptor<ControlContainer>(
 export class DesignSurfaceElement extends CustomHtmlElement {
   public static readonly tagName = 'design-surface';
 
-  private readonly activeEditor: ControlEditor;
-  private childControls: Map<UniqueId, Control> = new Map();
+  private readonly _activeEditor: ControlEditor;
+  private _childControls: Map<UniqueId, Control> = new Map();
+  private _rootContainer: ControlContainer;
 
   constructor() {
     super();
 
-    this.activeEditor = document.createElement('control-editor');
+    this._activeEditor = document.createElement('control-editor');
     this.addEventListener('mousedown', (evt) => this.onMouseDown(evt));
+
+    this._rootContainer = DesignSurfaceElement.createUserControlContainer();
+  }
+
+  /** override */
+  public onFirstConnected() {
+    this.appendChild(this._rootContainer);
+    this._rootContainer.control.layout = {
+      bottom: 0,
+      top: 0,
+      left: 0,
+      right: 0,
+    };
+  }
+
+  private static createUserControlContainer(): ControlContainer {
+    let container = document.createElement(ControlContainer.tagName);
+    let userControl = userControlDescriptor.createInstance();
+    userControl.id = '$root' as any;
+    container.control = userControl;
+    setControlDesigner(userControl, container);
+    return container;
   }
 
   /** Determines the grid-snap for the controls */
@@ -43,7 +67,8 @@ export class DesignSurfaceElement extends CustomHtmlElement {
 
   /** obvious */
   public getActiveControlContainer(): ControlContainer | null {
-    return this.activeEditor.parentElement as ControlContainer;
+    let container = this._activeEditor.parentElement as ControlContainer;
+    return container ?? this._rootContainer;
   }
 
   /** obvious */
@@ -52,11 +77,21 @@ export class DesignSurfaceElement extends CustomHtmlElement {
   }
 
   public getControlContainer(id: UniqueId): ControlContainer {
-    return this.getAssociatedContainer(this.childControls.get(id));
+    let control = this._childControls.get(id);
+
+    if (control == null && this._rootContainer.control.id == id) {
+      return this._rootContainer;
+    }
+
+    if (control == null) {
+      throw new Error(`No control with id: ${id} found`);
+    }
+
+    return this.getAssociatedContainer(control);
   }
 
   public getControl(id: UniqueId): Control {
-    let control = this.childControls.get(id);
+    let control = this._childControls.get(id);
     if (control == null) throw new Error(`No control with id '${id}' exists`);
 
     return control;
@@ -69,7 +104,7 @@ export class DesignSurfaceElement extends CustomHtmlElement {
 
   /** Returns all of the controls in the editor */
   private *getLazyControls(): Iterable<Control> {
-    for (let [, control] of this.childControls) {
+    for (let [, control] of this._childControls) {
       yield control;
     }
   }
@@ -78,26 +113,31 @@ export class DesignSurfaceElement extends CustomHtmlElement {
    * Sets the given control to be the actively selected control
    * @param container The container which should be marked as the active control
    * @param mouseEvent (optional) the mouse event that triggered the operation
+   * @returns true if the element was newly selected, false if it was already the active element
    */
   public selectAndMarkActive(container: ControlContainer, mouseEvent?: MouseEvent) {
     if (container == null) {
       throw new Error('Control cannot be null');
     }
 
-    let activeEditor = this.activeEditor;
+    let activeEditor = this._activeEditor;
     if (activeEditor.parentElement == container) {
       return false;
     }
 
-    container.appendChild(this.activeEditor);
+    if (container == this._rootContainer) {
+      this._activeEditor.remove();
+      mouseEvent?.preventDefault();
+    } else {
+      container.appendChild(this._activeEditor);
 
-    if (mouseEvent != null) {
-      mouseEvent.preventDefault();
-      activeEditor.transferMouseDown(mouseEvent);
+      if (mouseEvent != null) {
+        mouseEvent.preventDefault();
+        activeEditor.transferMouseDown(mouseEvent);
+      }
     }
 
-    selectedControlChanges.trigger(this, container);
-
+    selectedControlChanged.trigger(this, container);
     return true;
   }
 
@@ -107,8 +147,8 @@ export class DesignSurfaceElement extends CustomHtmlElement {
   }
 
   private clearActiveEditor() {
-    this.activeEditor.remove();
-    selectedControlChanges.trigger(this, null);
+    this._activeEditor.remove();
+    selectedControlChanged.trigger(this, this.getActiveControlContainer());
   }
 
   public addNewControl(
@@ -141,16 +181,14 @@ export class DesignSurfaceElement extends CustomHtmlElement {
 
   /**
    * Adds a control to the design surface without adding an undo event for it.
-   * @param type the type of control to add
-   * @param id the unique id of the control
-   * @param layoutInfo the initial position information of the control
+   * @param control the control to add
    */
   public addControlNoUndo(control: Control): ControlContainer {
     let controlContainer = document.createElement('control-container');
     controlContainer.control = control;
     this.appendChild(controlContainer);
     setControlDesigner(control, controlContainer);
-    this.childControls.set(control.id, control);
+    this._childControls.set(control.id, control);
 
     return controlContainer;
   }
@@ -172,35 +210,48 @@ export class DesignSurfaceElement extends CustomHtmlElement {
   }
 
   /**
-   * Removes all of the controls from the editor
+   * Removes all of the given controls from the editor
    * @param controls the controls to remove
    */
   public removeControls(controls: Control[]) {
     // TODO switch to iterators
-    let serializedControlData = controls.map((control) => ({
-      descriptor: control.descriptor,
-      data: control.serialize(),
-    }));
+    let serializedControlData = controls
+      .filter((control) => control != this._rootContainer.control)
+      .map((control) => ({
+        descriptor: control.descriptor,
+        data: control.serialize(),
+      }));
 
-    removeControlsUndoHandler.trigger(this, {
-      entries: serializedControlData,
-    });
+    // Because we remove the root control if it was present, it's possible to end up with an empty list - in that
+    // case, we don't want to add an undo entry
+    if (serializedControlData.length > 0)  {
+      removeControlsUndoHandler.trigger(this, {
+        entries: serializedControlData,
+      });
+    }
+  }
+
+  /**
+   * Removes all of the controls from the editor
+   */
+  public removeAllControls() {
+    this.removeControls(Array.from(this.controls));
   }
 
   /**
    * Removes a control from the design surface without adding an undo event.
-   * @param id the unique id of the control to remove
+   * @param control the control to remove from the design surface
    */
   public removeControlNoUndo(control: Control) {
     let container = this.getAssociatedContainer(control);
 
-    if (this.activeEditor.elementToMove == container) {
+    if (this._activeEditor.elementToMove == container) {
       this.clearActiveEditor();
     }
 
     setControlDesigner(control, null);
     this.removeChild(container);
-    this.childControls.delete(control.id);
+    this._childControls.delete(control.id);
   }
 
   private getAssociatedContainer(control: Control): ControlContainer {

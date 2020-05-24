@@ -31,7 +31,6 @@ export class ControlContainer extends CustomHtmlElement implements IControlDesig
 
     this._control = value;
     this.positionInfo = this._control.layout;
-    console.log(this.positionInfo);
     this.appendChild(this.control.createElement());
   }
 

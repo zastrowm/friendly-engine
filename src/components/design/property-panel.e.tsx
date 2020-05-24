@@ -78,7 +78,7 @@ function PropertyEntry(props: { property: ControlProperty<any>; container: Contr
   return (
     <div>
       <div>{props.property.displayName}</div>
-      <div ref={ref.appendElement(editor.elementToMount)}></div>
+      <div ref={ref.appendElement(editor.elementToMount)}/>
     </div>
   );
 }

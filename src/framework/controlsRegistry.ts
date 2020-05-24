@@ -41,7 +41,11 @@ class ControlDescriptors {
   }
 
   public getDescriptor(type: string) {
-    return this.descriptors.get(type);
+    var descriptor = this.descriptors.get(type);
+    if (descriptor == null) {
+      throw new Error(`No descriptor found with id=${type}`);
+    }
+    return descriptor;
   }
 
   public addChangeListener(callback: () => void) {
