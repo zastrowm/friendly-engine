@@ -28,7 +28,7 @@ export let selectedControlChanges = new RoutedEventDescriptor<ControlContainer>(
 export class DesignSurfaceElement extends CustomHtmlElement {
   public static readonly tagName = 'design-surface';
 
-  private activeEditor: ControlEditor;
+  private readonly activeEditor: ControlEditor;
   private childControls: Map<UniqueId, Control> = new Map();
 
   constructor() {
