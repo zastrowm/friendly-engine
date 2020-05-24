@@ -20,8 +20,8 @@ export const ref = {
    *     <div ref={refAppendElement(document.createElement("span"))}></div>
    *   </div>
    */
-  appendElement: function(replacement: HTMLElement) {
-    return function(element: HTMLElement) {
+  appendElement: function (replacement: HTMLElement) {
+    return function (element: HTMLElement) {
       if (element == null) {
         return;
       }

@@ -26,7 +26,7 @@ code-dialog dialog:not([open]) {
 
 code-dialog dialog::backdrop {
   background-color: black;
-  opacity: .4;
+  opacity: 0.4;
 }
 
 code-dialog dialog {
@@ -35,24 +35,23 @@ code-dialog dialog {
   grid-template-rows: auto 1fr auto;
 
   grid-template-areas:
-    "header"
-    "code"
-    "actions"
-  ;
+    'header'
+    'code'
+    'actions';
 }
 
-code-dialog dialog>h1 {
+code-dialog dialog > h1 {
   grid-area: header;
   margin: 0px;
 }
 
-code-dialog dialog>div.code {
+code-dialog dialog > div.code {
   grid-area: code;
   margin: 10px;
   overflow: hidden;
   background-color: blue;
 }
 
-code-dialog dialog>div.actions {
+code-dialog dialog > div.actions {
   grid-area: actions;
 }

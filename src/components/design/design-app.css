@@ -5,7 +5,7 @@ design-app h1 {
   padding: 0 12px;
 }
 
-design-app>div {
+design-app > div {
   display: grid;
 
   grid-template-rows: auto 1fr;
@@ -22,7 +22,7 @@ design-app>div {
   left: 0px;
 }
 
-design-app>div header {
+design-app > div header {
   background: #ff6a2b;
   color: white;
   height: 56px;
@@ -33,17 +33,17 @@ design-app>div header {
   grid-area: header;
 }
 
-design-app>div main {
+design-app > div main {
   grid-area: main;
   position: relative;
   overflow: scroll;
 }
 
-design-app>div main>div {
+design-app > div main > div {
   height: 100%;
 }
 
-design-app>div aside {
+design-app > div aside {
   grid-area: properties;
   position: relative;
   overflow: auto;

@@ -1,23 +1,22 @@
-
 declare var GLOBAL_CONFIG: any;
 
 declare var module;
 
 export let config = {
   isDevelopment() {
-    return GLOBAL_CONFIG.mode == "development";
+    return GLOBAL_CONFIG.mode == 'development';
   },
 
   isProduction() {
-    return GLOBAL_CONFIG.mode == "production";
+    return GLOBAL_CONFIG.mode == 'production';
   },
-}
+};
 
 let currentWindowError = null;
 
-window.addEventListener('error', function(ev: ErrorEvent) {
+window.addEventListener('error', function (ev: ErrorEvent) {
   currentWindowError = ev;
-})
+});
 
 export let development = {
   isReloadingDueToHmr() {
@@ -26,7 +25,5 @@ export let development = {
 
   hasErrorOccurred() {
     return currentWindowError != null;
-  }
-}
-
-
+  },
+};

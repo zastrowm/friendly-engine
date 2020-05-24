@@ -6,7 +6,7 @@ import { ControlContainer } from 'src/components/design/control-container.e';
 import { TextContentProperty } from './editors/TextContentProperty';
 import { Control, ControlProperty, controlProperty, IPropertyEditor } from './Control';
 import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
-import { FontSizeProperty } from "./editors/FontSizeProperty";
+import { FontSizeProperty } from './editors/FontSizeProperty';
 
 /**
  * Whether or not the checkbox is checked

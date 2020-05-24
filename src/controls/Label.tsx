@@ -3,7 +3,7 @@ import { TextContentProperty } from './editors/TextContentProperty';
 import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
 import { Control, controlProperty } from './Control';
 import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
-import { FontSizeProperty } from "./editors/FontSizeProperty";
+import { FontSizeProperty } from './editors/FontSizeProperty';
 
 export class Label extends Control {
   private labelElement: HTMLDivElement;
