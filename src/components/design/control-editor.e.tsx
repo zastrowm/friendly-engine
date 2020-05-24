@@ -68,21 +68,6 @@ export class ControlEditor extends CustomHtmlJsxElement {
     this.doMouseDown(mouseEvent);
   }
 
-  public onMouseDown(mouseEvent: MouseEvent) {
-    let target = mouseEvent.target as HTMLElement;
-    let editorElement = target.closest('control-editor');
-
-    if (editorElement == null) {
-      debugger;
-      // how did we get here?
-      return;
-    }
-
-    mouseEvent.preventDefault();
-    this.lastUpdatedBoundary = null;
-    this.doMouseDown(mouseEvent);
-  }
-
   /**
    * Common method for handling mouse down event (externally or internally)
    */
