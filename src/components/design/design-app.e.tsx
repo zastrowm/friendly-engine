@@ -50,13 +50,18 @@ export class DesignApp extends CustomHtmlJsxElement {
         () => {
           if (!development.hasErrorOccurred() && !development.isReloadingDueToHmr()) {
             this.saveLayout('development');
-            console.log(module.hot.status());
-            console.error('Child COunt', this.editor.children.length);
           }
         },
         { once: true },
       );
     }
+
+    // make sure that we keep ourselves focused; works around issue #21
+    this.addEventListener('mouseup', () => {
+      if (document.activeElement.closest(DesignApp.tagName) == null) {
+        this.focus();
+      }
+    }, true);
 
     undoCommandCreated.addListener(this, (command) => this.onUndoEventGenerated(command));
 
