@@ -208,7 +208,7 @@ export class DesignApp extends CustomHtmlJsxElement {
           </div>
         </main>
         <aside>
-          <property-panel ref={(it) => (this.propertyPanel = it)}></property-panel>
+          <property-panel ref={(it) => (this.propertyPanel = it)} />
         </aside>
       </div>
     );

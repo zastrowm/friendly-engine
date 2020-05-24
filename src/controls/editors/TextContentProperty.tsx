@@ -27,6 +27,12 @@ export class TextContentProperty extends ControlProperty<string> {
     input.value = this.getValue(instance.control);
 
     input.addEventListener('input', () => {
+      // it's possible through rapid undo/redo that we'll get input events to this item while it's unattached,
+      // - if that occurs bail out so that we don't generate a useless undo event
+      if (!document.contains(input)) {
+        return;
+      }
+
       let originalValue = this.getValue(instance.control);
       let newValue = input.value;
       this.setValue(instance.control, newValue);
