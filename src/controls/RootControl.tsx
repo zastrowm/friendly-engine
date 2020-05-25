@@ -1,5 +1,5 @@
 import { Control, controlProperty, IControlSerializedData } from './Control';
-import { IControlDescriptor, ReflectionBasedDescriptor } from '../framework/controlsRegistry';
+import { IControlDescriptor, ReflectionBasedDescriptor } from '../framework/controlRegistry';
 import { BackgroundProperty } from './editors/Background';
 import { UniqueId } from '../framework/util';
 

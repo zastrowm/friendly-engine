@@ -1,6 +1,6 @@
 import { ControlContainer } from '../../components/design/control-container.e';
 import { setPropertyUndoRedo } from './_shared';
-import { ControlProperty } from '../Control';
+import { ControlProperty, IProperty, PropertyType } from '../Control';
 
 export class BackgroundProperty extends ControlProperty<string> {
   public id = 'control.backgroundColor';

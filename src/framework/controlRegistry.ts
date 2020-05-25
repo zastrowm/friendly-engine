@@ -23,7 +23,10 @@ export interface IControlDescriptor<T extends Control = Control> {
   getProperty<T>(id: string): ControlProperty<T>;
 }
 
-class ControlDescriptors {
+/**
+ * Collection of controls that can be active on a given canvas.
+ */
+export class ControlRegistry {
   private descriptors: Map<string, IControlDescriptor> = new Map();
   private callbacks: { (): void }[] = [];
 
@@ -79,5 +82,3 @@ export class ReflectionBasedDescriptor<T extends Control> implements IControlDes
     return null;
   }
 }
-
-export let controlDescriptors = new ControlDescriptors();

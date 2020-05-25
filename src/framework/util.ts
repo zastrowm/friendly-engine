@@ -75,3 +75,10 @@ export function addEventListenerAsync<TData = any>(element: HTMLElement, eventNa
 
 /** Typescript compiler helper to make typescript know that the value is of type T **/
 export function assume<T>(value: any): asserts value is T {}
+
+/**
+ * Require all properties, even optional ones - for better type safetey
+ */
+export type RequireAllProperties<TType> = {
+  [P in keyof TType]-?: TType[P];
+};

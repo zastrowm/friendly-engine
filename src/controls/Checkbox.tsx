@@ -1,12 +1,15 @@
 import { Fragment, h, renderToElement } from '@friendly/elements/jsxElements';
 
-import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
-import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
+import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlRegistry';
 import { ControlContainer } from 'src/components/design/control-container.e';
-import { TextContentProperty } from './editors/TextContentProperty';
-import { Control, ControlProperty, controlProperty, IPropertyEditor } from './Control';
-import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
-import { FontSizeProperty } from './editors/FontSizeProperty';
+import { Control, ControlProperty, controlProperty, IPropertyEditor, implementProperty } from './Control';
+import {
+  FontSizeProperty,
+  Formatting,
+  TextAlignmentProperty,
+  TextContentProperty,
+  TextFormattingProperty,
+} from './properties/@commonProperties';
 
 /**
  * Whether or not the checkbox is checked
@@ -48,16 +51,16 @@ export class Checkbox extends Control {
   private input: HTMLInputElement;
   private textElement: HTMLElement;
 
-  @controlProperty(new TextAlignmentProperty((c: Checkbox) => c.textElement))
+  @implementProperty(TextContentProperty, (c: Checkbox) => c.textElement)
   public text: string;
 
-  @controlProperty(new FontSizeProperty((c: Checkbox) => c.textElement))
-  public fontSize: number;
-
-  @controlProperty(new TextFormattingProperty((c: Checkbox) => c.textElement))
+  @implementProperty(TextFormattingProperty, (c: Checkbox) => c.textElement)
   public textFormatting: Formatting;
 
-  @controlProperty(new TextContentProperty((c: Checkbox) => c.textElement))
+  @implementProperty(FontSizeProperty, (c: Checkbox) => c.textElement)
+  public fontSize: number;
+
+  @implementProperty(TextAlignmentProperty, (c: Checkbox) => c.textElement)
   public textAlignment: string;
 
   @controlProperty(new CheckedProperty((c: Checkbox) => c.input))

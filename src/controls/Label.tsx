@@ -1,23 +1,26 @@
-import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
-import { TextContentProperty } from './editors/TextContentProperty';
-import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
-import { Control, controlProperty } from './Control';
-import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
-import { FontSizeProperty } from './editors/FontSizeProperty';
+import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlRegistry';
+import { Control, controlProperty, implementProperty } from './Control';
+import {
+  FontSizeProperty,
+  Formatting,
+  TextAlignmentProperty,
+  TextContentProperty,
+  TextFormattingProperty,
+} from './properties/@commonProperties';
 
 export class Label extends Control {
   private labelElement: HTMLDivElement;
 
-  @controlProperty(new TextAlignmentProperty((c: Label) => c.labelElement))
+  @implementProperty(TextContentProperty, (c: Label) => c.labelElement)
   public text: string;
 
-  @controlProperty(new FontSizeProperty((c: Label) => c.labelElement))
-  public fontSize: number;
-
-  @controlProperty(new TextFormattingProperty((c: Label) => c.labelElement))
+  @implementProperty(TextFormattingProperty, (c: Label) => c.labelElement)
   public textFormatting: Formatting;
 
-  @controlProperty(new TextContentProperty((c: Label) => c.labelElement))
+  @implementProperty(FontSizeProperty, (c: Label) => c.labelElement)
+  public fontSize: number;
+
+  @implementProperty(TextAlignmentProperty, (c: Label) => c.labelElement)
   public textAlignment: string;
 
   protected initialize(): HTMLElement {

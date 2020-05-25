@@ -9,6 +9,7 @@ import {
 
 import './property-panel.css';
 import { ControlProperty } from 'src/controls/commonControls';
+import { PropertyEditorRegistry } from '../../controls/editors/propertyEditor';
 
 /**
  * Allows editing of the properties for a specific container.
@@ -21,10 +22,15 @@ export class PropertyPanelElement extends CustomHtmlJsxElement {
 
   constructor() {
     super();
+
+    this.editorRegistry = null;
   }
 
   @property({ invalidateOnSet: true })
   public container: ControlContainer;
+
+  /** The editors to use when editing properties */
+  public editorRegistry: PropertyEditorRegistry;
 
   /**
    * Called to notify the panel that a property changed externally.
@@ -58,7 +64,7 @@ export class PropertyPanelElement extends CustomHtmlJsxElement {
       <div>
         <span class="name">{this.container.control.id}</span>
         {descriptor.getProperties().map((p) => (
-          <PropertyEntry container={this.container} property={p} />
+          <PropertyEntry container={this.container} property={p} editorRegistry={this.editorRegistry} />
         ))}
       </div>
     );
@@ -72,13 +78,42 @@ export class PropertyPanelElement extends CustomHtmlJsxElement {
   }
 }
 
-function PropertyEntry(props: { property: ControlProperty<any>; container: ControlContainer }) {
-  let editor = props.property.getEditor(props.container);
+function PropertyEntry(props: {
+  property: ControlProperty<any>;
+  container: ControlContainer;
+  editorRegistry: PropertyEditorRegistry;
+}) {
+  let { property, container, editorRegistry } = props;
+  let control = container.control;
+  let editor = property.getEditor(container);
+
+  // TODO switch over to use *only* the new property system
+  if (editor == null) {
+    let betterEditor = editorRegistry.findEditorFor(property);
+    let htmlElement = betterEditor.createEditorFor({
+      getValue(): any {
+        return property.getValue(control);
+      },
+      setValue(value: any) {
+        property.setValue(control, value);
+      },
+      get id() {
+        return control.id;
+      },
+      get property() {
+        return property;
+      },
+    });
+
+    editor = {
+      elementToMount: htmlElement,
+    };
+  }
 
   return (
     <div>
       <div>{props.property.displayName}</div>
-      <div ref={ref.appendElement(editor.elementToMount)}/>
+      <div ref={ref.appendElement(editor.elementToMount)} />
     </div>
   );
 }

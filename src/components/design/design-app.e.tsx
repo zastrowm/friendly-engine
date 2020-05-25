@@ -8,17 +8,14 @@ import { ControlContainer } from './control-container.e';
 
 import './design-app.css';
 import { PropertyPanelElement } from './property-panel.e';
-import {
-  installCommonDescriptors,
-  controlDescriptors,
-  IControlDescriptor,
-  IControlSerializedData,
-} from '../../controls/commonControls';
+import { addCommonControlDescriptors, IControlDescriptor, IControlSerializedData } from '../../controls/commonControls';
 import { registerFocusCounter, unregisterFocusCounter } from '../../framework/focusService';
 import { CustomHtmlJsxElement, customElement } from '@friendly/elements/CustomHtmlJsxElement';
 import { config, development } from '../../runtime';
-import { ISerializedPropertyBag } from "../../controls/Control";
-import { assume } from "../../framework/util";
+import { ISerializedPropertyBag } from '../../controls/Control';
+import { ControlRegistry } from '../../framework/controlRegistry';
+import { PropertyEditorRegistry } from '../../controls/editors/propertyEditor';
+import { addCommonPropertyEditors } from '../../controls/editors/@commonEditors';
 
 declare var module;
 
@@ -33,6 +30,8 @@ export class DesignApp extends CustomHtmlJsxElement {
   private readonly undoRedoQueue = new UndoRedoQueue();
   private propertyPanel: PropertyPanelElement;
   private editor: DesignSurfaceElement;
+  private descriptors: ControlRegistry = new ControlRegistry();
+  private editorRegistry: PropertyEditorRegistry = new PropertyEditorRegistry();
 
   constructor() {
     super();
@@ -59,11 +58,15 @@ export class DesignApp extends CustomHtmlJsxElement {
     }
 
     // make sure that we keep ourselves focused; works around issue #21
-    this.addEventListener('mouseup', () => {
-      if (document.activeElement.closest(DesignApp.tagName) == null) {
-        this.focus();
-      }
-    }, true);
+    this.addEventListener(
+      'mouseup',
+      () => {
+        if (document.activeElement.closest(DesignApp.tagName) == null) {
+          this.focus();
+        }
+      },
+      true,
+    );
 
     undoCommandCreated.addListener(this, (command) => this.onUndoEventGenerated(command));
 
@@ -73,9 +76,10 @@ export class DesignApp extends CustomHtmlJsxElement {
     listener.set(appRoutedCommands.delete, () => this.deleteCurrent());
 
     selectedControlChanged.addListener(this, (c) => this.onSelectedControlChanged(c));
-    installCommonDescriptors();
+    addCommonControlDescriptors(this.descriptors);
+    addCommonPropertyEditors(this.editorRegistry);
 
-    controlDescriptors.addChangeListener(() => this.onControlsChange());
+    this.descriptors.addChangeListener(() => this.onControlsChange());
   }
 
   /** override */
@@ -154,8 +158,8 @@ export class DesignApp extends CustomHtmlJsxElement {
       controls: Array.from(controls).map((it) => it.serialize()),
       root: {
         properties: this.editor.root.serializeProperties(),
-      }
-    }
+      },
+    };
     let json = JSON.stringify(data);
 
     window.localStorage.setItem(`layout_${layoutName}`, json);
@@ -180,14 +184,14 @@ export class DesignApp extends CustomHtmlJsxElement {
       layoutInfo = {
         controls: layoutInfo as IControlSerializedData[],
         root: {
-          properties: null
-        }
-      }
+          properties: null,
+        },
+      };
     }
 
     let lastControl: ControlContainer;
     for (let serialized of layoutInfo.controls) {
-      let descriptor = controlDescriptors.getDescriptor(serialized.typeId);
+      let descriptor = this.descriptors.getDescriptor(serialized.typeId);
       let control = descriptor.createInstance();
       control.deserialize(serialized);
       lastControl = this.editor.addControlNoUndo(control);
@@ -212,7 +216,7 @@ export class DesignApp extends CustomHtmlJsxElement {
         <header>
           <h1>Web App Builder</h1>
           {/* Render each control as a button that inserts it */}
-          {Array.from(controlDescriptors.getDescriptors()).map((d) => (
+          {Array.from(this.descriptors.getDescriptors()).map((d) => (
             <button onClick={() => this.addControl(d)}>Add {d.id}</button>
           ))}
           <button onClick={() => this.deleteCurrent()}>Delete</button>
@@ -228,7 +232,7 @@ export class DesignApp extends CustomHtmlJsxElement {
           </div>
         </main>
         <aside>
-          <property-panel ref={(it) => (this.propertyPanel = it)} />
+          <property-panel ref={(it) => (this.propertyPanel = it)} editorRegistry={this.editorRegistry} />
         </aside>
       </div>
     );
@@ -238,6 +242,6 @@ export class DesignApp extends CustomHtmlJsxElement {
 interface ISavedLayoutInfo {
   root: {
     properties: ISerializedPropertyBag;
-  }
+  };
   controls: IControlSerializedData[];
 }

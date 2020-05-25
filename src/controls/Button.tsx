@@ -1,12 +1,16 @@
-import { TextAlignmentProperty } from './editors/TextAlignmentProperty';
-import { TextContentProperty } from './editors/TextContentProperty';
-import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlsRegistry';
+import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlRegistry';
 import { ControlContainer } from 'src/components/design/control-container.e';
 import { h, renderToFragment } from '@friendly/elements/jsxElements';
 import { CodeDialog } from 'src/components/code/code-dialog.e';
-import { Control, ControlProperty, controlProperty, IPropertyEditor } from './Control';
-import { Formatting, TextFormattingProperty } from './editors/TextFormattingProperty';
-import { FontSizeProperty } from './editors/FontSizeProperty';
+import { Control, ControlProperty, controlProperty, IPropertyEditor, implementProperty } from './Control';
+import { TextAlignmentEditor } from './editors/@commonEditors';
+import {
+  FontSizeProperty,
+  Formatting,
+  TextAlignmentProperty,
+  TextContentProperty,
+  TextFormattingProperty,
+} from './properties/@commonProperties';
 
 let codeDialog = CodeDialog.createInstance();
 
@@ -65,16 +69,16 @@ class ClickActionProperty extends ControlProperty<string> {
 export class Button extends Control {
   private buttonElement: HTMLButtonElement;
 
-  @controlProperty(new TextAlignmentProperty((c: Button) => c.buttonElement))
+  @implementProperty(TextContentProperty, (c: Button) => c.buttonElement)
   public text: string;
 
-  @controlProperty(new TextFormattingProperty((c: Button) => c.buttonElement))
+  @implementProperty(TextFormattingProperty, (c: Button) => c.buttonElement)
   public textFormatting: Formatting;
 
-  @controlProperty(new FontSizeProperty((c: Button) => c.buttonElement))
+  @implementProperty(FontSizeProperty, (c: Button) => c.buttonElement)
   public fontSize: number;
 
-  @controlProperty(new TextContentProperty((c: Button) => c.buttonElement))
+  @implementProperty(TextAlignmentProperty, (c: Button) => c.buttonElement)
   public textAlignment: string;
 
   @controlProperty(new ClickActionProperty((c: Button) => c.buttonElement))
@@ -85,7 +89,7 @@ export class Button extends Control {
     return this.buttonElement;
   }
 
-  public get descriptor(): IControlDescriptor<Control> {
+  public get descriptor(): IControlDescriptor {
     return buttonDescriptor;
   }
 }
