@@ -17,6 +17,8 @@ import {
 import { registerFocusCounter, unregisterFocusCounter } from '../../framework/focusService';
 import { CustomHtmlJsxElement, customElement } from '@friendly/elements/CustomHtmlJsxElement';
 import { config, development } from '../../runtime';
+import { ISerializedPropertyBag } from "../../controls/Control";
+import { assume } from "../../framework/util";
 
 declare var module;
 
@@ -148,7 +150,13 @@ export class DesignApp extends CustomHtmlJsxElement {
   /** Saves the current control layout to LocalStorage */
   private saveLayout(layoutName: string) {
     let controls = this.editor.controls;
-    let json = JSON.stringify(Array.from(controls).map((it) => it.serialize()));
+    let data: ISavedLayoutInfo = {
+      controls: Array.from(controls).map((it) => it.serialize()),
+      root: {
+        properties: this.editor.root.serializeProperties(),
+      }
+    }
+    let json = JSON.stringify(data);
 
     window.localStorage.setItem(`layout_${layoutName}`, json);
   }
@@ -166,9 +174,19 @@ export class DesignApp extends CustomHtmlJsxElement {
       return;
     }
 
-    let layout = JSON.parse(jsonLayout) as IControlSerializedData[];
+    let layoutInfo = JSON.parse(jsonLayout) as ISavedLayoutInfo;
+
+    if (Array.isArray(layoutInfo)) {
+      layoutInfo = {
+        controls: layoutInfo as IControlSerializedData[],
+        root: {
+          properties: null
+        }
+      }
+    }
+
     let lastControl: ControlContainer;
-    for (let serialized of layout) {
+    for (let serialized of layoutInfo.controls) {
       let descriptor = controlDescriptors.getDescriptor(serialized.typeId);
       let control = descriptor.createInstance();
       control.deserialize(serialized);
@@ -178,6 +196,8 @@ export class DesignApp extends CustomHtmlJsxElement {
     if (lastControl != null) {
       this.editor.selectAndMarkActive(lastControl);
     }
+
+    this.editor.root.deserializeProperties(layoutInfo.root?.properties);
   }
 
   /** Deletes all controls in the editor **/
@@ -213,4 +233,11 @@ export class DesignApp extends CustomHtmlJsxElement {
       </div>
     );
   }
+}
+
+interface ISavedLayoutInfo {
+  root: {
+    properties: ISerializedPropertyBag;
+  }
+  controls: IControlSerializedData[];
 }

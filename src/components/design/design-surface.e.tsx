@@ -15,7 +15,7 @@ import {
   IControlSerializedData,
   ISerializedPropertyBag,
 } from 'src/controls/Control';
-import { UserControl, userControlDescriptor } from '../../controls/UserControl';
+import { RootControl, rootControlDescriptor } from '../../controls/RootControl';
 
 export let selectedControlChanged = new RoutedEventDescriptor<ControlContainer>({
   id: 'selectedControlChanged',
@@ -42,6 +42,13 @@ export class DesignSurfaceElement extends CustomHtmlElement {
     this._rootContainer = DesignSurfaceElement.createUserControlContainer();
   }
 
+  /**
+   * Gets the root control of the design-canvas.
+   */
+  public get root(): RootControl {
+    return this._rootContainer.control as RootControl;
+  }
+
   /** override */
   public onFirstConnected() {
     this.appendChild(this._rootContainer);
@@ -55,8 +62,7 @@ export class DesignSurfaceElement extends CustomHtmlElement {
 
   private static createUserControlContainer(): ControlContainer {
     let container = document.createElement(ControlContainer.tagName);
-    let userControl = userControlDescriptor.createInstance();
-    userControl.id = '$root' as any;
+    let userControl = rootControlDescriptor.createInstance();
     container.control = userControl;
     setControlDesigner(userControl, container);
     return container;
@@ -224,7 +230,7 @@ export class DesignSurfaceElement extends CustomHtmlElement {
 
     // Because we remove the root control if it was present, it's possible to end up with an empty list - in that
     // case, we don't want to add an undo entry
-    if (serializedControlData.length > 0)  {
+    if (serializedControlData.length > 0) {
       removeControlsUndoHandler.trigger(this, {
         entries: serializedControlData,
       });

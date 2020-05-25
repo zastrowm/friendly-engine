@@ -63,6 +63,19 @@ export abstract class Control {
    * @returns an object containing key-value pairs of the properties to persist
    */
   public serialize(): IControlSerializedData {
+    return {
+      id: this.id,
+      typeId: this.descriptor.id,
+      properties: this.serializeProperties(),
+      position: this.layout,
+    };
+  }
+
+  /**
+   * Serializes the properties of this control into a data-collection
+   * @returns an object containing key-value pairs of the properties to persist
+   */
+  public serializeProperties(): ISerializedPropertyBag {
     let propertyBag = {};
 
     for (let prop of this.descriptor.getProperties()) {
@@ -71,12 +84,7 @@ export abstract class Control {
       }
     }
 
-    return {
-      id: this.id,
-      typeId: this.descriptor.id,
-      properties: propertyBag,
-      position: this.layout,
-    };
+    return propertyBag;
   }
 
   /**
@@ -92,17 +100,27 @@ export abstract class Control {
       );
     }
 
-    // loop through the serialized properties and restore them
-    for (let key in data.properties) {
-      let property = descriptor.getProperty(key);
-      if (property != null) {
-        let value = data.properties[key];
-        property.setValue(this, value);
-      }
-    }
+    this.deserializeProperties(data.properties);
 
     this.layout = data.position;
     this.id = data.id;
+  }
+
+  /**
+   * Deserializes the given properties
+   */
+  public deserializeProperties(properties: ISerializedPropertyBag) {
+    if (properties == null) {
+      return;
+    }
+
+    for (let key in properties) {
+      let property = this.descriptor.getProperty(key);
+      if (property != null) {
+        let value = properties[key];
+        property.setValue(this, value);
+      }
+    }
   }
 }
 

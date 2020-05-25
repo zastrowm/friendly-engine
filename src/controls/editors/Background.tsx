@@ -8,7 +8,7 @@ export class BackgroundProperty extends ControlProperty<string> {
 
   /* override */
   protected getValueRaw(e: HTMLElement) {
-    return e.style.backgroundColor ?? "";
+    return e.style.backgroundColor ?? '';
   }
 
   /* override */
@@ -18,7 +18,7 @@ export class BackgroundProperty extends ControlProperty<string> {
 
   /* override */
   protected hasDefaultValueRaw(e: HTMLElement): boolean {
-    return e.textContent == null || e.textContent == '';
+    return false;
   }
 
   /* override */
