@@ -1,8 +1,6 @@
 import { Fragment, h, renderToElement } from '@friendly/elements/jsxElements';
-
 import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlRegistry';
-import { ControlContainer } from 'src/components/design/control-container.e';
-import { Control, ControlProperty, controlProperty, IPropertyEditor, implementProperty } from './Control';
+import { Control, implementProperty, IProperty, PropertyType } from './Control';
 import {
   FontSizeProperty,
   Formatting,
@@ -14,38 +12,25 @@ import {
 /**
  * Whether or not the checkbox is checked
  */
-class CheckedProperty extends ControlProperty<boolean> {
-  public id = 'checkbox.isChecked';
-  public displayName = 'Checked';
+const CheckedProperty: IProperty<HTMLInputElement, boolean> = {
+  id: 'checkbox.isChecked',
+  displayName: 'Checked',
+  propertyType: PropertyType.boolean,
 
   /* override */
-  protected getValueRaw(e: HTMLInputElement) {
-    return e.checked;
-  }
+  getValue(element) {
+    return element.checked;
+  },
 
   /* override */
-  protected setValueRaw(e: HTMLInputElement, value: boolean) {
-    e.checked = value;
-  }
+  setValue(element, value) {
+    element.checked = value;
+  },
 
-  /* override */
-  protected hasDefaultValueRaw(e: HTMLInputElement): boolean {
-    return e.checked == false;
-  }
-
-  public getEditor(instance: ControlContainer): IPropertyEditor {
-    return this.createJsxEditor(instance, (refresh) => (
-      <input
-        type="checkbox"
-        checked={this.getValue(instance.control)}
-        onChange={() => {
-          let old = this.getValue(instance.control);
-          refresh({ old: old, new: !old });
-        }}
-      />
-    ));
-  }
-}
+  serializeValue(element) {
+    return element.checked === true;
+  },
+};
 
 export class Checkbox extends Control {
   private input: HTMLInputElement;
@@ -63,7 +48,7 @@ export class Checkbox extends Control {
   @implementProperty(TextAlignmentProperty, (c: Checkbox) => c.textElement)
   public textAlignment: string;
 
-  @controlProperty(new CheckedProperty((c: Checkbox) => c.input))
+  @implementProperty(CheckedProperty, (c: Checkbox) => c.input)
   public isChecked: boolean;
 
   public get descriptor(): IControlDescriptor<Checkbox> {

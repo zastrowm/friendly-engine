@@ -1,6 +1,5 @@
-import { Control, controlProperty, IControlSerializedData, implementProperty } from './Control';
+import { Control, IControlSerializedData, implementProperty } from './Control';
 import { IControlDescriptor, ReflectionBasedDescriptor } from '../framework/controlRegistry';
-import { BackgroundProperty } from './editors/Background';
 import { UniqueId } from '../framework/util';
 import { BackgroundColorProperty } from './properties/@commonProperties';
 

@@ -7,7 +7,7 @@ import { IPropEditor, isAttached } from './propertyEditor';
 let codeDialog = CodeDialog.createInstance();
 document.body.append(codeDialog);
 
-export const ScriptPropertyEditor: IPropEditor<string> = {
+export const BackgroundColorPropertyEditor: IPropEditor<string> = {
   canProcess(property) {
     return property.propertyType == PropertyType.color;
   },
