@@ -1,5 +1,5 @@
 import { Fragment, h, renderToElement } from '@friendly/elements/jsxElements';
-import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlRegistry';
+import { IControlDescriptor, ReflectionBasedDescriptor } from './controlRegistry';
 import { Control, implementProperty, IProperty, PropertyType } from './Control';
 import {
   FontSizeProperty,

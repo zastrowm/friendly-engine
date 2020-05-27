@@ -1,4 +1,4 @@
-import { IControlDescriptor } from 'src/framework/controlRegistry';
+import { IControlDescriptor } from './controlRegistry';
 import { IStoredPositionInfo } from 'src/framework/layout';
 import { UniqueId } from 'src/framework/util';
 

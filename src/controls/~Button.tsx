@@ -1,4 +1,4 @@
-import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlRegistry';
+import { IControlDescriptor, ReflectionBasedDescriptor } from './controlRegistry';
 import { h } from '@friendly/elements/jsxElements';
 import { Control, implementProperty, IProperty, PropertyType } from './Control';
 import {

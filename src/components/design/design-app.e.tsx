@@ -8,12 +8,16 @@ import { ControlContainer } from './control-container.e';
 
 import './design-app.css';
 import { PropertyPanelElement } from './property-panel.e';
-import { addCommonControlDescriptors, IControlDescriptor, IControlSerializedData } from '../../controls/commonControls';
+import {
+  addCommonControlDescriptors,
+  IControlDescriptor,
+  IControlSerializedData,
+  ISerializedPropertyBag,
+  ControlRegistry,
+} from '../../controls/@commonControls';
 import { registerFocusCounter, unregisterFocusCounter } from '../../framework/focusService';
 import { CustomHtmlJsxElement, customElement } from '@friendly/elements/CustomHtmlJsxElement';
 import { config, development } from '../../runtime';
-import { ISerializedPropertyBag } from '../../controls/Control';
-import { ControlRegistry } from '../../framework/controlRegistry';
 import { PropertyEditorRegistry } from '../../controls/editors/propertyEditor';
 import { addCommonPropertyEditors } from '../../controls/editors/@commonEditors';
 

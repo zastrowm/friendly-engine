@@ -8,7 +8,7 @@ import {
 } from '../properties/@commonProperties';
 import { isAttached, createJsxEditor } from './propertyEditor';
 import { Fragment, h, VNode } from '@friendly/elements/jsxElements';
-import { Icon } from '../icon';
+import { Icon } from './icon';
 import { Enums } from '../../framework/Enums';
 
 export const TextEditor = {

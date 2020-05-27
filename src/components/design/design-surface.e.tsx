@@ -2,7 +2,6 @@ import { IStoredPositionInfo, snapLayout } from '../../framework/layout';
 import { registerUndoHandler } from '../../framework/undoRedo';
 import { ControlContainer } from './control-container.e';
 import { ControlEditor } from './control-editor.e';
-import { IControlDescriptor } from '../../framework/controlRegistry';
 import { generateGuid, UniqueId } from '../../framework/util';
 import { CustomHtmlElement, customElement } from '@friendly/elements/CustomHtmlElement';
 
@@ -14,8 +13,10 @@ import {
   setControlDesigner,
   IControlSerializedData,
   ISerializedPropertyBag,
-} from 'src/controls/Control';
-import { RootControl, rootControlDescriptor } from '../../controls/RootControl';
+  RootControl,
+  rootControlDescriptor,
+  IControlDescriptor,
+} from 'src/controls/@commonControls';
 
 export let selectedControlChanged = new RoutedEventDescriptor<ControlContainer>({
   id: 'selectedControlChanged',

@@ -3,8 +3,7 @@ import { IStoredPositionInfo } from '../../framework/layout';
 import { DesignSurfaceElement } from './design-surface.e';
 import { CustomHtmlElement, customElement } from '@friendly/elements/CustomHtmlElement';
 
-import { Control } from 'src/controls/commonControls';
-import { IControlDesigner } from 'src/controls/Control';
+import { Control, IControlDesigner } from 'src/controls/@commonControls';
 
 @customElement(ControlContainer.tagName)
 export class ControlContainer extends CustomHtmlElement implements IControlDesigner {

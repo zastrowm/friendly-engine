@@ -13,7 +13,7 @@ for (let [key, value] of Object.entries(AllPropertyEditors)) {
 
   // do a sanity test
   if (value.createEditorFor == null) {
-    console.log('Got a non property-editor', key, value);
+    console.error('Got a non property-editor', key, value);
   } else {
     commonEditors.push(value);
   }

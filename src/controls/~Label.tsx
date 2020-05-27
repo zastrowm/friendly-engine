@@ -1,4 +1,4 @@
-import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlRegistry';
+import { IControlDescriptor, ReflectionBasedDescriptor } from './controlRegistry';
 import { Control, implementProperty } from './Control';
 import {
   FontSizeProperty,
