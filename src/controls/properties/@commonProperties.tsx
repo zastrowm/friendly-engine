@@ -110,7 +110,7 @@ export const TextFormattingProperty: IProperty<HTMLElement, Formatting> = {
   },
 
   serializeValue(element) {
-    let value = this.getValue();
+    let value = this.getValue(element);
     return value > 0 ? value : undefined;
   },
 };

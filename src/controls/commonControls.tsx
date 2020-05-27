@@ -9,4 +9,4 @@ export function addCommonControlDescriptors(controlDescriptors) {
 }
 
 export { IControlDescriptor } from '../framework/controlRegistry';
-export { Control, ControlProperty, IPropertyEditor, IControlSerializedData } from './Control';
+export { Control, IControlSerializedData } from './Control';

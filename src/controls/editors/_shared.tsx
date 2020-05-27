@@ -3,11 +3,11 @@ import { UniqueId } from '../../framework/util';
 import { getFocusCount, FocusCount } from '../../framework/focusService';
 import { ControlContainer } from 'src/components/design/control-container.e';
 import { RoutedEventDescriptor } from 'src/framework/routedEvents';
-import { ControlProperty } from '../Control';
+import { IControlProperty } from '../controlProperties';
 
 interface SetPropertyUndoArgs {
   id: UniqueId;
-  property: ControlProperty<any>;
+  property: IControlProperty;
   originalValue: any;
   newValue: any;
   canMerge?: boolean;
@@ -77,5 +77,5 @@ export let controlValueChanged = new RoutedEventDescriptor<IControlValueChangedA
 export interface IControlValueChangedArguments {
   instance: ControlContainer;
   value: any;
-  property: ControlProperty<any>;
+  property: IControlProperty;
 }

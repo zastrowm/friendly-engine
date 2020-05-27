@@ -1,46 +1,6 @@
-import { ControlContainer } from 'src/components/design/control-container.e';
-import { setPropertyUndoRedo } from './editors/_shared';
-import { ComponentChild, render } from '@friendly/elements/jsxElements';
-import { RequireAllProperties, UniqueId } from '../framework/util';
+import type { Control } from './Control';
 
-declare class Control {}
-
-// TODO remove
-interface JsxEditorRefreshArguments<T> {
-  old: T;
-  new: T;
-  canMerge?: boolean;
-}
-
-// TODO remove
-export interface IPropertyEditor {
-  elementToMount: HTMLElement;
-}
-
-let data = new Map<any, ControlProperty<any>[]>();
-
-// TODO remove
-export function controlProperty(property: ControlProperty<any>) {
-  return function (target: any, propertyKey: string) {
-    let existing = data.get(target);
-    if (existing == null) {
-      existing = [];
-      data.set(target, existing);
-    }
-
-    existing.push(property);
-
-    Object.defineProperty(target, propertyKey, {
-      get: function () {
-        return property.getValue(this);
-      },
-
-      set: function (value) {
-        property.setValue(this, value);
-      },
-    });
-  };
-}
+let data = new Map<any, IProperty<Control, any>[]>();
 
 type LocalizedString = string;
 
@@ -63,7 +23,7 @@ export enum PropertyType {
  * @param property the html-based property that should be delegated to
  * @param callback a callback which retrieves an HtmlElement from the control
  */
-export function implementProperty<TOwner, TPropertyType>(
+export function implementProperty<TOwner extends Control, TPropertyType>(
   property: IProperty<HTMLElement, TPropertyType>,
   callback: (element: TOwner) => HTMLElement,
 ) {
@@ -74,7 +34,6 @@ export function implementProperty<TOwner, TPropertyType>(
       data.set(target, existing);
     }
 
-    // TODO remove ControlProperty in its entirety
     existing.push(new DelegatedControlProperty(property, callback));
 
     Object.defineProperty(target, propertyKey, {
@@ -102,8 +61,7 @@ export interface IPropertyInfo {
   /** A human readable description of the property */
   displayName: LocalizedString;
   /** The type of the property*/
-  // TODO make non-optional
-  propertyType?: PropertyType;
+  propertyType: PropertyType;
 }
 
 /**
@@ -115,136 +73,50 @@ export interface IProperty<TOwner, TPropertyType> extends IPropertyInfo {
   /** Sets the value on the instance */
   setValue(owner: TOwner, value: TPropertyType);
   /** Serializes the value from the instance - may returned undefined */
-  // TODO make non-optional
   serializeValue?: (data: TOwner) => TPropertyType;
 }
 
-// TODO remove
-export interface IContainerProperty<T> {
-  id: UniqueId;
-  getValue(): T;
-  setValue(value: T);
-  property: IPropertyInfo;
-}
+/**
+ * Simple Type alias for IProperty<Control, T>
+ */
+export interface IControlProperty<T = any> extends IProperty<Control, T> {}
 
 /**
- * Base class for a property descriptor
+ * Implementation of IProperty<Control, T> which takes in an IProperty<HtmlElement, T> and uses a callback to
+ * get the corresponding callback
  */
-export abstract class ControlProperty<T> implements IProperty<Control, T> {
-  /* The callback which retrieves the actual element where the property value can be set and retrieved */
-  protected _callback: (element: any) => HTMLElement;
+class DelegatedControlProperty<T> implements Required<IProperty<Control, T>> {
+  constructor(private property: IProperty<HTMLElement, T>, private callback: (element: Control) => HTMLElement) {}
 
-  constructor(callback: (element: any) => HTMLElement) {
-    this._callback = callback;
-  }
-
-  /* The id of the property */
-  public abstract readonly id: string;
-
-  /* This human-readable name of the property */
-  public abstract readonly displayName: string;
-
-  /* Gets the value from the control */
-  public getValue(control: Control): T {
-    return this.getValueRaw(this._callback(control));
-  }
-
-  /* Sets the value for control */
-  public setValue(control: Control, value: T) {
-    this.setValueRaw(this._callback(control), value);
-  }
-
-  protected abstract getValueRaw(e: HTMLElement): T;
-  protected abstract setValueRaw(e: HTMLElement, value: T): void;
-  protected abstract hasDefaultValueRaw(e: HTMLElement): boolean;
-
-  /* inheritdoc */
-  abstract getEditor(instance: ControlContainer): IPropertyEditor;
-
-  /** True if the value for this property is the default */
-  public hasDefaultValue(control: Control): boolean {
-    return this.hasDefaultValueRaw(this._callback(control));
-  }
-
-  /**
-   * Creates an editor that uses JSX to provide the contents.
-   * @param instance the instance for which the editor is valid
-   * @param callback a callback that can be used to re-render the editor
-   * @returns an IPropertyEditor that edits the given property
-   */
-  protected createJsxEditor(
-    instance: ControlContainer,
-    callback: (refreshCallback: (arg?: JsxEditorRefreshArguments<T>) => void) => ComponentChild,
-  ): IPropertyEditor {
-    let element = document.createElement('span');
-
-    // callback that can be used to force JSX to re-render
-    let invalidateCallback = (data?: JsxEditorRefreshArguments<T>) => {
-      // if they passed in options, that means we should trigger an undo event
-      if (data != null) {
-        this.setValue(instance.control, data.new);
-
-        setPropertyUndoRedo.trigger(element, {
-          id: instance.control.id,
-          property: this,
-          originalValue: data.old,
-          newValue: data.new,
-          canMerge: data?.canMerge ?? false,
-        });
-      }
-
-      // actually re-render
-      let jsx = callback(invalidateCallback);
-      render(jsx, element);
-    };
-
-    // first time rendering
-    invalidateCallback();
-
-    return {
-      elementToMount: element,
-    };
-  }
-}
-
-// TODO remove
-class DelegatedControlProperty<T> extends ControlProperty<T>
-  implements RequireAllProperties<IProperty<HTMLElement, T>> {
-  constructor(private property: IProperty<HTMLElement, T>, private callback: (element: Control) => HTMLElement) {
-    super(callback);
-  }
-
-  get id() {
+  public get id() {
     return this.property.id;
   }
 
-  get displayName() {
+  public get displayName() {
     return this.property.displayName;
   }
 
-  protected hasDefaultValueRaw(e: HTMLElement): boolean {
-    return false;
+  public getValue(control: Control): T {
+    let htmlElement = this.callback(control);
+    return this.property.getValue(htmlElement);
   }
 
-  protected getValueRaw(e: HTMLElement): T {
-    return this.property.getValue(e);
+  public setValue(control: Control, value: T) {
+    let htmlElement = this.callback(control);
+    this.property.setValue(htmlElement, value);
   }
 
-  protected setValueRaw(e: HTMLElement, value: T) {
-    this.property.setValue(e, value);
-  }
-
-  getEditor(instance: ControlContainer): IPropertyEditor {
-    return null;
-  }
-
-  get propertyType(): PropertyType {
+  public get propertyType(): PropertyType {
     return this.property.propertyType;
   }
 
-  serializeValue(data: HTMLElement): T {
-    let val = this.property.serializeValue?.(data) ?? this.property.getValue(data);
-    console.log(this.id, val);
-    return val;
+  public serializeValue(control: Control): T {
+    let htmlElement = this.callback(control);
+
+    if (this.property.serializeValue != null) {
+      return this.property.serializeValue(htmlElement);
+    } else {
+      return this.getValue(control);
+    }
   }
 }

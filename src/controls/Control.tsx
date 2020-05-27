@@ -79,9 +79,7 @@ export abstract class Control {
     let propertyBag = {};
 
     for (let prop of this.descriptor.getProperties()) {
-      if (!prop.hasDefaultValue(this)) {
-        propertyBag[prop.id] = prop.getValue(this);
-      }
+      propertyBag[prop.id] = prop.serializeValue(this);
     }
 
     return propertyBag;
@@ -115,8 +113,10 @@ export abstract class Control {
     }
 
     for (let key in properties) {
+      // noinspection JSUnfilteredForInLoop
       let property = this.descriptor.getProperty(key);
       if (property != null) {
+        // noinspection JSUnfilteredForInLoop
         let value = properties[key];
         property.setValue(this, value);
       }

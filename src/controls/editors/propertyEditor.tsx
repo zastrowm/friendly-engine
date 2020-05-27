@@ -1,23 +1,52 @@
-import { IContainerProperty, IPropertyEditor, IPropertyInfo, PropertyType } from '../controlProperties';
+import { IPropertyInfo, PropertyType } from '../controlProperties';
 import { ComponentChild, render } from '@friendly/elements/jsxElements';
 import { setPropertyUndoRedo } from './_shared';
+import { UniqueId } from '../../framework/util';
 
-export interface IPropEditor<T> {
+/**
+ * A wrapper around an IProperty and a given source, allowing editors to focus merely on the value
+ * and the property rather than where the property value is coming from.
+ */
+export interface IInstancedProperty<T> {
+  /** The id of the thing being edited */
+  readonly id: UniqueId;
+
+  /** Gets the current value for the thing being edited */
+  getValue(): T;
+
+  /** Sets the current value for the thing being edited */
+  setValue(value: T);
+
+  /** The property that is being edited **/
+  property: IPropertyInfo;
+}
+
+/**
+ * Represents an editor for a given property
+ */
+export interface IPropertyEditor<T> {
+  /**
+   * Returns true if the given property can be edited by this editor.
+   */
   canProcess(property: IPropertyInfo): boolean;
-  createEditorFor(wrapped: IContainerProperty<T>): HTMLElement;
+
+  /**
+   * Creates an editor for the given property + instance
+   */
+  createEditorFor(wrapped: IInstancedProperty<T>): HTMLElement;
 }
 
 /**
  * Contains a collection of editors that can be applied to various properties.
  */
 export class PropertyEditorRegistry {
-  private editors: IPropEditor<any>[] = [];
+  private editors: IPropertyEditor<any>[] = [];
 
-  public insert(editor: IPropEditor<any>) {
+  public insert(editor: IPropertyEditor<any>) {
     this.editors.splice(0, 0, editor);
   }
 
-  public add(editor: IPropEditor<any>) {
+  public add(editor: IPropertyEditor<any>) {
     this.editors.push(editor);
   }
 
@@ -37,6 +66,9 @@ export class PropertyEditorRegistry {
   }
 }
 
+/**
+ * The arguments to provide when a JSX wants to re-render.
+ */
 interface JsxEditorRefreshArguments<T> {
   old: T;
   new: T;
@@ -50,7 +82,7 @@ interface JsxEditorRefreshArguments<T> {
  * @returns an IPropertyEditor that edits the given property
  */
 export function createJsxEditor<T>(
-  wrapped: IContainerProperty<T>,
+  wrapped: IInstancedProperty<T>,
   callback: (refreshCallback: (arg?: JsxEditorRefreshArguments<T>) => void) => ComponentChild,
 ): HTMLElement {
   let element = document.createElement('span');

@@ -1,8 +1,8 @@
 import { PropertyType } from '../controlProperties';
 import { h } from '@friendly/elements/jsxElements';
-import { createJsxEditor, IPropEditor } from './propertyEditor';
+import { createJsxEditor, IPropertyEditor } from './propertyEditor';
 
-export const BooleanPropertyEditor: IPropEditor<boolean> = {
+export const BooleanPropertyEditor: IPropertyEditor<boolean> = {
   canProcess(property) {
     return property.propertyType == PropertyType.boolean;
   },

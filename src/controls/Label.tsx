@@ -1,5 +1,5 @@
 import { IControlDescriptor, ReflectionBasedDescriptor } from 'src/framework/controlRegistry';
-import { Control, controlProperty, implementProperty } from './Control';
+import { Control, implementProperty } from './Control';
 import {
   FontSizeProperty,
   Formatting,

@@ -1,12 +1,12 @@
 import { PropertyType } from '../controlProperties';
 import { h, renderToFragment } from '@friendly/elements/jsxElements';
 import { CodeDialog } from '../../components/code/code-dialog.e';
-import { IPropEditor } from './propertyEditor';
+import { IPropertyEditor } from './propertyEditor';
 
 let codeDialog = CodeDialog.createInstance();
 document.body.append(codeDialog);
 
-export const ScriptPropertyEditor: IPropEditor<string> = {
+export const ScriptPropertyEditor: IPropertyEditor<string> = {
   canProcess(property) {
     return property.propertyType == PropertyType.script;
   },

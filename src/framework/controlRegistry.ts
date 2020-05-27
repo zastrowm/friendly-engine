@@ -1,4 +1,4 @@
-import { Control, ControlProperty, getControlPropertiesFor } from 'src/controls/Control';
+import { Control, getControlPropertiesFor, IControlProperty } from 'src/controls/Control';
 
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
@@ -17,10 +17,10 @@ export interface IControlDescriptor<T extends Control = Control> {
   createInstance(): T;
 
   /** Gets the editable properties for the given element. */
-  getProperties(): ControlProperty<any>[];
+  getProperties(): IControlProperty[];
 
   /** Gets a property with the given name */
-  getProperty<T>(id: string): ControlProperty<T>;
+  getProperty<T>(id: string): IControlProperty<T>;
 }
 
 /**
@@ -64,7 +64,7 @@ export class ControlRegistry {
 
 export class ReflectionBasedDescriptor<T extends Control> implements IControlDescriptor<T> {
   constructor(public readonly id: string, private readonly typeDef: new () => T) {}
-  getProperties(): ControlProperty<any>[] {
+  getProperties(): IControlProperty[] {
     return getControlPropertiesFor(this.typeDef.prototype) ?? [];
   }
 
@@ -72,7 +72,7 @@ export class ReflectionBasedDescriptor<T extends Control> implements IControlDes
     return new this.typeDef();
   }
 
-  public getProperty<T>(id: string): ControlProperty<T> {
+  public getProperty<T>(id: string): IControlProperty<T> {
     for (let prop of this.getProperties()) {
       if (prop.id == id) {
         return prop;

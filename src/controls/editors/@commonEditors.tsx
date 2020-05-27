@@ -1,15 +1,15 @@
-import { IPropEditor, PropertyEditorRegistry } from './propertyEditor';
+import { IPropertyEditor, PropertyEditorRegistry } from './propertyEditor';
 import { h } from '@friendly/elements/jsxElements';
 
 import { assume } from '../../framework/util';
 
 import * as AllPropertyEditors from './~AllPropertyEditors';
 
-let commonEditors: IPropEditor<any>[] = [];
+let commonEditors: IPropertyEditor<any>[] = [];
 
 // import all editors
 for (let [key, value] of Object.entries(AllPropertyEditors)) {
-  assume<IPropEditor<any>>(value);
+  assume<IPropertyEditor<any>>(value);
 
   // do a sanity test
   if (value.createEditorFor == null) {

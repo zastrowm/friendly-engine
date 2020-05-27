@@ -8,8 +8,8 @@ import {
 } from 'src/controls/editors/_shared';
 
 import './property-panel.css';
-import { ControlProperty } from 'src/controls/commonControls';
 import { PropertyEditorRegistry } from '../../controls/editors/propertyEditor';
+import { IControlProperty, IProperty } from '../../controls/controlProperties';
 
 /**
  * Allows editing of the properties for a specific container.
@@ -79,41 +79,33 @@ export class PropertyPanelElement extends CustomHtmlJsxElement {
 }
 
 function PropertyEntry(props: {
-  property: ControlProperty<any>;
+  property: IControlProperty;
   container: ControlContainer;
   editorRegistry: PropertyEditorRegistry;
 }) {
   let { property, container, editorRegistry } = props;
   let control = container.control;
-  let editor = property.getEditor(container);
 
-  // TODO switch over to use *only* the new property system
-  if (editor == null) {
-    let betterEditor = editorRegistry.findEditorFor(property);
-    let htmlElement = betterEditor.createEditorFor({
-      getValue(): any {
-        return property.getValue(control);
-      },
-      setValue(value: any) {
-        property.setValue(control, value);
-      },
-      get id() {
-        return control.id;
-      },
-      get property() {
-        return property;
-      },
-    });
-
-    editor = {
-      elementToMount: htmlElement,
-    };
-  }
+  let betterEditor = editorRegistry.findEditorFor(property);
+  let htmlElementToMount = betterEditor.createEditorFor({
+    getValue(): any {
+      return property.getValue(control);
+    },
+    setValue(value: any) {
+      property.setValue(control, value);
+    },
+    get id() {
+      return control.id;
+    },
+    get property() {
+      return property;
+    },
+  });
 
   return (
     <div>
       <div>{props.property.displayName}</div>
-      <div ref={ref.appendElement(editor.elementToMount)} />
+      <div ref={ref.appendElement(htmlElementToMount)} />
     </div>
   );
 }
