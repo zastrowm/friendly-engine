@@ -6,7 +6,7 @@ import {
   TextAlignmentProperty,
   TextFormattingProperty,
 } from '../properties/@commonProperties';
-import { createJsxEditor } from './propertyEditor';
+import { isAttached, createJsxEditor } from './propertyEditor';
 import { Fragment, h, VNode } from '@friendly/elements/jsxElements';
 import { Icon } from '../icon';
 import { Enums } from '../../framework/Enums';
@@ -21,9 +21,7 @@ export const TextEditor = {
     input.value = wrapped.getValue();
 
     input.addEventListener('input', () => {
-      // it's possible through rapid undo/redo that we'll get input events to this item while it's unattached,
-      // - if that occurs bail out so that we don't generate a useless undo event
-      if (!document.contains(input)) {
+      if (!isAttached(input)) {
         return;
       }
 

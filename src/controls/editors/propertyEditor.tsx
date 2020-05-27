@@ -80,3 +80,12 @@ export function createJsxEditor<T>(
 
   return element;
 }
+
+/**
+ * Check to make sure that the element is still in the document.
+ */
+export function isAttached(element: HTMLElement): boolean {
+  // it's possible through rapid undo/redo that we'll get input events to this item while it's unattached,
+  // - if that occurs bail out so that we don't generate a useless undo event
+  return document.contains(element);
+}

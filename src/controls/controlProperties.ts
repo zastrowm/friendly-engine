@@ -53,7 +53,8 @@ export enum PropertyType {
   number = 1 << 2,
   enum = 1 << 3,
   boolean = 1 << 4,
-  script = 1 << 5,
+  color = 1 << 5,
+  script = 1 << 6,
 }
 
 /**

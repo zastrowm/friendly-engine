@@ -3,8 +3,9 @@ import { h } from '@friendly/elements/jsxElements';
 
 import { assume } from '../../framework/util';
 
-import * as TextPropertyEditors from './TextPropertyEditors';
-import * as ScriptPropertyEditors from './ScriptPropertyEditor';
+import * as TextPropertyEditors from './~TextPropertyEditors';
+import * as ScriptPropertyEditors from './~ScriptPropertyEditor';
+import * as BackgroundProperties from './~BackgroundColorPropertyEditor';
 
 let commonEditors: IPropEditor<any>[] = [];
 
@@ -23,6 +24,7 @@ function importAllValuesOf(data: any) {
 
 importAllValuesOf(TextPropertyEditors);
 importAllValuesOf(ScriptPropertyEditors);
+importAllValuesOf(BackgroundProperties);
 
 export function addCommonPropertyEditors(registry: PropertyEditorRegistry) {
   for (let editor of commonEditors) {

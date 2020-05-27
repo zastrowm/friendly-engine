@@ -1,7 +1,8 @@
-import { Control, controlProperty, IControlSerializedData } from './Control';
+import { Control, controlProperty, IControlSerializedData, implementProperty } from './Control';
 import { IControlDescriptor, ReflectionBasedDescriptor } from '../framework/controlRegistry';
 import { BackgroundProperty } from './editors/Background';
 import { UniqueId } from '../framework/util';
+import { BackgroundColorProperty } from './properties/@commonProperties';
 
 export class RootControl extends Control {
   private containerElement: HTMLDivElement;
@@ -14,7 +15,7 @@ export class RootControl extends Control {
     this.id = RootControl.rootId;
   }
 
-  @controlProperty(new BackgroundProperty((c: RootControl) => c.containerElement))
+  @implementProperty(BackgroundColorProperty, (c: RootControl) => c.containerElement)
   public backgroundColor: string;
 
   protected initialize(): HTMLElement {

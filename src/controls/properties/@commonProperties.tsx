@@ -114,3 +114,21 @@ export const TextFormattingProperty: IProperty<HTMLElement, Formatting> = {
     return value > 0 ? value : undefined;
   },
 };
+
+export const BackgroundColorProperty: IProperty<HTMLElement, string> = {
+  id: 'control.backgroundColor',
+  displayName: 'Background Color',
+  propertyType: PropertyType.color,
+
+  getValue(element) {
+    return element.style.backgroundColor ?? '';
+  },
+
+  setValue(element, value) {
+    element.style.backgroundColor = value;
+  },
+
+  serializeValue(element) {
+    return element.style.backgroundColor ?? undefined;
+  },
+};
