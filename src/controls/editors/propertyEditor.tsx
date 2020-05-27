@@ -1,4 +1,4 @@
-import { IContainerProperty, IPropertyEditor, IPropertyInfo } from '../controlProperties';
+import { IContainerProperty, IPropertyEditor, IPropertyInfo, PropertyType } from '../controlProperties';
 import { ComponentChild, render } from '@friendly/elements/jsxElements';
 import { setPropertyUndoRedo } from './_shared';
 
@@ -28,7 +28,12 @@ export class PropertyEditorRegistry {
       }
     }
 
-    throw new Error(`No editor found for property '${property.id}' (${property.displayName})`);
+    throw new Error(
+      `No editor found for property` +
+        `\r\n\t id          : ${property.id}` +
+        `\r\n\t propertyType: ${PropertyType[property.propertyType]} (${property.propertyType})` +
+        `\r\n\t displayName : ${property.displayName}`,
+    );
   }
 }
 

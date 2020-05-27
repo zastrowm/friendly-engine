@@ -15,14 +15,17 @@ declare class ResizeObserver {
 @customElement(CodeDialog.tagName)
 export class CodeDialog extends CustomHtmlJsxElement {
   private _dialog: HTMLDialogElement;
+  private _title: HTMLElement;
   private _editor: monaco.editor.IStandaloneCodeEditor;
   private _resizeObserver: ResizeObserver;
   private _didSave: boolean;
+  private _didRender: boolean;
 
   constructor() {
     super();
 
     this._resizeObserver = new ResizeObserver(() => this.onResize());
+    this._didRender = false;
   }
 
   public static readonly tagName = 'code-dialog';
@@ -39,16 +42,23 @@ export class CodeDialog extends CustomHtmlJsxElement {
 
   /**
    * Pops up the dialog to the user allowing the user to edit the script
-   * @param code the code of the script to edit
    * @param title the title to show to the user
+   * @param code the code of the script to edit
    */
-  public async showDialog(code: string, title: string): Promise<IEditCodeResult> {
-    this.doRender(code, title);
+  public async showDialog(title: string, code: string): Promise<IEditCodeResult> {
+    this.doRenderOnce();
+
+    this._title.textContent = title;
+    this._editor.setValue(code);
     this._dialog.showModal();
+
+    this._resizeObserver.disconnect();
+    this._resizeObserver.observe(this._dialog);
 
     await addEventListenerAsync(this._dialog, 'close');
 
     this._resizeObserver.disconnect();
+
     return {
       didSave: this._didSave,
       code: this._editor.getValue(),
@@ -56,13 +66,17 @@ export class CodeDialog extends CustomHtmlJsxElement {
   }
 
   /** Renders the HTML of the dialog */
-  private doRender(title: string, code: string) {
+  private doRenderOnce() {
+    if (this._didRender) {
+      return;
+    }
+
     let editorContainer: HTMLDivElement;
 
     this.renderJsx(
       <dialog ref={(self) => (this._dialog = self)}>
-        <h1>{title}</h1>
-        <div class="code" ref={(it) => (editorContainer = it)}></div>
+        <h1 ref={(self) => (this._title = self)} />
+        <div class="code" ref={(it) => (editorContainer = it)} />
         <div class="actions">
           <button name="btnSave" onClick={() => this.onSave()}>
             Save
@@ -73,9 +87,6 @@ export class CodeDialog extends CustomHtmlJsxElement {
         </div>
       </dialog>,
     );
-
-    this._resizeObserver.disconnect();
-    this._resizeObserver.observe(this._dialog);
 
     this._editor = monaco.editor.create(editorContainer, {
       value: ['function x() {', '\tconsole.log("Hello world!");', '}'].join('\n'),
@@ -90,7 +101,7 @@ export class CodeDialog extends CustomHtmlJsxElement {
       language: 'javascript',
     });
 
-    this._editor.setValue(code);
+    this._didRender = true;
   }
 
   /** Called when the user clicks the save button. */

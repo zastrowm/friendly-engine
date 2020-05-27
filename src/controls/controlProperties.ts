@@ -53,6 +53,7 @@ export enum PropertyType {
   number = 1 << 2,
   enum = 1 << 3,
   boolean = 1 << 4,
+  script = 1 << 5,
 }
 
 /**
@@ -241,6 +242,8 @@ class DelegatedControlProperty<T> extends ControlProperty<T>
   }
 
   serializeValue(data: HTMLElement): T {
-    return this.property.serializeValue(data);
+    let val = this.property.serializeValue?.(data) ?? this.property.getValue(data);
+    console.log(this.id, val);
+    return val;
   }
 }
