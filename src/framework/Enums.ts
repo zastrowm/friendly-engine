@@ -1,3 +1,5 @@
+import { LocalizedString } from './localization';
+
 export const Enums = {
   /**
    * True if the given enum value has the given flag
@@ -19,3 +21,13 @@ export const Enums = {
     return value;
   },
 };
+
+/**
+ * An enumerable value that can be displayed to the user.
+ */
+export interface IEnumValue<T> {
+  /** The underlying value of the enum **/
+  value: T;
+  /** The human-readable version of the value **/
+  display: LocalizedString;
+}

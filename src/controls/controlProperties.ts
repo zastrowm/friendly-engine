@@ -1,8 +1,9 @@
 import type { Control } from './Control';
+import { LocalizedString } from '../framework/localization';
+import { IEnumValue } from '../framework/Enums';
+import { languages } from 'monaco-editor';
 
 let data = new Map<any, IProperty<Control, any>[]>();
-
-type LocalizedString = string;
 
 /**
  * Defines the raw type of properties that are allowed to be configured
@@ -27,14 +28,14 @@ export function implementProperty<TOwner extends Control, TPropertyType>(
   property: IProperty<HTMLElement, TPropertyType>,
   callback: (element: TOwner) => HTMLElement,
 ) {
-  return function (target: any, propertyKey: string) {
+  return function <T extends Control>(target: T, propertyKey: string) {
     let existing = data.get(target);
     if (existing == null) {
       existing = [];
       data.set(target, existing);
     }
 
-    existing.push(new DelegatedControlProperty(property, callback));
+    existing.push(createProxyFor(property, callback) as any);
 
     Object.defineProperty(target, propertyKey, {
       get: function () {
@@ -46,6 +47,50 @@ export function implementProperty<TOwner extends Control, TPropertyType>(
       },
     });
   };
+}
+
+// Create a proxy that takes the property that goes from  HtmlElement -> Value and expose an interface
+// that is a property that goes from Owner -> value and delegates back to the original for everything except
+// setValue/getValue.
+// This maintains "this" semantics in the original property yet allows us to provide the wrapped set/get methods.
+function createProxyFor<TOwner extends Control, TPropertyType>(
+  property: IProperty<HTMLElement, TPropertyType>,
+  callback: (element: TOwner) => HTMLElement,
+) {
+  let proxyData = {
+    __callback: callback,
+    __property: property,
+    getValue: function (target: TOwner) {
+      let element = this.__callback(target);
+      return this.__property.getValue(element);
+    },
+    setValue: function (target: TOwner, value: TPropertyType) {
+      let element = this.__callback(target);
+      return this.__property.setValue(element, value);
+    },
+    serializeValue: function (target: TOwner) {
+      if (this.__property.serializeValue == null) {
+        return this.getValue(target);
+      } else {
+        let element = this.__callback(target);
+        return this.__property.serializeValue(element);
+      }
+    },
+  };
+
+  let proxied = new Proxy(proxyData, {
+    get(target, p: PropertyKey, receiver: any): any {
+      if (p in target) {
+        return target[p];
+      } else if (target.__property) {
+        return target.__property[p];
+      }
+
+      return undefined;
+    },
+  });
+
+  return proxied;
 }
 
 export function getControlPropertiesFor(controlConstructor: any) {
@@ -77,46 +122,21 @@ export interface IProperty<TOwner, TPropertyType> extends IPropertyInfo {
 }
 
 /**
+ * A property which has one or more values to choose from.
+ */
+export interface IEnumProperty<T> extends IPropertyInfo {
+  /**
+   * The options that determine the behavior of an enum property
+   */
+  enumOptions: {
+    /** the available values for the property **/
+    values: IEnumValue<T>[];
+    /** True if only the values provided via `values` are allowed **/
+    preexistingOnly: boolean;
+  };
+}
+
+/**
  * Simple Type alias for IProperty<Control, T>
  */
 export interface IControlProperty<T = any> extends IProperty<Control, T> {}
-
-/**
- * Implementation of IProperty<Control, T> which takes in an IProperty<HtmlElement, T> and uses a callback to
- * get the corresponding callback
- */
-class DelegatedControlProperty<T> implements Required<IProperty<Control, T>> {
-  constructor(private property: IProperty<HTMLElement, T>, private callback: (element: Control) => HTMLElement) {}
-
-  public get id() {
-    return this.property.id;
-  }
-
-  public get displayName() {
-    return this.property.displayName;
-  }
-
-  public getValue(control: Control): T {
-    let htmlElement = this.callback(control);
-    return this.property.getValue(htmlElement);
-  }
-
-  public setValue(control: Control, value: T) {
-    let htmlElement = this.callback(control);
-    this.property.setValue(htmlElement, value);
-  }
-
-  public get propertyType(): PropertyType {
-    return this.property.propertyType;
-  }
-
-  public serializeValue(control: Control): T {
-    let htmlElement = this.callback(control);
-
-    if (this.property.serializeValue != null) {
-      return this.property.serializeValue(htmlElement);
-    } else {
-      return this.getValue(control);
-    }
-  }
-}
