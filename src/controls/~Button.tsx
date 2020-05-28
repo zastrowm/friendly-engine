@@ -2,6 +2,7 @@ import { IControlDescriptor, ReflectionBasedDescriptor } from './controlRegistry
 import { h } from '@friendly/elements/jsxElements';
 import { Control, implementProperty, IProperty, PropertyType } from './Control';
 import {
+  FontProperty,
   FontSizeProperty,
   Formatting,
   TextAlignmentProperty,
@@ -36,6 +37,9 @@ export class Button extends Control {
 
   @implementProperty(TextFormattingProperty, (c: Button) => c.buttonElement)
   public textFormatting: Formatting;
+
+  @implementProperty(FontProperty, (c: Button) => c.buttonElement)
+  public fontFamily: string;
 
   @implementProperty(FontSizeProperty, (c: Button) => c.buttonElement)
   public fontSize: number;

@@ -15,7 +15,7 @@ export const TextEditor: IPropertyEditor<string> = {
   priority: editorPriorities.fallback,
 
   canProcess(property) {
-    return property.propertyType == PropertyType.string;
+    return Enums.hasFlag(property.propertyType, PropertyType.string);
   },
 
   createEditorFor(wrapped) {
