@@ -21,6 +21,15 @@ export interface IInstancedProperty<T> {
   property: IPropertyInfo;
 }
 
+/** basic priorities to apply to IPropertyEditors */
+export let editorPriorities = {
+  high: 100,
+  medium: 50,
+  normal: 0,
+  low: -50,
+  fallback: -100,
+};
+
 /**
  * Represents an editor for a given property
  */
@@ -34,24 +43,45 @@ export interface IPropertyEditor<T> {
    * Creates an editor for the given property + instance
    */
   createEditorFor(wrapped: IInstancedProperty<T>): HTMLElement;
+
+  /**
+   * The priority of the given editor, relative to other editors.  If not present,
+   * editorPriorities.normal is assumed
+   */
+  priority?: number;
 }
 
 /**
  * Contains a collection of editors that can be applied to various properties.
  */
 export class PropertyEditorRegistry {
-  private editors: IPropertyEditor<any>[] = [];
+  private _editors: IPropertyEditor<any>[] = [];
+  private _needsSorting: boolean = false;
 
   public insert(editor: IPropertyEditor<any>) {
-    this.editors.splice(0, 0, editor);
+    this._needsSorting = true;
+    this._editors.splice(0, 0, editor);
   }
 
   public add(editor: IPropertyEditor<any>) {
-    this.editors.push(editor);
+    this._needsSorting = true;
+    this._editors.push(editor);
   }
 
   public findEditorFor(property: IPropertyInfo) {
-    for (let editor of this.editors) {
+    if (this._needsSorting) {
+      // sort the editors so that higher numbered editors are at the top of the list
+      this._editors.sort(function (a, b) {
+        let aPriority = a.priority ?? editorPriorities.normal;
+        let bPriority = b.priority ?? editorPriorities.normal;
+
+        return bPriority - aPriority;
+      });
+
+      this._needsSorting = false;
+    }
+
+    for (let editor of this._editors) {
       if (editor.canProcess(property)) {
         return editor;
       }

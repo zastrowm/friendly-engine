@@ -6,12 +6,14 @@ import {
   TextAlignmentProperty,
   TextFormattingProperty,
 } from '../properties/@commonProperties';
-import { isAttached, createJsxEditor } from './propertyEditor';
+import { isAttached, createJsxEditor, IPropertyEditor, editorPriorities } from './propertyEditor';
 import { Fragment, h, VNode } from '@friendly/elements/jsxElements';
 import { Icon } from './icon';
 import { Enums } from '../../framework/Enums';
 
-export const TextEditor = {
+export const TextEditor: IPropertyEditor<string> = {
+  priority: editorPriorities.fallback,
+
   canProcess(property) {
     return property.propertyType == PropertyType.string;
   },
@@ -42,7 +44,7 @@ export const TextEditor = {
   },
 };
 
-export const FontSizeEditor = {
+export const FontSizeEditor: IPropertyEditor<number> = {
   canProcess(property) {
     return property.id == FontSizeProperty.id;
   },
@@ -70,7 +72,7 @@ export const FontSizeEditor = {
   },
 };
 
-export const TextFormattingEditor = {
+export const TextFormattingEditor: IPropertyEditor<Formatting> = {
   canProcess(property) {
     return property.id == TextFormattingProperty.id;
   },
@@ -108,13 +110,13 @@ export const TextFormattingEditor = {
   },
 };
 
-export const TextAlignmentEditor = {
+export const TextAlignmentEditor: IPropertyEditor<string> = {
   canProcess(property) {
     return property.id == TextAlignmentProperty.id;
   },
 
   createEditorFor(wrapped) {
-    return this.createJsxEditor(wrapped, (refresh) => (
+    return createJsxEditor(wrapped, (refresh) => (
       <Fragment>
         <OptionsSelector
           current={wrapped.getValue()}
