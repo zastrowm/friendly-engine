@@ -65,7 +65,7 @@ export const FontSizeProperty: IProperty<HTMLElement, number> = {
   },
 };
 
-export const TextAlignmentProperty: IProperty<HTMLElement, string> = {
+export const HorizontalAlignmentProperty: IProperty<HTMLElement, string> = {
   id: 'text.alignment',
   displayName: 'Alignment',
   propertyType: PropertyType.string,
@@ -80,6 +80,24 @@ export const TextAlignmentProperty: IProperty<HTMLElement, string> = {
 
   serializeValue(element) {
     return element.style.textAlign;
+  },
+};
+
+export const VerticalAlignmentProperty: IProperty<HTMLElement, string> = {
+  id: 'content.verticalAlignment',
+  displayName: 'Vertical Alignment',
+  propertyType: PropertyType.string,
+
+  getValue(element) {
+    return getComputedStyle(element).alignItems;
+  },
+
+  setValue(element, value) {
+    element.style.alignItems = value;
+  },
+
+  serializeValue(element) {
+    return element.style.alignItems;
   },
 };
 

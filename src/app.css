@@ -34,7 +34,6 @@ body {
   right: 0;
   top: 0;
   bottom: 0;
-  display: block;
 
   width: 100%;
 }
@@ -60,4 +59,9 @@ control-container button {
 button::-moz-focus-inner {
   border: 0;
   padding: 0;
+}
+
+
+span.fas {
+  display: inline-block;
 }

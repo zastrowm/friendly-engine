@@ -1,7 +1,7 @@
 import { h } from '@friendly/elements/jsxElements';
 
-export function Icon(props: { type: IconName }) {
-  return <span class={'fas fa-' + props.type} />;
+export function Icon(props: { type: IconName; style?: string }) {
+  return <span class={'fas fa-' + props.type} style={props.style} />;
 }
 
 declare type IconName =

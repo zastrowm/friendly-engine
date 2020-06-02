@@ -31,6 +31,7 @@ export abstract class Control {
 
   constructor() {
     this._rootElement = this.initialize();
+    this._rootElement.setAttribute('fe-role', (this as any).descriptor.id);
   }
 
   /** The id of the control */

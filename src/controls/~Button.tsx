@@ -5,7 +5,7 @@ import {
   FontProperty,
   FontSizeProperty,
   Formatting,
-  TextAlignmentProperty,
+  HorizontalAlignmentProperty,
   TextContentProperty,
   TextFormattingProperty,
 } from './properties/@commonProperties';
@@ -44,7 +44,7 @@ export class Button extends Control {
   @implementProperty(FontSizeProperty, (c: Button) => c.buttonElement)
   public fontSize: number;
 
-  @implementProperty(TextAlignmentProperty, (c: Button) => c.buttonElement)
+  @implementProperty(HorizontalAlignmentProperty, (c: Button) => c.buttonElement)
   public textAlignment: string;
 
   @implementProperty(ClickActionProperty, (c: Button) => c.buttonElement)

@@ -1,0 +1,16 @@
+
+[fe-role='checkbox'] {
+  display: flex;
+  align-items: center;
+}
+
+[fe-role='checkbox'] input {
+  font-size: inherit !important;
+  height: 1em;
+  margin: 0px 3px;
+}
+
+[fe-role='checkbox'] span {
+  line-height: 1em;
+  flex-grow: 1;
+}

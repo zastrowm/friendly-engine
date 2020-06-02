@@ -3,10 +3,13 @@ import { Control, implementProperty } from './Control';
 import {
   FontSizeProperty,
   Formatting,
-  TextAlignmentProperty,
+  HorizontalAlignmentProperty,
   TextContentProperty,
   TextFormattingProperty,
+  VerticalAlignmentProperty,
 } from './properties/@commonProperties';
+
+import './~Label.css';
 
 export class Label extends Control {
   private labelElement: HTMLDivElement;
@@ -20,8 +23,11 @@ export class Label extends Control {
   @implementProperty(FontSizeProperty, (c: Label) => c.labelElement)
   public fontSize: number;
 
-  @implementProperty(TextAlignmentProperty, (c: Label) => c.labelElement)
+  @implementProperty(HorizontalAlignmentProperty, (c: Label) => c.labelElement)
   public textAlignment: string;
+
+  @implementProperty(VerticalAlignmentProperty, (c: Label) => c.labelElement)
+  public verticalAlignment: string;
 
   protected initialize(): HTMLElement {
     this.labelElement = document.createElement('div');

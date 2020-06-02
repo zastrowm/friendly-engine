@@ -3,8 +3,9 @@ import { setPropertyUndoRedo } from './_shared';
 import {
   FontSizeProperty,
   Formatting,
-  TextAlignmentProperty,
+  HorizontalAlignmentProperty,
   TextFormattingProperty,
+  VerticalAlignmentProperty,
 } from '../properties/@commonProperties';
 import { isAttached, createJsxEditor, IPropertyEditor, editorPriorities } from './propertyEditor';
 import { Fragment, h, VNode } from '@friendly/elements/jsxElements';
@@ -112,7 +113,7 @@ export const TextFormattingEditor: IPropertyEditor<Formatting> = {
 
 export const TextAlignmentEditor: IPropertyEditor<string> = {
   canProcess(property) {
-    return property.id == TextAlignmentProperty.id;
+    return property.id == HorizontalAlignmentProperty.id;
   },
 
   createEditorFor(wrapped) {
@@ -161,3 +162,33 @@ function OptionsSelector(props: {
     </span>
   );
 }
+
+export const VerticalAlignmentPropertyEditor: IPropertyEditor<string> = {
+  canProcess(property) {
+    return property.id == VerticalAlignmentProperty.id;
+  },
+
+  createEditorFor(wrapped) {
+    return createJsxEditor(wrapped, (refresh) => (
+      <Fragment>
+        <OptionsSelector
+          current={wrapped.getValue()}
+          onChanged={(newValue) => {
+            let oldValue = wrapped.getValue();
+            refresh({ old: oldValue, new: newValue });
+          }}
+        >
+          <Option data="flex-start">
+            <Icon type="align-left" style="transform: rotate(90deg);" />
+          </Option>
+          <Option data="center">
+            <Icon type="align-center" style="transform: rotate(90deg);" />
+          </Option>
+          <Option data="flex-end">
+            <Icon type="align-right" style="transform: rotate(90deg);" />
+          </Option>
+        </OptionsSelector>
+      </Fragment>
+    ));
+  },
+};
