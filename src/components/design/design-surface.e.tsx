@@ -53,12 +53,12 @@ export class DesignSurfaceElement extends CustomHtmlElement {
   /** override */
   public onFirstConnected() {
     this.appendChild(this._rootContainer);
-    this._rootContainer.control.layout = {
+    this._rootContainer.control.position.update({
       bottom: 0,
       top: 0,
       left: 0,
       right: 0,
-    };
+    });
   }
 
   private static createUserControlContainer(): ControlContainer {

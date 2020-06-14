@@ -43,3 +43,4 @@ export * from './controlRegistry';
 export * from './Control';
 export * from './controlProperties';
 export * from './~AllControls';
+export * from './ControlPositioning';

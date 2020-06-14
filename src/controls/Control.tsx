@@ -1,6 +1,7 @@
 import { IControlDescriptor } from './controlRegistry';
 import { IStoredPositionInfo } from 'src/framework/layout';
 import { UniqueId } from 'src/framework/util';
+import { ControlPositioning } from './ControlPositioning';
 
 export * from './controlProperties';
 
@@ -25,11 +26,12 @@ export interface IControlSerializedData {
 
 /** Base class for all controls that can be created */
 export abstract class Control {
-  private _layout: IStoredPositionInfo = null;
-  private _designer: IControlDesigner = null;
-  private _rootElement: HTMLElement;
+  private readonly _rootElement: HTMLElement;
+  private readonly _positioning: ControlPositioning;
 
   constructor() {
+    this._positioning = new ControlPositioning(this);
+
     this._rootElement = this.initialize();
     this._rootElement.setAttribute('fe-role', (this as any).descriptor.id);
   }
@@ -37,13 +39,8 @@ export abstract class Control {
   /** The id of the control */
   public id: UniqueId = null;
 
-  public get layout(): IStoredPositionInfo {
-    return this._layout ?? { left: 0, top: 0, width: 100, height: 20 };
-  }
-
-  public set layout(value: IStoredPositionInfo) {
-    this._layout = value;
-    this._designer?.notifyLayoutChanged(this);
+  public get position(): ControlPositioning {
+    return this._positioning;
   }
 
   /**
@@ -68,7 +65,7 @@ export abstract class Control {
       id: this.id,
       typeId: this.descriptor.id,
       properties: this.serializeProperties(),
-      position: this.layout,
+      position: this.position.layout,
     };
   }
 
@@ -101,7 +98,7 @@ export abstract class Control {
 
     this.deserializeProperties(data.properties);
 
-    this.layout = data.position;
+    this.position.update(data.position);
     this.id = data.id;
   }
 
@@ -127,10 +124,10 @@ export abstract class Control {
 
 /** Gets the container element that hosts the control */
 export function setControlDesigner(control: Control, owner: IControlDesigner) {
-  (control as any)._designer = owner;
+  control.position['_designer'] = owner;
 }
 
 /** Sets the container element that hosts the control */
 export function getControlDesigner(control: Control): IControlDesigner {
-  return (control as any)._designer;
+  return control.position['_designer'];
 }

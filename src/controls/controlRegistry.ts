@@ -1,4 +1,5 @@
-import { Control, getControlPropertiesFor, IControlProperty } from 'src/controls/Control';
+import { Control, getControlPropertiesFor, IControlProperty, IProperty, PropertyType } from 'src/controls/Control';
+import { layoutProperty } from './properties/@commonProperties';
 
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
@@ -62,10 +63,36 @@ export class ControlRegistry {
   }
 }
 
+/** Options that configure how ReflectionBasedDescriptor operates */
+interface ReflectionBasedOptions {
+  supportsMovement?: boolean;
+}
+
+/** The default options for ReflectionBasedDescriptor */
+let defaultOptions: Required<ReflectionBasedOptions> = {
+  supportsMovement: true,
+};
+
+/**
+ * Returns the descriptors that have been registered to a Control via @implementProperty
+ */
 export class ReflectionBasedDescriptor<T extends Control> implements IControlDescriptor<T> {
-  constructor(public readonly id: string, private readonly typeDef: new () => T) {}
+  private readonly _properties: IProperty<Control, any>[];
+
+  constructor(
+    public readonly id: string,
+    private readonly typeDef: new () => T,
+    options: ReflectionBasedOptions = defaultOptions,
+  ) {
+    this._properties = getControlPropertiesFor(this.typeDef.prototype) ?? [];
+
+    if (options.supportsMovement) {
+      this._properties.splice(0, 0, layoutProperty);
+    }
+  }
+
   getProperties(): IControlProperty[] {
-    return getControlPropertiesFor(this.typeDef.prototype) ?? [];
+    return this._properties;
   }
 
   public createInstance(): T {

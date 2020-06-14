@@ -45,31 +45,31 @@ function getAbsoluteOffsets(
   let offsetB = 0;
   let anchor = Anchor.none;
 
-  if (a == null && b == null) {
+  if (a === null && b === null) {
     console.error(`No ${mode} offsets stored`, data);
     offsetA = 0;
     offsetB = parentSize - 100;
     return { offsetA, offsetB };
   }
 
-  if (a != null && b != null) {
+  if (a !== null && b !== null) {
     offsetA = a;
     offsetB = b;
     anchor = aFlag | (anchor << 1);
     return { offsetA, offsetB, anchor };
   }
 
-  if (size == null) {
+  if (size === null) {
     console.error(`No ${mode} size stored`, data);
     size = 100;
   }
 
-  if (a != null /* && b == null*/) {
+  if (a !== null /* && b === null*/) {
     offsetA = a;
     offsetB = parentSize - (a + size);
     anchor = aFlag;
     return { offsetA, offsetB, anchor };
-  } /* if (b != null && a == null) */ else {
+  } /* if (b !== null && a === null) */ else {
     offsetB = b;
     offsetA = parentSize - b - size;
     anchor = aFlag << 1;

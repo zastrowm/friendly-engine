@@ -29,7 +29,7 @@ export class ControlContainer extends CustomHtmlElement implements IControlDesig
     }
 
     this._control = value;
-    this.positionInfo = this._control.layout;
+    this.positionInfo = this._control.position.layout;
     this.appendChild(this.control.createElement());
   }
 
@@ -39,7 +39,7 @@ export class ControlContainer extends CustomHtmlElement implements IControlDesig
 
   public set positionInfo(value: IStoredPositionInfo) {
     this._positionInfo = value;
-    this._control.layout = value;
+    this._control.position.update(value);
 
     if (!this.isConnected) {
       return;
@@ -50,8 +50,8 @@ export class ControlContainer extends CustomHtmlElement implements IControlDesig
   }
 
   public notifyLayoutChanged(_: Control): void {
-    if (this.positionInfo != this.control.layout) {
-      this.positionInfo = this.control.layout;
+    if (this.positionInfo != this.control.position.layout) {
+      this.positionInfo = this.control.position.layout;
     }
   }
 
