@@ -1,4 +1,4 @@
-import { IPropertyInfo, PropertyType } from '../controlProperties';
+import { IControlProperty, IPropertyInfo, PropertyType } from '../controlProperties';
 import { ComponentChild, render } from '@friendly/elements/jsxElements';
 import { setPropertyUndoRedo } from './_shared';
 import { UniqueId } from '../../framework/util';
@@ -18,7 +18,7 @@ export interface IInstancedProperty<T> {
   setValue(value: T);
 
   /** The property that is being edited **/
-  property: IPropertyInfo;
+  property: IControlProperty;
 }
 
 /** basic priorities to apply to IPropertyEditors */
@@ -125,7 +125,7 @@ export function createJsxEditor<T>(
 
       setPropertyUndoRedo.trigger(element, {
         id: wrapped.id,
-        property: this,
+        property: wrapped.property,
         originalValue: data.old,
         newValue: data.new,
         canMerge: data?.canMerge ?? false,

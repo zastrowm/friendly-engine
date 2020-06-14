@@ -15,7 +15,7 @@ export const RestrictedSubsetEnumPropertyEditor: IPropertyEditor<string> = {
 
   createEditorFor(wrapped) {
     return createJsxEditor(wrapped, (refresh) => {
-      let property = wrapped.property as IEnumProperty<any>;
+      let property = (wrapped.property as any) as IEnumProperty<any>;
       let values = property.enumOptions.values;
 
       let currentIndex = 0;

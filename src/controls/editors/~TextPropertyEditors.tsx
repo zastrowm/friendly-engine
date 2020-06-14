@@ -34,7 +34,7 @@ export const TextEditor: IPropertyEditor<string> = {
 
       setPropertyUndoRedo.trigger(input, {
         id: wrapped.id,
-        property: this,
+        property: wrapped.property,
         originalValue,
         newValue,
         canMerge: true,
