@@ -8,7 +8,7 @@ export let layoutProperty: IProperty<Control, IStoredPositionInfo> = {
   propertyType: PropertyType.unknown,
 
   getValue(owner: Control): any {
-    return owner.position.layout;
+    return owner.position;
   },
 
   setValue(owner: Control, value: IStoredPositionInfo) {

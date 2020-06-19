@@ -1,14 +1,29 @@
 import { LocalizedString } from './localization';
+import { assume } from './util';
 
 export const Enums = {
+  /**
+   * Applies the given mask to the enum.
+   * @param value the original value
+   * @param mask the mask to apply
+   */
+  mask: function <T>(value: T, mask: T): T {
+    assume<number>(value);
+    assume<number>(mask);
+
+    return ((value & mask) as any) as T;
+  },
+
   /**
    * True if the given enum value has the given flag
    * @param value the value of the bitwise enum
    * @param flag the value of the bitwise flag to check
    * @returns true if value has the given flag set, false otherwise
    */
-  hasFlag: function (value: number, flag: number): boolean {
-    return (value & flag) > 0;
+  hasFlag: function <T>(value: T, flag: T): boolean {
+    assume<number>(value);
+    assume<number>(flag);
+    return Enums.mask(value, flag) > 0;
   },
 
   /**
@@ -16,8 +31,12 @@ export const Enums = {
    * @param value the current value of the enum
    * @param flag the bitwise flag to toggle
    */
-  toggleFlag(value: number, flag: number) {
-    value ^= flag;
+  toggleFlag<T>(value: T, flag: T): T {
+    assume<number>(value);
+    assume<number>(flag);
+
+    (value as any) ^= flag;
+
     return value;
   },
 };
