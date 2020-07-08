@@ -12,6 +12,7 @@
     "module": "esnext",
     "target": "ES2017",
     "sourceMap": true,
+    "resolveJsonModule": true,
     "jsx": "react",
     "jsxFactory": "h",
     "baseUrl": "./",

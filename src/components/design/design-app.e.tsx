@@ -21,6 +21,8 @@ import { config, development } from '../../runtime';
 import { PropertyEditorRegistry } from '../../controls/editors/propertyEditor';
 import { addCommonPropertyEditors } from '../../controls/editors/@commonEditors';
 
+import defaultLayout from '../../default-layout.json';
+
 declare var module;
 
 /**
@@ -89,6 +91,10 @@ export class DesignApp extends CustomHtmlJsxElement {
   /** override */
   public onConnected() {
     registerFocusCounter(this);
+
+    if (config.isProduction()) {
+      this.loadInMemoryLayout((defaultLayout as any) as ISavedLayoutInfo);
+    }
   }
 
   /** override */
@@ -171,9 +177,6 @@ export class DesignApp extends CustomHtmlJsxElement {
 
   /** Restores the previously-saved control layout from LocalStorage */
   private loadLayout(layoutName: string) {
-    this.editor.removeAllControls();
-    this.undoRedoQueue.clear();
-
     console.log('loading layout', layoutName);
 
     let jsonLayout = window.localStorage.getItem(`layout_${layoutName}`);
@@ -192,6 +195,13 @@ export class DesignApp extends CustomHtmlJsxElement {
         },
       };
     }
+
+    this.loadInMemoryLayout(layoutInfo);
+  }
+
+  private loadInMemoryLayout(layoutInfo: ISavedLayoutInfo) {
+    this.editor.removeAllControls();
+    this.undoRedoQueue.clear();
 
     let lastControl: ControlContainer;
     for (let serialized of layoutInfo.controls) {
