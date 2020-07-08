@@ -52,12 +52,7 @@ module.exports = (env, argv) => ({
         test: /\.tsx?$/,
         loader: 'ts-loader',
       },
-      /** typescript font files */
-      {
-        test: /\.ttf$/,
-        use: ['file-loader'],
-      },
-      /** Font-Awesome files **/
+      /** Fonts etc. **/
       {
         test: /\.(svg|eot|woff|woff2|ttf)$/,
         use: ['file-loader']
