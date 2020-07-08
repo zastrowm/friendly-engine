@@ -54,4 +54,9 @@ code-dialog dialog > div.code {
 
 code-dialog dialog > div.actions {
   grid-area: actions;
+  text-align: right;
+}
+
+code-dialog dialog > div.actions button {
+  margin: 0 3px 3px 3px;
 }
