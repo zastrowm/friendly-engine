@@ -1,6 +1,7 @@
 import { getCustomElementNames } from '@friendly/elements/CustomHtmlElement';
 import { config } from './runtime';
 
+import './app.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 declare var require: any;
