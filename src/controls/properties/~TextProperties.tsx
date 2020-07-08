@@ -57,7 +57,7 @@ export const FontSizeProperty: IProperty<HTMLElement, number> = {
 
   serializeValue(element) {
     let fontSize = element.style.fontSize;
-    if (fontSize == null) {
+    if (fontSize == '') {
       return undefined;
     }
 
