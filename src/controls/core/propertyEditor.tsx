@@ -1,7 +1,7 @@
-import { IControlProperty, IPropertyInfo, PropertyType } from '../controlProperties';
 import { ComponentChild, render } from '@friendly/elements/jsxElements';
-import { setPropertyUndoRedo } from './_shared';
-import { UniqueId } from '../../framework/util';
+import { UniqueId } from '@/framework/util';
+import { setPropertyUndoRedo } from './propertyUndoRedo';
+import { IPropertyInfo, PropertyType, IControlProperty } from './controlProperties';
 
 /**
  * A wrapper around an IProperty and a given source, allowing editors to focus merely on the value

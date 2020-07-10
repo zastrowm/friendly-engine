@@ -1,6 +1,12 @@
 import { Fragment, h, renderToElement } from '@friendly/elements/jsxElements';
-import { IControlDescriptor, ReflectionBasedDescriptor } from './controlRegistry';
-import { Control, implementProperty, IProperty, PropertyType } from './Control';
+import {
+  Control,
+  implementProperty,
+  IProperty,
+  PropertyType,
+  IControlDescriptor,
+  ReflectionBasedDescriptor,
+} from '@/control';
 import {
   FontSizeProperty,
   Formatting,
@@ -8,7 +14,7 @@ import {
   TextContentProperty,
   TextFormattingProperty,
   VerticalAlignmentProperty,
-} from './properties/@commonProperties';
+} from '@/control/standardProperties';
 
 import './~Checkbox.css';
 

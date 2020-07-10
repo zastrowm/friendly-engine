@@ -1,6 +1,12 @@
-import { IControlDescriptor, ReflectionBasedDescriptor } from './controlRegistry';
 import { h } from '@friendly/elements/jsxElements';
-import { Control, implementProperty, IProperty, PropertyType } from './Control';
+import {
+  Control,
+  implementProperty,
+  IProperty,
+  PropertyType,
+  IControlDescriptor,
+  ReflectionBasedDescriptor,
+} from '@/control';
 import {
   FontProperty,
   FontSizeProperty,
@@ -8,7 +14,7 @@ import {
   HorizontalAlignmentProperty,
   TextContentProperty,
   TextFormattingProperty,
-} from './properties/@commonProperties';
+} from '@/control/standardProperties';
 
 /**
  * The text that should be shown when the button is clicked

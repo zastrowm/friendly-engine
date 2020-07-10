@@ -19,6 +19,13 @@
     "paths": {
       "@friendly/elements/*": ["lib/friendly/elements/*"],
       "@friendly/wapp/*": ["lib/friendly/wapp/*"],
+      /* Internal items */
+      "@/framework/*": ["src/framework/*"],
+      "@/control": ["src/controls/core/@control"],
+      "@/control/propertyEditor": ["src/controls/core/@propertyEditor"],
+      "@/control/standardProperties": ["src/controls/properties/@standardProperties"],
+      "@/control/standardEditors": ["src/controls/editors/@standardEditors"],
+      "@/control/standardControls": ["src/controls/@standardControls"]
     }
   },
   "include": ["src", "lib/friendly/elements", "lib/friendly/wapp"],

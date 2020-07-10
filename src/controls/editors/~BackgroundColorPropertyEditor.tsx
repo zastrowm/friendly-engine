@@ -1,8 +1,7 @@
-import { PropertyType } from '../controlProperties';
+import { PropertyType } from '@/control';
 import { h, renderToFragment } from '@friendly/elements/jsxElements';
 import { CodeDialog } from '../../components/code/code-dialog.e';
-import { setPropertyUndoRedo } from './_shared';
-import { IPropertyEditor, isAttached } from './propertyEditor';
+import { IPropertyEditor, isAttached, setPropertyUndoRedo } from '@/control/propertyEditor';
 
 let codeDialog = CodeDialog.createInstance();
 document.body.append(codeDialog);

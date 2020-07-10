@@ -1,7 +1,7 @@
-import { IPropertyEditor, PropertyEditorRegistry } from './propertyEditor';
+import { IPropertyEditor, PropertyEditorRegistry } from '@/control/propertyEditor';
 import { h } from '@friendly/elements/jsxElements';
 
-import { assume } from '../../framework/util';
+import { assume } from '@/framework/util';
 
 import * as AllPropertyEditors from './~AllPropertyEditors';
 

@@ -1,5 +1,4 @@
-import { IControlDescriptor, ReflectionBasedDescriptor } from './controlRegistry';
-import { Control, implementProperty } from './Control';
+import { Control, implementProperty, IControlDescriptor, ReflectionBasedDescriptor } from '@/control';
 import {
   FontSizeProperty,
   Formatting,
@@ -7,7 +6,7 @@ import {
   TextContentProperty,
   TextFormattingProperty,
   VerticalAlignmentProperty,
-} from './properties/@commonProperties';
+} from '@/control/standardProperties';
 
 import './~Label.css';
 

@@ -1,8 +1,7 @@
-import { IControlDescriptor } from './controlRegistry';
-import { assume } from '../framework/util';
+import { assume } from '@/framework/util';
 
 import * as AllControls from './~AllControls';
-import { Control } from './Control';
+import { Control, IControlDescriptor } from '@/control';
 
 let knownControlDescriptors: IControlDescriptor<any>[] = [];
 
@@ -39,7 +38,4 @@ export function addCommonControlDescriptors(controlDescriptors) {
   }
 }
 
-export * from './controlRegistry';
-export * from './Control';
-export * from './controlProperties';
 export * from './~AllControls';

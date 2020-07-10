@@ -1,7 +1,7 @@
-import { createJsxEditor, editorPriorities, IPropertyEditor } from './propertyEditor';
-import { Enums } from '../../framework/Enums';
+import { Enums } from '@/framework/Enums';
 import { h } from '@friendly/elements/jsxElements';
-import { IEnumProperty, PropertyType } from '../controlProperties';
+import { IEnumProperty, PropertyType } from '@/control';
+import { createJsxEditor, editorPriorities, IPropertyEditor } from '@/control/propertyEditor';
 
 export const RestrictedSubsetEnumPropertyEditor: IPropertyEditor<string> = {
   priority: editorPriorities.fallback + 1,

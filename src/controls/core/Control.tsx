@@ -1,37 +1,13 @@
 import { IControlDescriptor } from './controlRegistry';
-import { IStoredPositionInfo } from 'src/framework/layout';
-import { UniqueId } from 'src/framework/util';
-import { IControlProperty } from './controlProperties';
-
-export * from './controlProperties';
+import { IStoredPositionInfo } from '@/framework/layout';
+import { UniqueId } from '@/framework/util';
+import { addValue, IControlSerializedData, ISerializedPropertyBag } from './propertyBag';
 
 /**
  * A Designer environment for a control. It is assumed
  */
 export interface IControlDesigner {
   notifyLayoutChanged(control: Control): void;
-}
-
-export interface ISerializedPropertyBag {
-  [key: string]: any;
-}
-
-/** The serialized representation of a control */
-export interface IControlSerializedData {
-  id: UniqueId;
-  position: IStoredPositionInfo;
-  properties: ISerializedPropertyBag;
-  typeId: string;
-}
-
-/** Add the given property value to the property bag, overriding the existing value if it exists */
-export function addValue<T>(propertyBag: ISerializedPropertyBag, property: IControlProperty<T>, value: T) {
-  propertyBag[property.id] = value;
-}
-
-/** Retrieves the current property value from the property bag, returning undefined if it doesn't exist */
-export function tryGetValue<T>(propertyBag: ISerializedPropertyBag, property: IControlProperty<T>): T | undefined {
-  return propertyBag[property.id];
 }
 
 /** Base class for all controls that can be created */

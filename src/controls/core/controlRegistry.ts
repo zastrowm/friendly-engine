@@ -1,13 +1,8 @@
-import {
-  addValue,
-  Control,
-  getControlPropertiesFor,
-  IControlProperty,
-  ISerializedPropertyBag,
-  tryGetValue,
-} from 'src/controls/Control';
-import { IStoredPositionInfo } from '../framework/layout';
-import { LocalizedString } from '../framework/localization';
+import { IStoredPositionInfo } from '@/framework/layout';
+import { LocalizedString } from '@/framework/localization';
+import { Control } from './Control';
+import { getControlPropertiesFor, IControlProperty, TextContentId } from './controlProperties';
+import { addValue, ISerializedPropertyBag, tryGetValue } from './propertyBag';
 
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
@@ -111,7 +106,7 @@ export class ReflectionBasedDescriptor<T extends Control> implements IControlDes
     let properties = defaultValues?.properties ?? {};
     let position = defaultValues?.position ?? {};
 
-    let textId = 'text.text';
+    let textId = TextContentId;
     let textProperty = this.getProperty<string>(textId);
     if (textProperty != null && tryGetValue(properties, textProperty) == undefined) {
       addValue(properties, textProperty, `${this.displayName}`);

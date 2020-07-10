@@ -1,26 +1,21 @@
-import { IStoredPositionInfo, snapLayout } from '../../framework/layout';
-import { registerUndoHandler } from '../../framework/undoRedo';
+import { snapLayout } from '@/framework/layout';
+import { registerUndoHandler } from '@/framework/undoRedo';
 import { ControlContainer } from './control-container.e';
 import { ControlEditor } from './control-editor.e';
-import { generateGuid, UniqueId } from '../../framework/util';
+import { generateGuid, UniqueId } from '@/framework/util';
 import { CustomHtmlElement, customElement } from '@friendly/elements/CustomHtmlElement';
-
-import './design-surface.css';
-import { RoutedEventDescriptor } from '../../framework/routedEvents';
+import { RoutedEventDescriptor } from '@/framework/routedEvents';
 import {
   Control,
   getControlDesigner,
   setControlDesigner,
   IControlSerializedData,
-  ISerializedPropertyBag,
-  RootControl,
-  rootControlDescriptor,
   IControlDescriptor,
-  tryGetValue,
-  addValue,
   IDefaultControlValues,
-} from 'src/controls/@commonControls';
-import { TextContentProperty } from '../../controls/properties/~TextProperties';
+} from '@/control';
+import { RootControl, rootControlDescriptor } from '@/control/standardControls';
+
+import './design-surface.css';
 
 export let selectedControlChanged = new RoutedEventDescriptor<ControlContainer>({
   id: 'selectedControlChanged',

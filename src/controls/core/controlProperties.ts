@@ -1,7 +1,6 @@
 import type { Control } from './Control';
-import { LocalizedString } from '../framework/localization';
-import { IEnumValue } from '../framework/Enums';
-import { languages } from 'monaco-editor';
+import { LocalizedString } from '@/framework/localization';
+import { IEnumValue } from '@/framework/Enums';
 
 let data = new Map<any, IProperty<Control, any>[]>();
 
@@ -135,6 +134,9 @@ export interface IEnumProperty<T> extends IPropertyInfo {
     preexistingOnly: boolean;
   };
 }
+
+/* One of the major default ids; shared here for simplicity */
+export const TextContentId = 'text.text';
 
 /**
  * Simple Type alias for IProperty<Control, T>
