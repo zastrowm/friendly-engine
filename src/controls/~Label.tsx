@@ -39,4 +39,12 @@ export class Label extends Control {
   }
 }
 
-export let labelDescriptor = new ReflectionBasedDescriptor('label', Label);
+export let labelDescriptor = new ReflectionBasedDescriptor('label', 'Label', Label, () => ({
+  position: {
+    width: 200,
+    height: 30,
+  },
+  properties: {
+    [TextContentProperty.id]: 'A simple label',
+  },
+}));

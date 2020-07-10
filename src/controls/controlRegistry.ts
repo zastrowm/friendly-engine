@@ -1,4 +1,13 @@
-import { Control, getControlPropertiesFor, IControlProperty } from 'src/controls/Control';
+import {
+  addValue,
+  Control,
+  getControlPropertiesFor,
+  IControlProperty,
+  ISerializedPropertyBag,
+  tryGetValue,
+} from 'src/controls/Control';
+import { IStoredPositionInfo } from '../framework/layout';
+import { LocalizedString } from '../framework/localization';
 
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
@@ -13,6 +22,9 @@ export interface IControlDescriptor<T extends Control = Control> {
   /** The unique id of the type of control described. */
   id: string;
 
+  /** The human readable name of the control **/
+  displayName: LocalizedString;
+
   /** Creates an instance of the type of control. */
   createInstance(): T;
 
@@ -21,6 +33,17 @@ export interface IControlDescriptor<T extends Control = Control> {
 
   /** Gets a property with the given name */
   getProperty<T>(id: string): IControlProperty<T>;
+
+  /** Gets the default control properties if none are provided */
+  getDefaultValues(): IDefaultControlValues;
+}
+
+/** The default values to use when constructing a new control */
+export interface IDefaultControlValues {
+  /** The position of the control */
+  position?: IStoredPositionInfo;
+  /** The properties for the control */
+  properties?: ISerializedPropertyBag;
 }
 
 /**
@@ -62,14 +85,42 @@ export class ControlRegistry {
   }
 }
 
+/**
+ * Creates an instance of IControlDescriptor based on information provided by the @implementProperty decorator
+ * on a control
+ */
 export class ReflectionBasedDescriptor<T extends Control> implements IControlDescriptor<T> {
-  constructor(public readonly id: string, private readonly typeDef: new () => T) {}
-  getProperties(): IControlProperty[] {
+  constructor(
+    public readonly id: string,
+    public readonly displayName: LocalizedString,
+    private readonly typeDef: new () => T,
+    private readonly defaultValuesCreator?: () => IDefaultControlValues,
+  ) {}
+
+  public getProperties(): IControlProperty[] {
     return getControlPropertiesFor(this.typeDef.prototype) ?? [];
   }
 
   public createInstance(): T {
     return new this.typeDef();
+  }
+
+  public getDefaultValues(): Required<IDefaultControlValues> {
+    let defaultValues = this.defaultValuesCreator?.() ?? {};
+
+    let properties = defaultValues?.properties ?? {};
+    let position = defaultValues?.position ?? {};
+
+    let textId = 'text.text';
+    let textProperty = this.getProperty<string>(textId);
+    if (textProperty != null && tryGetValue(properties, textProperty) == undefined) {
+      addValue(properties, textProperty, `${this.displayName}`);
+    }
+
+    return {
+      properties,
+      position,
+    };
   }
 
   public getProperty<T>(id: string): IControlProperty<T> {

@@ -32,4 +32,4 @@ export class RootControl extends Control {
   }
 }
 
-export let rootControlDescriptor = new ReflectionBasedDescriptor('rootControl', RootControl);
+export let rootControlDescriptor = new ReflectionBasedDescriptor('rootControl', '~', RootControl);

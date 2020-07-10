@@ -16,7 +16,11 @@ import {
   RootControl,
   rootControlDescriptor,
   IControlDescriptor,
+  tryGetValue,
+  addValue,
+  IDefaultControlValues,
 } from 'src/controls/@commonControls';
+import { TextContentProperty } from '../../controls/properties/~TextProperties';
 
 export let selectedControlChanged = new RoutedEventDescriptor<ControlContainer>({
   id: 'selectedControlChanged',
@@ -158,23 +162,21 @@ export class DesignSurfaceElement extends CustomHtmlElement {
     selectedControlChanged.trigger(this, this.getActiveControlContainer());
   }
 
-  public addNewControl(
-    descriptor: IControlDescriptor,
-    layout: IStoredPositionInfo = null,
-    properties: ISerializedPropertyBag = null,
-  ) {
-    let control = descriptor.createInstance();
+  public addNewControl(descriptor: IControlDescriptor, defaultValues?: IDefaultControlValues) {
+    let normalizedDefaults = this.createInitialValues(descriptor, defaultValues);
 
     // TODO copy the data
     let data: IControlSerializedData = {
-      position: layout ?? this.getDefaultLayoutInfo(descriptor),
       id: generateGuid(),
-      properties: properties ?? {},
       typeId: descriptor.id,
+      position: normalizedDefaults.position,
+      properties: normalizedDefaults.properties,
     };
 
-    control.deserialize(data);
     snapLayout(data.position, this.gridSnap);
+
+    let control = descriptor.createInstance();
+    control.deserialize(data);
 
     addControlsUndoHandler.trigger(this, {
       entries: [
@@ -184,6 +186,36 @@ export class DesignSurfaceElement extends CustomHtmlElement {
         },
       ],
     });
+  }
+
+  /**
+   * Creates the initial values to use when creating a control.
+   */
+  private createInitialValues(
+    descriptor: IControlDescriptor,
+    providedDefaults?: IDefaultControlValues,
+  ): Required<IDefaultControlValues> {
+    let descriptorProvidedDefaults = descriptor.getDefaultValues();
+
+    // we prefer caller provided defaults over descriptor provided defaults
+    let position = providedDefaults?.position ?? descriptorProvidedDefaults.position;
+    let properties = providedDefaults?.properties ?? descriptorProvidedDefaults.properties;
+
+    // make sure we have some default position info for controls
+    position = Object.assign(
+      {
+        left: 20,
+        top: 20,
+        width: 40,
+        height: 60,
+      },
+      position,
+    );
+
+    return {
+      position,
+      properties,
+    };
   }
 
   /**
@@ -198,22 +230,6 @@ export class DesignSurfaceElement extends CustomHtmlElement {
     this._childControls.set(control.id, control);
 
     return controlContainer;
-  }
-
-  /**
-   * Gets the default layout information for the given control
-   */
-  private getDefaultLayoutInfo(descriptor: IControlDescriptor): IStoredPositionInfo {
-    if (descriptor == null) {
-      throw new Error('Null Descriptor');
-    }
-
-    return {
-      left: 20,
-      top: 20,
-      width: 40,
-      height: 60,
-    };
   }
 
   /**

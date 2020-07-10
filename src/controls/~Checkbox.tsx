@@ -75,4 +75,12 @@ export class Checkbox extends Control {
   }
 }
 
-export let checkboxDescriptor = new ReflectionBasedDescriptor('checkbox', Checkbox);
+export let checkboxDescriptor = new ReflectionBasedDescriptor('checkbox', 'Checkbox', Checkbox, () => ({
+  position: {
+    width: 150,
+    height: 30,
+  },
+  properties: {
+    [TextContentProperty.id]: 'Checkbox',
+  },
+}));
