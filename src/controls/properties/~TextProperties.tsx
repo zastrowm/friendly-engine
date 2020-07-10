@@ -1,4 +1,4 @@
-import { IProperty, PropertyType } from '../controlProperties';
+import { IEnumProperty, IProperty, PropertyType } from '@/control';
 
 export const BackgroundProperty: IProperty<HTMLElement, string> = {
   id: 'control.backgroundColor',

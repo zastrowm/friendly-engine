@@ -1,5 +1,4 @@
-import { IEnumProperty, IProperty, PropertyType } from '../controlProperties';
-import { IEnumValue } from '../../framework/Enums';
+import { IEnumProperty, IProperty, PropertyType } from '@/control';
 
 let defaultValue = '<default>';
 

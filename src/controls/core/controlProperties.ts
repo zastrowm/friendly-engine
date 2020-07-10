@@ -1,7 +1,6 @@
 import type { Control } from './Control';
-import { LocalizedString } from '../framework/localization';
-import { IEnumValue } from '../framework/Enums';
-import { languages } from 'monaco-editor';
+import { LocalizedString } from '@/framework/localization';
+import { IEnumValue } from '@/framework/Enums';
 
 let data = new Map<any, IProperty<Control, any>[]>();
 

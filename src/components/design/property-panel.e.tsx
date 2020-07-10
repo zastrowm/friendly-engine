@@ -5,11 +5,11 @@ import { property } from '@friendly/elements/CustomHtmlElement';
 import {
   controlValueChanged as propertyChangedFromUndoRedo,
   IControlValueChangedArguments,
-} from 'src/controls/editors/_shared';
+  PropertyEditorRegistry,
+} from '@/control/propertyEditor';
 
 import './property-panel.css';
-import { PropertyEditorRegistry } from '../../controls/editors/propertyEditor';
-import { IControlProperty, IProperty } from '../../controls/controlProperties';
+import { IControlProperty } from '@/control';
 
 /**
  * Allows editing of the properties for a specific container.

@@ -2,7 +2,7 @@ import { CustomHtmlJsxElement, customElement, h } from '@friendly/elements/Custo
 import * as monaco from 'monaco-editor';
 
 import './code-dialog.css';
-import { addEventListenerAsync } from 'src/framework/util';
+import { addEventListenerAsync } from '@/framework/util';
 
 // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver
 declare class ResizeObserver {

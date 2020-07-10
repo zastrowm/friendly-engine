@@ -1,9 +1,9 @@
-import { determineEditStyle } from '../../framework/positioner';
-import { IStoredPositionInfo } from '../../framework/layout';
+import { determineEditStyle } from '@/framework/positioner';
+import { IStoredPositionInfo } from '@/framework/layout';
 import { DesignSurfaceElement } from './design-surface.e';
 import { CustomHtmlElement, customElement } from '@friendly/elements/CustomHtmlElement';
 
-import { Control, IControlDesigner } from 'src/controls/@commonControls';
+import { Control, IControlDesigner } from '@/control';
 
 @customElement(ControlContainer.tagName)
 export class ControlContainer extends CustomHtmlElement implements IControlDesigner {

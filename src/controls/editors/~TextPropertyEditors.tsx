@@ -1,16 +1,16 @@
-import { PropertyType } from '../controlProperties';
-import { setPropertyUndoRedo } from './_shared';
+import { PropertyType } from '@/control';
+import { setPropertyUndoRedo } from '@/control/propertyEditor';
 import {
   FontSizeProperty,
   Formatting,
   HorizontalAlignmentProperty,
   TextFormattingProperty,
   VerticalAlignmentProperty,
-} from '../properties/@commonProperties';
-import { isAttached, createJsxEditor, IPropertyEditor, editorPriorities } from './propertyEditor';
+} from '@/control/standardProperties';
+import { isAttached, createJsxEditor, IPropertyEditor, editorPriorities } from '@/control/propertyEditor';
 import { Fragment, h, VNode } from '@friendly/elements/jsxElements';
 import { Icon } from './icon';
-import { Enums } from '../../framework/Enums';
+import { Enums } from '@/framework/Enums';
 
 export const TextEditor: IPropertyEditor<string> = {
   priority: editorPriorities.fallback,

@@ -1,27 +1,24 @@
+import { IContext, undoCommandCreated, UndoRedoQueue, IUndoEntry } from '@/framework/undoRedo';
+import { appRoutedCommands, RoutedCommand } from '@/framework/appRoutedCommands';
+
+import { registerFocusCounter, unregisterFocusCounter } from '@/framework/focusService';
+import { CustomHtmlJsxElement, customElement, h } from '@friendly/elements/CustomHtmlJsxElement';
+
+import { IControlDescriptor, IControlSerializedData, ISerializedPropertyBag, ControlRegistry } from '@/control';
+import { PropertyEditorRegistry } from '@/control/propertyEditor';
+import { addCommonPropertyEditors } from '@/control/standardEditors';
+import { addCommonControlDescriptors } from '@/control/standardControls';
+
 import { DesignSurfaceElement, selectedControlChanged } from './design-surface.e';
-
-import { IContext, undoCommandCreated, UndoRedoQueue, IUndoEntry } from '../../framework/undoRedo';
-import { appRoutedCommands, RoutedCommand } from '../../framework/appRoutedCommands';
 import { registerShortcuts } from '../../app/keyboardShortcuts';
-import { h } from 'preact';
 import { ControlContainer } from './control-container.e';
-
-import './design-app.css';
 import { PropertyPanelElement } from './property-panel.e';
-import {
-  addCommonControlDescriptors,
-  IControlDescriptor,
-  IControlSerializedData,
-  ISerializedPropertyBag,
-  ControlRegistry,
-} from '../../controls/@commonControls';
-import { registerFocusCounter, unregisterFocusCounter } from '../../framework/focusService';
-import { CustomHtmlJsxElement, customElement } from '@friendly/elements/CustomHtmlJsxElement';
+
 import { config, development } from '../../runtime';
-import { PropertyEditorRegistry } from '../../controls/editors/propertyEditor';
-import { addCommonPropertyEditors } from '../../controls/editors/@commonEditors';
 
 import defaultLayout from '../../default-layout.json';
+
+import './design-app.css';
 
 declare var module;
 
