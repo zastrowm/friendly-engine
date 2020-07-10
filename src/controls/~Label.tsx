@@ -44,4 +44,7 @@ export let labelDescriptor = new ReflectionBasedDescriptor('label', 'Label', Lab
     width: 200,
     height: 30,
   },
+  properties: {
+    [TextContentProperty.id]: 'A simple label',
+  },
 }));
