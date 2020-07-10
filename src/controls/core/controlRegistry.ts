@@ -1,7 +1,7 @@
 import { IStoredPositionInfo } from '@/framework/layout';
 import { LocalizedString } from '@/framework/localization';
 import { Control } from './Control';
-import { getControlPropertiesFor, IControlProperty } from './controlProperties';
+import { getControlPropertiesFor, IControlProperty, TextContentId } from './controlProperties';
 import { addValue, ISerializedPropertyBag, tryGetValue } from './propertyBag';
 
 /**
@@ -106,7 +106,7 @@ export class ReflectionBasedDescriptor<T extends Control> implements IControlDes
     let properties = defaultValues?.properties ?? {};
     let position = defaultValues?.position ?? {};
 
-    let textId = 'text.text';
+    let textId = TextContentId;
     let textProperty = this.getProperty<string>(textId);
     if (textProperty != null && tryGetValue(properties, textProperty) == undefined) {
       addValue(properties, textProperty, `${this.displayName}`);
