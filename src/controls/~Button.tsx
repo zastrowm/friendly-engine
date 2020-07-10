@@ -60,4 +60,9 @@ export class Button extends Control {
   }
 }
 
-export let buttonDescriptor = new ReflectionBasedDescriptor('button', Button);
+export let buttonDescriptor = new ReflectionBasedDescriptor('button', 'Button', Button, () => ({
+  position: {
+    width: 100,
+    height: 30,
+  },
+}));
