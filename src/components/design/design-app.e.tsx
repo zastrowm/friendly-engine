@@ -231,7 +231,7 @@ export class DesignApp extends CustomHtmlJsxElement {
           <h1>Web App Builder</h1>
           {/* Render each control as a button that inserts it */}
           {Array.from(this.descriptors.getDescriptors()).map((d) => (
-            <button onClick={() => this.addControl(d)}>Add {d.id}</button>
+            <button onClick={() => this.addControl(d)}>Add {d.displayName}</button>
           ))}
           <button onClick={() => this.deleteCurrent()}>Delete</button>
           <button onClick={() => this.doUndo()}>Undo</button>
