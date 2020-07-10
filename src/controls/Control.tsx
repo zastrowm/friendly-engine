@@ -1,6 +1,7 @@
 import { IControlDescriptor } from './controlRegistry';
 import { IStoredPositionInfo } from 'src/framework/layout';
 import { UniqueId } from 'src/framework/util';
+import { IControlProperty } from './controlProperties';
 
 export * from './controlProperties';
 
@@ -21,6 +22,16 @@ export interface IControlSerializedData {
   position: IStoredPositionInfo;
   properties: ISerializedPropertyBag;
   typeId: string;
+}
+
+/** Add the given property value to the property bag, overriding the existing value if it exists */
+export function addValue<T>(propertyBag: ISerializedPropertyBag, property: IControlProperty<T>, value: T) {
+  propertyBag[property.id] = value;
+}
+
+/** Retrieves the current property value from the property bag, returning undefined if it doesn't exist */
+export function tryGetValue<T>(propertyBag: ISerializedPropertyBag, property: IControlProperty<T>): T | undefined {
+  return propertyBag[property.id];
 }
 
 /** Base class for all controls that can be created */
@@ -80,7 +91,8 @@ export abstract class Control {
     let propertyBag = {};
 
     for (let prop of this.descriptor.getProperties()) {
-      propertyBag[prop.id] = prop.serializeValue(this);
+      let value = prop.serializeValue(this);
+      addValue(propertyBag, prop, value);
     }
 
     return propertyBag;

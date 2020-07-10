@@ -16,7 +16,10 @@ import {
   RootControl,
   rootControlDescriptor,
   IControlDescriptor,
+  tryGetValue,
+  addValue,
 } from 'src/controls/@commonControls';
+import { TextContentProperty } from '../../controls/properties/~TextProperties';
 
 export let selectedControlChanged = new RoutedEventDescriptor<ControlContainer>({
   id: 'selectedControlChanged',
@@ -173,7 +176,10 @@ export class DesignSurfaceElement extends CustomHtmlElement {
       typeId: descriptor.id,
     };
 
+    this.addDefaultTextIfNeeded(descriptor, data.properties);
+
     control.deserialize(data);
+
     snapLayout(data.position, this.gridSnap);
 
     addControlsUndoHandler.trigger(this, {
@@ -184,6 +190,17 @@ export class DesignSurfaceElement extends CustomHtmlElement {
         },
       ],
     });
+  }
+
+  private addDefaultTextIfNeeded(descriptor: IControlDescriptor, propertyBag: ISerializedPropertyBag) {
+    let textProperty = descriptor.getProperty<string>(TextContentProperty.id);
+
+    if (textProperty != null) {
+      let existingValue = tryGetValue(propertyBag, textProperty);
+      if (existingValue == undefined) {
+        addValue(propertyBag, textProperty, `${descriptor.id} text`);
+      }
+    }
   }
 
   /**
