@@ -29,11 +29,11 @@ You can play with a snapshot of d3037a09383e9abb55df0b9326ae9dbb8ec77453 [on the
 
 ## Production
 
-To run the current prototype, clone the repository and run:
+To build the current prototype, clone the repository and run:
 
 ```bash
 npm install
-npm run start
+npm run build
 ```
 
 ## Development
