@@ -1,38 +1,55 @@
-.App {
-  text-align: center;
+.design-app h1 {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #fff;
+  padding: 0 12px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.design-app {
+  display: grid;
+
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 1fr auto;
+
+  grid-template-areas:
+    'header header'
+    'main   properties';
+
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  left: 0px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.design-app header {
+  background: #ff6a2b;
   color: white;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+
+  grid-area: header;
 }
 
-.App-link {
-  color: #61dafb;
+.design-app main {
+  grid-area: main;
+  position: relative;
+  overflow: scroll;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.design-app main > div {
+  height: 100%;
+}
+
+.design-app aside {
+  grid-area: properties;
+  position: relative;
+  overflow: auto;
+  width: 180px;
+}
+
+.design-app button[selected] {
+  background-color: #ccc;
 }
