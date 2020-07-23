@@ -14,15 +14,19 @@ export interface IControlDesigner {
 export abstract class Control {
   private _layout: IStoredPositionInfo|null = null;
   private _designer: IControlDesigner|null = null;
-  private _rootElement: HTMLElement;
-
-  constructor() {
-    this._rootElement = this.initialize();
-    this._rootElement.setAttribute('fe-role', (this as any).descriptor.id);
-  }
+  private _rootElement!: HTMLElement;
 
   /** The id of the control */
   public id: UniqueId|null = null;
+
+  protected setRoot(root: HTMLElement) {
+    if (this._rootElement != null) {
+      throw new Error('Root element has already been set')
+    }
+
+    this._rootElement = root;
+    this._rootElement.setAttribute('fe-role', (this as any).descriptor.id);
+  }
 
   public get layout(): IStoredPositionInfo {
     return this._layout ?? { left: 0, top: 0, width: 100, height: 20 };
@@ -39,9 +43,6 @@ export abstract class Control {
   public get htmlRoot(): HTMLElement {
     return this._rootElement;
   }
-
-  /** Initializes the DOM elements for this control and returns it. */
-  protected abstract initialize(): HTMLElement;
 
   /** The control descriptor for this control. */
   public abstract get descriptor(): IControlDescriptor<Control>;

@@ -36,7 +36,15 @@ const ClickActionProperty: IProperty<HTMLElement, Formatting> = {
 };
 
 export class Button extends Control {
-  private buttonElement!: HTMLButtonElement;
+
+  private buttonElement: HTMLButtonElement;
+
+  constructor() {
+    super();
+
+    this.buttonElement = document.createElement('button');
+    this.setRoot(this.buttonElement);
+  }
 
   @implementProperty(TextContentProperty, (c: Button) => c.buttonElement)
   public text!: string;
@@ -55,11 +63,6 @@ export class Button extends Control {
 
   @implementProperty(ClickActionProperty, (c: Button) => c.buttonElement)
   public clickScript!: string;
-
-  protected initialize(): HTMLElement {
-    this.buttonElement = document.createElement('button');
-    return this.buttonElement;
-  }
 
   public get descriptor(): IControlDescriptor {
     return buttonDescriptor;

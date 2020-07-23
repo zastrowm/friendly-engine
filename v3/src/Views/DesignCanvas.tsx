@@ -10,7 +10,7 @@ export const DesignCanvas = observer(function DesignCanvas(props: {layout: Layou
   return (
     <div className="design-canvas">
       {props.layout.controls.map(it => (
-        <EditableControl controlVm={it} />
+        <EditableControl key={it.id as any as string} controlVm={it} />
       ))}
     </div>
   );
