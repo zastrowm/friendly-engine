@@ -1,0 +1,38 @@
+
+.editable-control {
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  position: absolute;
+}
+
+.editable-control.button {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.editable-control > *:first-child {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+  width: 100%;
+}
+
+.editable-control button {
+  margin: 0;
+  padding: 0;
+
+  overflow: hidden;
+
+  background: rgb(224, 96, 37);
+  border-radius: 0;
+
+  /* inherit font & color from ancestor */
+  color: inherit;
+  font: inherit;
+
+  border: 2px solid rgb(61, 110, 201);
+  box-sizing: border-box;
+}

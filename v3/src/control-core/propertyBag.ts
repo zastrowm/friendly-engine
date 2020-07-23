@@ -1,5 +1,5 @@
-import { UniqueId } from '@/framework/util';
-import { IStoredPositionInfo } from '@/framework/layout';
+import { UniqueId } from '../util/UniqueId';
+import { IStoredPositionInfo } from './layout';
 import { IControlProperty } from './controlProperties';
 
 export interface ISerializedPropertyBag {

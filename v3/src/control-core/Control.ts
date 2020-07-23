@@ -1,7 +1,7 @@
 import { IControlDescriptor } from './controlRegistry';
-import { IStoredPositionInfo } from '@/framework/layout';
-import { UniqueId } from '@/framework/util';
+import { IStoredPositionInfo } from './layout';
 import { addValue, IControlSerializedData, ISerializedPropertyBag } from './propertyBag';
+import { UniqueId } from "../util/UniqueId";
 
 /**
  * A Designer environment for a control. It is assumed
@@ -12,8 +12,8 @@ export interface IControlDesigner {
 
 /** Base class for all controls that can be created */
 export abstract class Control {
-  private _layout: IStoredPositionInfo = null;
-  private _designer: IControlDesigner = null;
+  private _layout: IStoredPositionInfo|null = null;
+  private _designer: IControlDesigner|null = null;
   private _rootElement: HTMLElement;
 
   constructor() {
@@ -22,7 +22,7 @@ export abstract class Control {
   }
 
   /** The id of the control */
-  public id: UniqueId = null;
+  public id: UniqueId|null = null;
 
   public get layout(): IStoredPositionInfo {
     return this._layout ?? { left: 0, top: 0, width: 100, height: 20 };
@@ -36,7 +36,7 @@ export abstract class Control {
   /**
    * Creates the DOM elements for this control.
    */
-  public createElement(): HTMLElement {
+  public get htmlRoot(): HTMLElement {
     return this._rootElement;
   }
 
@@ -51,6 +51,9 @@ export abstract class Control {
    * @returns an object containing key-value pairs of the properties to persist
    */
   public serialize(): IControlSerializedData {
+    if (this.id == null)
+      throw new Error("null id");
+
     return {
       id: this.id,
       typeId: this.descriptor.id,
@@ -67,7 +70,8 @@ export abstract class Control {
     let propertyBag = {};
 
     for (let prop of this.descriptor.getProperties()) {
-      let value = prop.serializeValue(this);
+      // TODO why do we need the bang operator
+      let value = prop.serializeValue!(this);
       addValue(propertyBag, prop, value);
     }
 

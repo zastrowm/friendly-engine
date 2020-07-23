@@ -1,7 +1,6 @@
-import { ComponentChild, render } from '@friendly/elements/jsxElements';
-import { UniqueId } from '@/framework/util';
-import { setPropertyUndoRedo } from './propertyUndoRedo';
+import { UniqueId } from '../util/UniqueId';
 import { IPropertyInfo, PropertyType, IControlProperty } from './controlProperties';
+import { ReactNode } from "react";
 
 /**
  * A wrapper around an IProperty and a given source, allowing editors to focus merely on the value
@@ -15,7 +14,7 @@ export interface IInstancedProperty<T> {
   getValue(): T;
 
   /** Sets the current value for the thing being edited */
-  setValue(value: T);
+  setValue(value: T): void;
 
   /** The property that is being edited **/
   property: IControlProperty;
@@ -42,7 +41,7 @@ export interface IPropertyEditor<T> {
   /**
    * Creates an editor for the given property + instance
    */
-  createEditorFor(wrapped: IInstancedProperty<T>): HTMLElement;
+  createEditorFor(wrapped: IInstancedProperty<T>): ReactNode;
 
   /**
    * The priority of the given editor, relative to other editors.  If not present,
@@ -105,43 +104,43 @@ interface JsxEditorRefreshArguments<T> {
   canMerge?: boolean;
 }
 
-/**
- * Creates an editor that uses JSX to provide the contents.
- * @param wrapped the instance for which the editor is valid
- * @param callback a callback that can be used to re-render the editor
- * @returns an IPropertyEditor that edits the given property
- */
-export function createJsxEditor<T>(
-  wrapped: IInstancedProperty<T>,
-  callback: (refreshCallback: (arg?: JsxEditorRefreshArguments<T>) => void) => ComponentChild,
-): HTMLElement {
-  let element = document.createElement('span');
-
-  // callback that can be used to force JSX to re-render
-  let invalidateCallback = (data?: JsxEditorRefreshArguments<T>) => {
-    // if they passed in options, that means we should trigger an undo event
-    if (data != null) {
-      wrapped.setValue(data.new);
-
-      setPropertyUndoRedo.trigger(element, {
-        id: wrapped.id,
-        property: wrapped.property,
-        originalValue: data.old,
-        newValue: data.new,
-        canMerge: data?.canMerge ?? false,
-      });
-    }
-
-    // actually re-render
-    let jsx = callback(invalidateCallback);
-    render(jsx, element);
-  };
-
-  // first time rendering
-  invalidateCallback();
-
-  return element;
-}
+// /**
+//  * Creates an editor that uses JSX to provide the contents.
+//  * @param wrapped the instance for which the editor is valid
+//  * @param callback a callback that can be used to re-render the editor
+//  * @returns an IPropertyEditor that edits the given property
+//  */
+// export function createJsxEditor<T>(
+//   wrapped: IInstancedProperty<T>,
+//   callback: (refreshCallback: (arg?: JsxEditorRefreshArguments<T>) => void) => ReactNode,
+// ): HTMLElement {
+//   let element = document.createElement('span');
+//
+//   // callback that can be used to force JSX to re-render
+//   let invalidateCallback = (data?: JsxEditorRefreshArguments<T>) => {
+//     // if they passed in options, that means we should trigger an undo event
+//     if (data != null) {
+//       wrapped.setValue(data.new);
+//
+//       // setPropertyUndoRedo.trigger(element, {
+//       //   id: wrapped.id,
+//       //   property: wrapped.property,
+//       //   originalValue: data.old,
+//       //   newValue: data.new,
+//       //   canMerge: data?.canMerge ?? false,
+//       // });
+//     }
+//
+//     // actually re-render
+//     let jsx = callback(invalidateCallback);
+//     render(jsx, element);
+//   };
+//
+//   // first time rendering
+//   invalidateCallback();
+//
+//   return element;
+// }
 
 /**
  * Check to make sure that the element is still in the document.

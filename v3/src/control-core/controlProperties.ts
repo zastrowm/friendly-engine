@@ -1,6 +1,6 @@
 import type { Control } from './Control';
-import { LocalizedString } from '@/framework/localization';
-import { IEnumValue } from '@/framework/Enums';
+import { LocalizedString } from '../util/localization';
+import { IEnumValue } from '../util/enums';
 
 let data = new Map<any, IProperty<Control, any>[]>();
 
@@ -80,8 +80,10 @@ function createProxyFor<TOwner extends Control, TPropertyType>(
   let proxied = new Proxy(proxyData, {
     get(target, p: PropertyKey, receiver: any): any {
       if (p in target) {
+        // @ts-ignore
         return target[p];
       } else if (target.__property) {
+        // @ts-ignore
         return target.__property[p];
       }
 
@@ -115,9 +117,9 @@ export interface IProperty<TOwner, TPropertyType> extends IPropertyInfo {
   /** Gets the value from the instance */
   getValue(owner: TOwner): TPropertyType;
   /** Sets the value on the instance */
-  setValue(owner: TOwner, value: TPropertyType);
+  setValue(owner: TOwner, value: TPropertyType): void;
   /** Serializes the value from the instance - may returned undefined */
-  serializeValue?: (data: TOwner) => TPropertyType;
+  serializeValue?: (data: TOwner) => TPropertyType | undefined;
 }
 
 /**

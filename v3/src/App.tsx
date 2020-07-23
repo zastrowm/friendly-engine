@@ -1,8 +1,12 @@
 import React from 'react';
 import './App.css';
-import { DesignCanvas } from "./Views/DesignCanvas";
+import { DesignCanvas } from "./views/DesignCanvas";
+import { observer } from "mobx-react"
+import { LayoutViewModel } from "./state/PanelState";
 
-function App() {
+let layout = new LayoutViewModel();
+
+let App = observer(function App() {
   return (
     <div className="design-app">
       <header>
@@ -11,6 +15,7 @@ function App() {
         {/*{Array.from(this.descriptors.getDescriptors()).map((d) => (*/}
         {/*  <button onClick={() => this.addControl(d)}>Add {d.displayName}</button>*/}
         {/*))}*/}
+        <button onClick={() => layout.addControl()}>Add Button</button>
         <button>Delete</button>
         <button>Undo</button>
         <button>Redo</button>
@@ -20,7 +25,7 @@ function App() {
       </header>
       <main>
         <div>
-          <DesignCanvas />
+          <DesignCanvas layout={layout} />
         </div>
       </main>
       <aside>
@@ -28,6 +33,6 @@ function App() {
       </aside>
     </div>
   );
-}
+})
 
 export default App;

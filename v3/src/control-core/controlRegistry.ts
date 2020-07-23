@@ -1,5 +1,5 @@
-import { IStoredPositionInfo } from '@/framework/layout';
-import { LocalizedString } from '@/framework/localization';
+import { IStoredPositionInfo } from './layout';
+import { LocalizedString } from '../util/localization';
 import { Control } from './Control';
 import { getControlPropertiesFor, IControlProperty, TextContentId } from './controlProperties';
 import { addValue, ISerializedPropertyBag, tryGetValue } from './propertyBag';
@@ -125,6 +125,6 @@ export class ReflectionBasedDescriptor<T extends Control> implements IControlDes
       }
     }
 
-    return null;
+    throw new Error(`Property with id ${id} does not exist`);
   }
 }

@@ -1,19 +1,19 @@
-import { IEnumProperty, IProperty, PropertyType, TextContentId } from '@/control';
+import { IProperty, PropertyType, TextContentId } from "./controlProperties";
 
 export const BackgroundProperty: IProperty<HTMLElement, string> = {
   id: 'control.backgroundColor',
   displayName: 'Background Color',
   propertyType: PropertyType.string,
 
-  getValue(element) {
+  getValue(element: HTMLElement) {
     return element.style.backgroundColor;
   },
 
-  setValue(element, value) {
+  setValue(element: HTMLElement, value: string) {
     element.style.backgroundColor = value;
   },
 
-  serializeValue(element) {
+  serializeValue(element: HTMLElement) {
     return this.getValue(element);
   },
 };
@@ -23,15 +23,15 @@ export const TextContentProperty: IProperty<HTMLElement, string> = {
   displayName: 'Text',
   propertyType: PropertyType.string,
 
-  getValue(element) {
-    return element.textContent;
+  getValue(element: HTMLElement): string {
+    return element.textContent ?? "";
   },
 
-  setValue(element, value) {
+  setValue(element: HTMLElement, value: string) {
     element.textContent = value;
   },
 
-  serializeValue(element) {
+  serializeValue(element: HTMLElement) {
     let value = element?.textContent;
     if (value == null || value.length == 0) {
       return undefined;
@@ -46,16 +46,16 @@ export const FontSizeProperty: IProperty<HTMLElement, number> = {
   displayName: 'Font Size',
   propertyType: PropertyType.string,
 
-  getValue(element) {
+  getValue(element: HTMLElement) {
     let fontSize = getComputedStyle(element).fontSize;
     return Number(fontSize.substr(0, fontSize.length - 2));
   },
 
-  setValue(element, value) {
+  setValue(element: HTMLElement, value: number) {
     element.style.fontSize = value + 'px';
   },
 
-  serializeValue(element) {
+  serializeValue(element: HTMLElement) {
     let fontSize = element.style.fontSize;
     if (fontSize == '') {
       return undefined;
@@ -70,15 +70,15 @@ export const HorizontalAlignmentProperty: IProperty<HTMLElement, string> = {
   displayName: 'Alignment',
   propertyType: PropertyType.string,
 
-  getValue(element) {
+  getValue(element: HTMLElement) {
     return getComputedStyle(element).textAlign;
   },
 
-  setValue(element, value) {
+  setValue(element: HTMLElement, value: string) {
     element.style.textAlign = value;
   },
 
-  serializeValue(element) {
+  serializeValue(element: HTMLElement) {
     return element.style.textAlign;
   },
 };
@@ -88,15 +88,15 @@ export const VerticalAlignmentProperty: IProperty<HTMLElement, string> = {
   displayName: 'Vertical Alignment',
   propertyType: PropertyType.string,
 
-  getValue(element) {
+  getValue(element: HTMLElement) {
     return getComputedStyle(element).alignItems;
   },
 
-  setValue(element, value) {
+  setValue(element: HTMLElement, value: string) {
     element.style.alignItems = value;
   },
 
-  serializeValue(element) {
+  serializeValue(element: HTMLElement) {
     return element.style.alignItems;
   },
 };
@@ -113,7 +113,7 @@ export const TextFormattingProperty: IProperty<HTMLElement, Formatting> = {
   displayName: 'Formatting',
   propertyType: PropertyType.number | PropertyType.enum,
 
-  getValue(element) {
+  getValue(element: HTMLElement) {
     return (
       (element.style.fontWeight == 'bold' ? Formatting.Bold : Formatting.None) |
       (element.style.textDecoration == 'underline' ? Formatting.Underline : Formatting.None) |
@@ -121,13 +121,13 @@ export const TextFormattingProperty: IProperty<HTMLElement, Formatting> = {
     );
   },
 
-  setValue(element, value) {
-    element.style.fontWeight = (value & Formatting.Bold) > 0 ? 'bold' : null;
-    element.style.textDecoration = (value & Formatting.Underline) > 0 ? 'underline' : null;
-    element.style.fontStyle = (value & Formatting.Italics) > 0 ? 'italic' : null;
+  setValue(element: HTMLElement, value: Formatting) {
+    element.style.fontWeight = (value & Formatting.Bold) > 0 ? 'bold' : '';
+    element.style.textDecoration = (value & Formatting.Underline) > 0 ? 'underline' : '';
+    element.style.fontStyle = (value & Formatting.Italics) > 0 ? 'italic' : '';
   },
 
-  serializeValue(element) {
+  serializeValue(element: HTMLElement) {
     let value = this.getValue(element);
     return value > 0 ? value : undefined;
   },
@@ -138,15 +138,15 @@ export const BackgroundColorProperty: IProperty<HTMLElement, string> = {
   displayName: 'Background Color',
   propertyType: PropertyType.color,
 
-  getValue(element) {
+  getValue(element: HTMLElement) {
     return element.style.backgroundColor ?? '';
   },
 
-  setValue(element, value) {
+  setValue(element: HTMLElement, value: string) {
     element.style.backgroundColor = value;
   },
 
-  serializeValue(element) {
+  serializeValue(element: HTMLElement) {
     return element.style.backgroundColor ?? undefined;
   },
 };

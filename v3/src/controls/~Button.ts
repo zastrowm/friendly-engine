@@ -1,4 +1,3 @@
-import { h } from '@friendly/elements/jsxElements';
 import {
   Control,
   implementProperty,
@@ -6,7 +5,8 @@ import {
   PropertyType,
   IControlDescriptor,
   ReflectionBasedDescriptor,
-} from '@/control';
+} from './@control';
+
 import {
   FontProperty,
   FontSizeProperty,
@@ -14,7 +14,7 @@ import {
   HorizontalAlignmentProperty,
   TextContentProperty,
   TextFormattingProperty,
-} from '@/control/standardProperties';
+} from './@properties';
 
 /**
  * The text that should be shown when the button is clicked
@@ -36,25 +36,25 @@ const ClickActionProperty: IProperty<HTMLElement, Formatting> = {
 };
 
 export class Button extends Control {
-  private buttonElement: HTMLButtonElement;
+  private buttonElement!: HTMLButtonElement;
 
   @implementProperty(TextContentProperty, (c: Button) => c.buttonElement)
-  public text: string;
+  public text!: string;
 
   @implementProperty(TextFormattingProperty, (c: Button) => c.buttonElement)
-  public textFormatting: Formatting;
+  public textFormatting!: Formatting;
 
   @implementProperty(FontProperty, (c: Button) => c.buttonElement)
-  public fontFamily: string;
+  public fontFamily!: string;
 
   @implementProperty(FontSizeProperty, (c: Button) => c.buttonElement)
-  public fontSize: number;
+  public fontSize!: number;
 
   @implementProperty(HorizontalAlignmentProperty, (c: Button) => c.buttonElement)
-  public textAlignment: string;
+  public textAlignment!: string;
 
   @implementProperty(ClickActionProperty, (c: Button) => c.buttonElement)
-  public clickScript: string;
+  public clickScript!: string;
 
   protected initialize(): HTMLElement {
     this.buttonElement = document.createElement('button');

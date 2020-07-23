@@ -1,4 +1,4 @@
-import { IEnumProperty, IProperty, PropertyType } from '@/control';
+import { IEnumProperty, IProperty, PropertyType } from "./controlProperties";
 
 let defaultValue = '<default>';
 
@@ -18,7 +18,7 @@ export const FontProperty: IProperty<HTMLElement, string> & IEnumProperty<string
 
   setValue(element, value) {
     if (value == defaultValue) {
-      element.style.fontFamily = null;
+      element.style.fontFamily = '';
     } else {
       element.style.fontFamily = value;
     }
