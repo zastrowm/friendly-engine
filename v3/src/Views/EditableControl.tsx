@@ -4,7 +4,7 @@ import { observer } from "mobx-react";
 
 import "./EditableControl.css"
 import { Anchor, AnchoredBoundary, IStoredPositionInfo, Point } from "../control-core/layout";
-import { ControlInformationViewModel } from "../state/ControlInformationViewModel";
+import { ControlInformationViewModel } from "../viewmodels/ControlInformationViewModel";
 
 interface IProps {
   controlVm: ControlInformationViewModel;

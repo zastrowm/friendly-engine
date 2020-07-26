@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { LayoutViewModel } from "../state/PanelState";
+import { LayoutViewModel } from "../viewmodels/LayoutViewModel";
 import { observer } from "mobx-react";
 import { EditableControl } from "./EditableControl";
 

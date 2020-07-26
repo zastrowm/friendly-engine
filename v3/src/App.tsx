@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import { DesignCanvas } from "./views/DesignCanvas";
 import { observer } from "mobx-react"
-import { LayoutViewModel } from "./state/PanelState";
+import { LayoutViewModel } from "./viewmodels/LayoutViewModel";
 
 let layout = new LayoutViewModel();
 
