@@ -1,26 +1,29 @@
 import { action, observable } from "mobx";
-import { generateUniqueId, UniqueId } from "../util/UniqueId";
+import { generateUniqueId } from "../util/UniqueId";
 import {
-  Control,
   IControlDescriptor,
   IControlSerializedData,
   IDefaultControlValues,
   ISerializedPropertyBag,
-  IStoredPositionInfo,
   snapLayout
 } from "../controls/@control";
 import { buttonDescriptor } from "../controls/~Button";
+import { ControlInformationViewModel, IControlInformationViewModelOwner } from "./ControlInformationViewModel";
 
-export class LayoutViewModel {
+export class LayoutViewModel implements IControlInformationViewModelOwner {
 
   @observable
   public controls: ControlInformationViewModel[];
+
+  @observable
+  public selectedControls: Set<ControlInformationViewModel>;
 
   /** Determines the grid-snap for the controls */
   public readonly gridSnap = 8;
 
   constructor() {
     this.controls = [];
+    this.selectedControls = new Set();
   }
 
   @action("load layout")
@@ -61,7 +64,7 @@ export class LayoutViewModel {
     //   ],
     // });
 
-    this.controls.push(new ControlInformationViewModel(descriptor, data));
+    this.controls.push(new ControlInformationViewModel(this, descriptor, data));
   }
 
   /**
@@ -94,26 +97,27 @@ export class LayoutViewModel {
     };
   }
 
-}
+  /**
+   * Select or unselect the given control.  Tightly coupled to `ControlInformationViewModel.isSelected`
+   * @param control the control to select or unselect
+   * @param isSelected whether the control should be selected or unselected
+   */
+  @action
+  public markSelected(control: ControlInformationViewModel, isSelected: boolean) {
+    control.isSelected = isSelected;
 
-export class ControlInformationViewModel {
+    if (isSelected) {
+      for (let c of this.selectedControls) {
+        if (c !== control) {
+          c.isSelected = false;
+          this.selectedControls.delete(c);
+        }
+      }
 
-  public readonly typeId: string;
-  public readonly control: Control;
-
-  constructor(descriptor: IControlDescriptor, item: IControlSerializedData) {
-    this.typeId = item.typeId;
-
-    this.control = descriptor.createInstance();
-    this.control.deserialize(item);
-  }
-
-  public get positionInfo(): IStoredPositionInfo {
-    return this.control.layout;
-  }
-
-  public get id(): UniqueId {
-    return this.control.id!;
+      this.selectedControls.add(control);
+    } else {
+      this.selectedControls.delete(control);
+    }
   }
 }
 

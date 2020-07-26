@@ -43,6 +43,7 @@ export class Button extends Control {
     super();
 
     this.buttonElement = document.createElement('button');
+    this.buttonElement.addEventListener("click", () => alert('hello'))
     this.setRoot(this.buttonElement);
   }
 
