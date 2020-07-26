@@ -28,6 +28,10 @@ export abstract class Control {
     this._rootElement.setAttribute('fe-role', (this as any).descriptor.id);
   }
 
+  protected get root(): HTMLElement {
+    return this._rootElement;
+  }
+
   public get layout(): IStoredPositionInfo {
     return this._layout ?? { left: 0, top: 0, width: 100, height: 20 };
   }

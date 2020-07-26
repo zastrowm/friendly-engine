@@ -3,6 +3,7 @@ import { LocalizedString } from '../util/localization';
 import { Control } from './Control';
 import { getControlPropertiesFor, IControlProperty, TextContentId } from './controlProperties';
 import { addValue, ISerializedPropertyBag, tryGetValue } from './propertyBag';
+import { action, computed, observable } from "mobx";
 
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
@@ -45,20 +46,20 @@ export interface IDefaultControlValues {
  * Collection of controls that can be active on a given canvas.
  */
 export class ControlRegistry {
+  @observable
   private descriptors: Map<string, IControlDescriptor> = new Map();
-  private callbacks: { (): void }[] = [];
 
+  @action
   public add(descriptor: IControlDescriptor) {
     if (this.descriptors.has(descriptor.id)) {
       throw new Error(`Descriptor with id ${descriptor.id} already exists.`);
     }
 
     this.descriptors.set(descriptor.id, descriptor);
-    this.fireChangeListeners();
   }
 
-  public getDescriptors(): IterableIterator<IControlDescriptor> {
-    return this.descriptors.values();
+  public getDescriptors(): IControlDescriptor[] {
+    return Array.from(this.descriptors.values());
   }
 
   public getDescriptor(type: string) {
@@ -67,16 +68,6 @@ export class ControlRegistry {
       throw new Error(`No descriptor found with id=${type}`);
     }
     return descriptor;
-  }
-
-  public addChangeListener(callback: () => void) {
-    this.callbacks.push(callback);
-  }
-
-  private fireChangeListeners() {
-    for (let callback of this.callbacks) {
-      callback();
-    }
   }
 }
 

@@ -37,7 +37,7 @@ const ClickActionProperty: IProperty<HTMLElement, Formatting> = {
 
 export class Button extends Control {
 
-  private buttonElement: HTMLButtonElement;
+  private readonly buttonElement: HTMLButtonElement;
 
   constructor() {
     super();

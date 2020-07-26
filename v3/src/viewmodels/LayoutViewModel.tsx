@@ -1,6 +1,7 @@
-import { action, observable } from "mobx";
+import { action, computed, observable } from "mobx";
 import { generateUniqueId } from "../util/UniqueId";
 import {
+  ControlRegistry,
   IControlDescriptor,
   IControlSerializedData,
   IDefaultControlValues,
@@ -9,6 +10,7 @@ import {
 } from "../controls/@control";
 import { buttonDescriptor } from "../controls/~Button";
 import { ControlInformationViewModel, IControlInformationViewModelOwner } from "./ControlInformationViewModel";
+import { registerCommonControls } from "../controls/@standardControls";
 
 export class LayoutViewModel implements IControlInformationViewModelOwner {
 
@@ -21,9 +23,18 @@ export class LayoutViewModel implements IControlInformationViewModelOwner {
   /** Determines the grid-snap for the controls */
   public readonly gridSnap = 8;
 
+  private readonly _controlRegistry: ControlRegistry;
+
   constructor() {
     this.controls = [];
     this.selectedControls = new Set();
+
+    this._controlRegistry = new ControlRegistry();
+    registerCommonControls(this._controlRegistry);
+  }
+
+  public get descriptors(): IControlDescriptor[]  {
+    return this._controlRegistry.getDescriptors();
   }
 
   @action("load layout")
@@ -36,10 +47,7 @@ export class LayoutViewModel implements IControlInformationViewModelOwner {
   }
 
   @action("add control")
-  public addControl(defaultValues?: IDefaultControlValues) {
-
-    let descriptor = buttonDescriptor;
-
+  public addControl(descriptor: IControlDescriptor, defaultValues?: IDefaultControlValues) {
     let normalizedDefaults = LayoutViewModel.createInitialValues(descriptor, defaultValues);
 
     // TODO copy the data
@@ -64,7 +72,9 @@ export class LayoutViewModel implements IControlInformationViewModelOwner {
     //   ],
     // });
 
-    this.controls.push(new ControlInformationViewModel(this, descriptor, data));
+    let newControl = new ControlInformationViewModel(this, descriptor, data);
+    newControl.isSelected = true;
+    this.controls.push(newControl);
   }
 
   /**

@@ -12,10 +12,9 @@ let App = observer(function App() {
       <header>
         <h1>Web App Builder</h1>
         {/* Render each control as a button that inserts it */}
-        {/*{Array.from(this.descriptors.getDescriptors()).map((d) => (*/}
-        {/*  <button onClick={() => this.addControl(d)}>Add {d.displayName}</button>*/}
-        {/*))}*/}
-        <button onClick={() => layout.addControl()}>Add Button</button>
+        { layout.descriptors.map(d =>
+          <button onClick={() => layout.addControl(d)}>Add {d.displayName}</button>
+        ) }
         <button>Delete</button>
         <button>Undo</button>
         <button>Redo</button>
