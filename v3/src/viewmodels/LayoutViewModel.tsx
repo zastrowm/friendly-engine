@@ -176,6 +176,21 @@ export class LayoutViewModel implements IControlInformationViewModelOwner {
   }
 
   /**
+   * Removes the currently selected controls from the canvas
+   */
+  @action
+  public removeSelected() {
+    for (let control of this.selectedControls) {
+      let index = this.controls.indexOf(control);
+      if (index != null) {
+        this.controls.splice(index, 1);
+      }
+    }
+
+    this.selectedControls.clear();
+  }
+
+  /**
    * Select or unselect the given control.  Tightly coupled to `ControlInformationViewModel.isSelected`
    * @param control the control to select or unselect
    * @param isSelected whether the control should be selected or unselected

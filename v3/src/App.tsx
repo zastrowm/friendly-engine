@@ -15,7 +15,7 @@ let App = observer(function App() {
         { layout.descriptors.map(d =>
           <button key={d.id} onClick={() => layout.addControl(d)}>Add {d.displayName}</button>
         ) }
-        <button>Delete</button>
+        <button onClick={() => layout.removeSelected()}>Delete</button>
         <button>Undo</button>
         <button>Redo</button>
         <button onClick={() => layout.saveLayout('manual')}>Save Layout</button>
