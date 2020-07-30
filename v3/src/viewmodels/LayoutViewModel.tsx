@@ -1,6 +1,7 @@
 import { action, computed, observable } from "mobx";
 import { generateUniqueId } from "../util/UniqueId";
 import {
+  Control,
   ControlRegistry,
   IControlDescriptor,
   IControlSerializedData,
@@ -10,8 +11,12 @@ import {
 } from "../controls/@control";
 import { buttonDescriptor } from "../controls/~Button";
 import { ControlInformationViewModel, IControlInformationViewModelOwner } from "./ControlInformationViewModel";
-import { registerCommonControls } from "../controls/@standardControls";
+import { registerCommonControls, rootControlDescriptor } from "../controls/@standardControls";
 
+/**
+ * Responsible for the business logic of the canvas that allows adding/removing controls and managing layouts
+ * of the controls
+ */
 export class LayoutViewModel implements IControlInformationViewModelOwner {
 
   @observable
@@ -19,6 +24,9 @@ export class LayoutViewModel implements IControlInformationViewModelOwner {
 
   @observable
   public selectedControls: Set<ControlInformationViewModel>;
+
+  @observable
+  public root: ControlInformationViewModel;
 
   /** Determines the grid-snap for the controls */
   public readonly gridSnap = 8;
@@ -31,23 +39,83 @@ export class LayoutViewModel implements IControlInformationViewModelOwner {
 
     this._controlRegistry = new ControlRegistry();
     registerCommonControls(this._controlRegistry);
+
+    this.root = new ControlInformationViewModel(this, rootControlDescriptor);
   }
 
   public get descriptors(): IControlDescriptor[]  {
     return this._controlRegistry.getDescriptors();
   }
 
+  @action("clear layout")
+  public clearLayout() {
+    this.controls.splice(0, this.controls.length);
+    this.selectedControls.clear();
+    this.root = new ControlInformationViewModel(this, rootControlDescriptor);
+  }
+
+  /** Saves the current control layout to LocalStorage */
+  @action("save layout")
+  public saveLayout(layoutName: string) {
+    let data: ISavedLayoutInfo = {
+      controls: this.controls.map((it) => it.control.serialize()),
+      root: {
+        properties: this.root.control.serializeProperties(),
+      },
+    };
+    let json = JSON.stringify(data);
+
+    window.localStorage.setItem(`layout_${layoutName}`, json);
+  }
+
+  /** Restores the previously-saved control layout from LocalStorage */
   @action("load layout")
-  public load(layout: ISavedLayoutInfo) {
-    // this.controls.splice(0, this.controls.length);
-    //
-    // for (let item of layout.controls) {
-    //   this.controls.push(new ControlInformationViewModel(buttonDescriptor, item))
-    // }
+  public loadLayout(layoutName: string) {
+    console.log('loading layout', layoutName);
+    this.selectedControls.clear();
+
+    let jsonLayout = window.localStorage.getItem(`layout_${layoutName}`);
+    if (jsonLayout == null) {
+      alert('No layout saved');
+      return;
+    }
+
+    let layoutInfo = JSON.parse(jsonLayout) as ISavedLayoutInfo;
+
+    if (Array.isArray(layoutInfo)) {
+      layoutInfo = {
+        controls: layoutInfo as IControlSerializedData[],
+        root: {
+          properties: { },
+        },
+      };
+    }
+
+    this.controls.splice(0, this.controls.length);
+    //this.undoRedoQueue.clear();
+
+    let lastControl: ControlInformationViewModel | null = null;
+
+    for (let serialized of layoutInfo.controls) {
+      let descriptor = this._controlRegistry.getDescriptor(serialized.typeId);
+      lastControl = new ControlInformationViewModel(this, descriptor, serialized);
+      this.controls.push(lastControl);
+    }
+
+    if (lastControl != null) {
+      this.markSelected(lastControl, true);
+    }
+
+    this.root = new ControlInformationViewModel(this, rootControlDescriptor);
+    let rootProperties = layoutInfo.root?.properties
+    if (rootProperties != null) {
+      this.root.control.deserializeProperties(rootProperties);
+    }
   }
 
   @action("add control")
-  public addControl(descriptor: IControlDescriptor, defaultValues?: IDefaultControlValues) {
+  public addControl(descriptor: IControlDescriptor, defaultValues?: IDefaultControlValues)
+    : ControlInformationViewModel {
     let normalizedDefaults = LayoutViewModel.createInitialValues(descriptor, defaultValues);
 
     // TODO copy the data
@@ -60,8 +128,6 @@ export class LayoutViewModel implements IControlInformationViewModelOwner {
 
     snapLayout(data.position, this.gridSnap);
 
-    let control = descriptor.createInstance();
-    control.deserialize(data);
     //
     // addControlsUndoHandler.trigger(this, {
     //   entries: [
@@ -75,6 +141,8 @@ export class LayoutViewModel implements IControlInformationViewModelOwner {
     let newControl = new ControlInformationViewModel(this, descriptor, data);
     newControl.isSelected = true;
     this.controls.push(newControl);
+
+    return newControl;
   }
 
   /**

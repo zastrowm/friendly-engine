@@ -25,14 +25,19 @@ export class ControlInformationViewModel {
   public readonly typeId: string;
   public readonly control: Control;
 
-  constructor(owner: IControlInformationViewModelOwner, descriptor: IControlDescriptor, item: IControlSerializedData) {
+  constructor(owner: IControlInformationViewModelOwner,
+              descriptor: IControlDescriptor,
+              item?: IControlSerializedData) {
     this._owner = owner;
 
-    this.typeId = item.typeId;
+    this.typeId = descriptor.id;
 
     this._isSelected = false;
     this.control = descriptor.createInstance();
-    this.control.deserialize(item);
+
+    if (item != null) {
+      this.control.deserialize(item);
+    }
   }
 
   public get isSelected(): boolean {
