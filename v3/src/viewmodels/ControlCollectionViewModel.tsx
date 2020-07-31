@@ -1,7 +1,6 @@
 import { action, computed, observable } from "mobx";
 import { generateUniqueId } from "../util/UniqueId";
 import {
-  Control,
   ControlRegistry,
   IControlDescriptor,
   IControlSerializedData,
@@ -9,7 +8,6 @@ import {
   ISerializedPropertyBag,
   snapLayout
 } from "../controls/@control";
-import { buttonDescriptor } from "../controls/~Button";
 import { ControlInformationViewModel, IControlInformationViewModelOwner } from "./ControlInformationViewModel";
 import { registerCommonControls, rootControlDescriptor } from "../controls/@standardControls";
 
@@ -17,7 +15,7 @@ import { registerCommonControls, rootControlDescriptor } from "../controls/@stan
  * Responsible for the business logic of the canvas that allows adding/removing controls and managing layouts
  * of the controls
  */
-export class LayoutViewModel implements IControlInformationViewModelOwner {
+export class ControlCollectionViewModel implements IControlInformationViewModelOwner {
 
   @observable
   public controls: ControlInformationViewModel[];
@@ -116,7 +114,7 @@ export class LayoutViewModel implements IControlInformationViewModelOwner {
   @action("add control")
   public addControl(descriptor: IControlDescriptor, defaultValues?: IDefaultControlValues)
     : ControlInformationViewModel {
-    let normalizedDefaults = LayoutViewModel.createInitialValues(descriptor, defaultValues);
+    let normalizedDefaults = ControlCollectionViewModel.createInitialValues(descriptor, defaultValues);
 
     // TODO copy the data
     let data: IControlSerializedData = {

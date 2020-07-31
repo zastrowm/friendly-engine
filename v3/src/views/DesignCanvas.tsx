@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { LayoutViewModel } from "../viewmodels/LayoutViewModel";
+import { ControlCollectionViewModel } from "../viewmodels/ControlCollectionViewModel";
 import { observer } from "mobx-react";
 import { EditableControl } from "./EditableControl";
 
 import "./DesignCanvas.css";
 
-export const DesignCanvas = observer(function DesignCanvas(props: {layout: LayoutViewModel}) {
+export const DesignCanvas = observer(function DesignCanvas(props: {layout: ControlCollectionViewModel}) {
   return (
     <div className="design-canvas">
       {props.layout.controls.map(it => (
