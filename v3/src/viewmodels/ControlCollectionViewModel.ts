@@ -1,5 +1,5 @@
-import { action, computed, observable } from "mobx";
-import { generateUniqueId, UniqueId } from "../util/UniqueId";
+import { action, observable } from "mobx";
+import { UniqueId } from "../util/UniqueId";
 import {
   ControlRegistry,
   IControlDescriptor,
@@ -130,6 +130,15 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
     let control = this.controls[index];
     this.markSelected(control, false);
     this.controls.splice(index, 1);
+  }
+
+  public findControlById(id: UniqueId): ControlInformationViewModel {
+    let control = this.controls.find(c => c.id === id);
+    if (control == null) {
+      throw new Error(`No control found with id ${id}`);
+    }
+
+    return control;
   }
 
   /**

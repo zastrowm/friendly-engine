@@ -24,7 +24,7 @@ let EditorApp = observer(function App() {
       </header>
       <main>
         <div>
-          <DesignCanvas layout={editorVm.controls} />
+          <DesignCanvas app={editorVm} />
         </div>
       </main>
       <aside>

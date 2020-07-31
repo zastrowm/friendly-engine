@@ -115,8 +115,11 @@ export class AnchoredBoundary {
     return new AnchoredBoundary(this.left, this.top, this.right, this.bottom);
   }
 
-  public equals(other: AnchoredBoundary) {
-    return this.left == other.left && this.right == other.right && this.bottom == other.bottom && this.top == other.top;
+  public equals(other: AnchoredBoundary | null) {
+    if (other == null) {
+      return false;
+    }
+    return this.left === other.left && this.right === other.right && this.bottom === other.bottom && this.top === other.top;
   }
 
   /**

@@ -1,9 +1,10 @@
 import { Control } from "../control-core/Control";
 import { IControlDescriptor } from "../control-core/controlRegistry";
 import { IControlSerializedData } from "../control-core/propertyBag";
-import { observable } from "mobx";
+import { createAtom, observable } from "mobx";
 import { IStoredPositionInfo } from "../control-core/layout";
 import { UniqueId } from "../util/UniqueId";
+import { Atom } from "mobx/lib/core/atom";
 
 /**
  * Interface for an object that owns a control and needs to be notified when the control is
@@ -22,6 +23,8 @@ export class ControlInformationViewModel {
   private _isSelected: boolean;
   private _owner: IControlInformationViewModelOwner;
 
+  private _positionAtom: Atom;
+
   public readonly typeId: string;
   public readonly control: Control;
 
@@ -34,6 +37,7 @@ export class ControlInformationViewModel {
 
     this._isSelected = false;
     this.control = descriptor.createInstance();
+    this._positionAtom = createAtom("position");
 
     if (item != null) {
       this.control.deserialize(item);
@@ -54,10 +58,12 @@ export class ControlInformationViewModel {
   }
 
   public get positionInfo(): IStoredPositionInfo {
+    this._positionAtom.reportObserved();
     return this.control.layout;
   }
 
   public set positionInfo(value: IStoredPositionInfo) {
+    this._positionAtom.reportChanged();
     this.control.layout = value;
   }
 
