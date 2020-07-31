@@ -2,9 +2,9 @@ import React from 'react';
 import './App.css';
 import { DesignCanvas } from "./DesignCanvas";
 import { observer } from "mobx-react"
-import { ControlCollectionViewModel } from "../viewmodels/ControlCollectionViewModel";
+import { EditorAppViewModel } from "../viewmodels/EditorAppViewModel";
 
-let controlCollection = new ControlCollectionViewModel();
+let editorVm = new EditorAppViewModel();
 
 let EditorApp = observer(function App() {
   return (
@@ -12,19 +12,19 @@ let EditorApp = observer(function App() {
       <header>
         <h1>Web App Builder</h1>
         {/* Render each control as a button that inserts it */}
-        { controlCollection.descriptors.map(d =>
-          <button key={d.id} onClick={() => controlCollection.addControl(d)}>Add {d.displayName}</button>
+        { editorVm.controls.descriptors.map(d =>
+          <button key={d.id} onClick={() => editorVm.addControl(d)}>Add {d.displayName}</button>
         ) }
-        <button onClick={() => controlCollection.removeSelected()}>Delete</button>
-        <button>Undo</button>
-        <button>Redo</button>
-        <button onClick={() => controlCollection.saveLayout('manual')}>Save Layout</button>
-        <button onClick={() => controlCollection.loadLayout('manual')}>Load Layout</button>
-        <button onClick={() => controlCollection.clearLayout()}>Reset Canvas</button>
+        <button onClick={() => editorVm.removeSelected()}>Delete</button>
+        <button onClick={() => editorVm.undo()}>Undo</button>
+        <button onClick={() => editorVm.redo()}>Redo</button>
+        <button onClick={() => editorVm.saveLayout('manual')}>Save Layout</button>
+        <button onClick={() => editorVm.loadLayout('manual')}>Load Layout</button>
+        <button onClick={() => editorVm.clearLayout()}>Reset Canvas</button>
       </header>
       <main>
         <div>
-          <DesignCanvas layout={controlCollection} />
+          <DesignCanvas layout={editorVm.controls} />
         </div>
       </main>
       <aside>

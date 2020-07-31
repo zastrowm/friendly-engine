@@ -1,5 +1,5 @@
 import { action, computed, observable } from "mobx";
-import { generateUniqueId } from "../util/UniqueId";
+import { generateUniqueId, UniqueId } from "../util/UniqueId";
 import {
   ControlRegistry,
   IControlDescriptor,
@@ -45,40 +45,30 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
     return this._controlRegistry.getDescriptors();
   }
 
-  @action("clear layout")
+  public findDescriptor(typeId: string) {
+    return this._controlRegistry.getDescriptor(typeId);
+  }
+
+  @action
   public clearLayout() {
     this.controls.splice(0, this.controls.length);
     this.selectedControls.clear();
     this.root = new ControlInformationViewModel(this, rootControlDescriptor);
   }
 
-  /** Saves the current control layout to LocalStorage */
-  @action("save layout")
-  public saveLayout(layoutName: string) {
-    let data: ISavedLayoutInfo = {
+  @action
+  public serializeLayout(): ISavedLayoutInfo {
+    return {
       controls: this.controls.map((it) => it.control.serialize()),
       root: {
         properties: this.root.control.serializeProperties(),
       },
     };
-    let json = JSON.stringify(data);
-
-    window.localStorage.setItem(`layout_${layoutName}`, json);
   }
 
-  /** Restores the previously-saved control layout from LocalStorage */
-  @action("load layout")
-  public loadLayout(layoutName: string) {
-    console.log('loading layout', layoutName);
+  @action
+  public deserializeLayout(layoutInfo: ISavedLayoutInfo) {
     this.selectedControls.clear();
-
-    let jsonLayout = window.localStorage.getItem(`layout_${layoutName}`);
-    if (jsonLayout == null) {
-      alert('No layout saved');
-      return;
-    }
-
-    let layoutInfo = JSON.parse(jsonLayout) as ISavedLayoutInfo;
 
     if (Array.isArray(layoutInfo)) {
       layoutInfo = {
@@ -90,7 +80,6 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
     }
 
     this.controls.splice(0, this.controls.length);
-    //this.undoRedoQueue.clear();
 
     let lastControl: ControlInformationViewModel | null = null;
 
@@ -111,31 +100,8 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
     }
   }
 
-  @action("add control")
-  public addControl(descriptor: IControlDescriptor, defaultValues?: IDefaultControlValues)
-    : ControlInformationViewModel {
-    let normalizedDefaults = ControlCollectionViewModel.createInitialValues(descriptor, defaultValues);
-
-    // TODO copy the data
-    let data: IControlSerializedData = {
-      id: generateUniqueId(),
-      typeId: descriptor.id,
-      position: normalizedDefaults.position,
-      properties: normalizedDefaults.properties,
-    };
-
-    snapLayout(data.position, this.gridSnap);
-
-    //
-    // addControlsUndoHandler.trigger(this, {
-    //   entries: [
-    //     {
-    //       descriptor: descriptor,
-    //       data,
-    //     },
-    //   ],
-    // });
-
+  @action
+  public addControl(descriptor: IControlDescriptor, data: IControlSerializedData): ControlInformationViewModel {
     let newControl = new ControlInformationViewModel(this, descriptor, data);
     newControl.isSelected = true;
     this.controls.push(newControl);
@@ -144,48 +110,26 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
   }
 
   /**
-   * Creates the initial values to use when creating a control.
+   * Serializes the currently selected controls for easy deletion or copy/paste
    */
-  private static createInitialValues(
-    descriptor: IControlDescriptor,
-    providedDefaults?: IDefaultControlValues,
-  ): Required<IDefaultControlValues> {
-    let descriptorProvidedDefaults = descriptor.getDefaultValues();
-
-    // we prefer caller provided defaults over descriptor provided defaults
-    let position = providedDefaults?.position ?? descriptorProvidedDefaults.position;
-    let properties = providedDefaults?.properties ?? descriptorProvidedDefaults.properties ?? {};
-
-    // make sure we have some default position info for controls
-    position = Object.assign(
-      {
-        left: 20,
-        top: 20,
-        width: 40,
-        height: 60,
-      },
-      position,
-    );
-
-    return {
-      position,
-      properties,
-    };
+  public serializeSelected(): IControlSerializedData[] {
+    return Array.from(this.selectedControls.values()).map(c => c.control.serialize());
   }
 
-  /**
-   * Removes the currently selected controls from the canvas
-   */
   @action
-  public removeSelected() {
-    for (let control of this.selectedControls) {
-      let index = this.controls.indexOf(control);
-      if (index != null) {
-        this.controls.splice(index, 1);
-      }
+  public removeControlById(id: UniqueId) {
+    let index = this.controls.findIndex(c => c.id == id);
+    this.removeControlByIndex(index);
+  }
+
+  private removeControlByIndex(index: number) {
+    if (index === -1) {
+      return;
     }
 
-    this.selectedControls.clear();
+    let control = this.controls[index];
+    this.markSelected(control, false);
+    this.controls.splice(index, 1);
   }
 
   /**

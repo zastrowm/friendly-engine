@@ -1,4 +1,3 @@
-import { RoutedEventDescriptor } from './routedEvents';
 
 interface IContextProvider {
   context: IContext;
@@ -15,18 +14,18 @@ interface IDateInfo {
 
 class DateInfo implements IDateInfo {
   constructor(private undoEntry: UndoEntry<any>) {
-    this.now = Date.now();
+    this._now = Date.now();
   }
 
-  private now: number;
+  private readonly _now: number;
 
   isLastModifiedWithinMs(amount: number): boolean {
-    let diff = this.now - this.undoEntry.dateModified;
+    let diff = this._now - this.undoEntry.dateModified;
     return diff < amount;
   }
 
   isOriginalCreationWithinMs(amount: number): boolean {
-    let diff = this.now - this.undoEntry.dateAdded;
+    let diff = this._now - this.undoEntry.dateAdded;
     return diff < amount;
   }
 }
@@ -89,26 +88,32 @@ export interface IContext {}
 /**
  * Represents a queue of commands that can be done/undone.
  */
-export class UndoRedoQueue {
+export class UndoRedoQueueViewModel {
   private readonly undoQueue: UndoEntry<any>[] = [];
   private readonly redoQueue: UndoEntry<any>[] = [];
+
+  private readonly context: IContext;
+
+  constructor(context: IContext) {
+    this.context = context;
+  }
 
   /**
    * Adds an undo action to the queue.  If the undo action has a .do method, it will
    * be invoked.  This operation clears the redo queue.
    *
-   * @param context the context to use if `.do` is present
-   * @param command the command to add the queue
+   * @param command the undo descriptor to be added to the queue
+   * @param data the data for the descriptor
    */
-  public async addUndo(context: IContext, newEntry: IUndoEntry) {
-    let undoEntry = newEntry as UndoEntry<any>;
-    undoEntry.initialize(context);
+  public add<T>(command: ICommandCreator<T>, data: T) {
+    let undoEntry = new UndoEntry<T>(command as CommandCreator<T>, data);
+    undoEntry.initialize(this.context);
 
-    undoEntry.do(context);
+    undoEntry.do(this.context);
 
     if (this.undoQueue.length > 0) {
       let last = this.undoQueue[this.undoQueue.length - 1];
-      if (last.handler == undoEntry.handler && last.tryMerge(context, undoEntry)) {
+      if (last.handler === undoEntry.handler && last.tryMerge(this.context, undoEntry)) {
         return;
       }
     }
@@ -120,26 +125,26 @@ export class UndoRedoQueue {
   /**
    * Calls `IUndoCommand.undo()` on the first command in the undo queue
    */
-  public async undo(context: IContext): Promise<void> {
-    if (this.undoQueue.length == 0) {
+  public async undo(): Promise<void> {
+    if (this.undoQueue.length === 0) {
       return;
     }
 
-    let undoEntry = this.undoQueue.pop();
-    await undoEntry.undo(context);
+    let undoEntry = this.undoQueue.pop()!;
+    await undoEntry.undo(this.context);
     this.redoQueue.push(undoEntry);
   }
 
   /**
    * Calls `IUndoCommand.redo()` on the first command in the redo queue
    */
-  public async redo(context: IContext): Promise<void> {
-    if (this.redoQueue.length == 0) {
+  public async redo(): Promise<void> {
+    if (this.redoQueue.length === 0) {
       return;
     }
 
-    let redoEntry = this.redoQueue.pop();
-    await redoEntry.redo(context);
+    let redoEntry = this.redoQueue.pop()!;
+    await redoEntry.redo(this.context);
     this.undoQueue.push(redoEntry);
   }
 
@@ -151,12 +156,6 @@ export class UndoRedoQueue {
     this.undoQueue.length = 0;
   }
 }
-
-/** The routed event for undo commands being created. */
-export let undoCommandCreated = new RoutedEventDescriptor<IUndoEntry>({
-  id: 'undoEventGenerated',
-  mustBeHandled: true,
-});
 
 export interface IUndoEntry {}
 
@@ -176,12 +175,16 @@ class UndoEntry<T> implements IUndoEntry {
   handler: CommandCreator<T>;
   data: T;
 
+  getSelf(context: IContext, undoDefinition: IUndoCallbackDefinition<T>): IUndoCallbackThisType<T> {
+    /* @ts-ignore - the type type is created manually, so tsc has difficulty with it */
+    return { context: context, ...undoDefinition, ...this.data };
+  }
+
   initialize(context: IContext) {
     let undoDefinition = this.handler.callback();
     let initializeCallback = undoDefinition.initialize;
     if (initializeCallback != null) {
-      let self: T & IContextProvider = { context: context, ...undoDefinition, ...this.data };
-      initializeCallback.apply(self);
+      initializeCallback.apply(this.getSelf(context, undoDefinition));
     }
   }
 
@@ -189,23 +192,20 @@ class UndoEntry<T> implements IUndoEntry {
     let undoDefinition = this.handler.callback();
     let doCallback = undoDefinition.do;
     if (doCallback != null) {
-      let self: T & IContextProvider = { context: context, ...undoDefinition, ...this.data };
-      doCallback.apply(self);
+      doCallback.apply(this.getSelf(context, undoDefinition));
     }
   }
 
   redo(context: IContext) {
     let undoDefinition = this.handler.callback();
     let redoCallback = undoDefinition.redo;
-    let self: T & IContextProvider = { context: context, ...undoDefinition, ...this.data };
-    redoCallback.apply(self);
+    redoCallback.apply(this.getSelf(context, undoDefinition));
   }
 
   undo(context: IContext) {
     let undoDefinition = this.handler.callback();
     let undoCallback = undoDefinition.undo;
-    let self: T & IContextProvider = { context: context, ...undoDefinition, ...this.data };
-    undoCallback.apply(self);
+    undoCallback.apply(this.getSelf(context, undoDefinition));
   }
 
   tryMerge(context: IContext, rhs: UndoEntry<T>): boolean {
@@ -252,16 +252,10 @@ class UndoEntry<T> implements IUndoEntry {
 
 interface ICommandCreator<T> {
   id: string;
-  trigger(element: HTMLElement, data: T);
 }
 
 class CommandCreator<T> implements ICommandCreator<T> {
   constructor(public id: string, public callback: UndoableFunctionCallback<T>) {}
-
-  trigger(element: HTMLElement, data: T) {
-    let undoEntry = new UndoEntry<T>(this, data);
-    undoCommandCreated.trigger(element, undoEntry);
-  }
 }
 
 let undoHandlers = new Map<string, ICommandCreator<any>>();
