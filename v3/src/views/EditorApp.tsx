@@ -1,12 +1,12 @@
 import React from 'react';
 import './App.css';
-import { DesignCanvas } from "./views/DesignCanvas";
+import { DesignCanvas } from "./DesignCanvas";
 import { observer } from "mobx-react"
-import { ControlCollectionViewModel } from "./viewmodels/ControlCollectionViewModel";
+import { ControlCollectionViewModel } from "../viewmodels/ControlCollectionViewModel";
 
 let controlCollection = new ControlCollectionViewModel();
 
-let App = observer(function App() {
+let EditorApp = observer(function App() {
   return (
     <div className="design-app">
       <header>
@@ -34,4 +34,4 @@ let App = observer(function App() {
   );
 })
 
-export default App;
+export default EditorApp;

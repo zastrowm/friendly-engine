@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom';
 
 import 'mobx-react-lite/batchingForReactDom'
 import './index.css';
-import App from './App';
+import EditorApp from './views/EditorApp';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <EditorApp />
   </React.StrictMode>,
   document.getElementById('root')
 );
