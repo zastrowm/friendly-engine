@@ -5,7 +5,7 @@ import { observer } from 'mobx-react';
 import './EditableControl.css';
 import { Anchor } from '../control-core/layout';
 import { ControlInformationViewModel } from '../viewmodels/ControlInformationViewModel';
-import { determineEditStyle } from './DesignCanvasMovementManager';
+import { applyLayoutInfo, determineEditStyle } from './DesignCanvasMovementManager';
 import { autorun } from 'mobx';
 
 interface IProps {
@@ -36,9 +36,7 @@ export const EditableControl = observer(function EditableControl(props: IProps) 
 
     /** whenever the control position changes on the view-model, re-position the editor/control */
     let autoRunDisposer = autorun(() => {
-      let div = parentContainer.current!;
-      let editStyle = determineEditStyle(controlVm.positionInfo, div.parentElement as HTMLElement);
-      editStyle.boundaries.applyTo(div);
+      applyLayoutInfo(controlVm);
     });
 
     return function () {

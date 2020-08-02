@@ -7,7 +7,8 @@ import {
   ISerializedPropertyBag,
 } from '../controls/@control';
 import { ControlInformationViewModel, IControlInformationViewModelOwner } from './ControlInformationViewModel';
-import { registerCommonControls, rootControlDescriptor } from '../controls/@standardControls';
+import { registerCommonControls, RootControl } from '../controls/@standardControls';
+import { RootControlInformationViewModel } from './RootControlInformationViewModel';
 
 /**
  * Responsible for the business logic of the canvas that allows adding/removing controls and managing layouts
@@ -35,7 +36,7 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
     this._controlRegistry = new ControlRegistry();
     registerCommonControls(this._controlRegistry);
 
-    this.root = new ControlInformationViewModel(this, rootControlDescriptor);
+    this.root = new RootControlInformationViewModel(this);
   }
 
   public get descriptors(): IControlDescriptor[] {
@@ -50,7 +51,7 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
   public clearLayout() {
     this.controls.splice(0, this.controls.length);
     this.selectedControls.clear();
-    this.root = new ControlInformationViewModel(this, rootControlDescriptor);
+    this.root = new RootControlInformationViewModel(this);
   }
 
   @action
@@ -90,11 +91,7 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
       this.markSelected(lastControl, true);
     }
 
-    this.root = new ControlInformationViewModel(this, rootControlDescriptor);
-    let rootProperties = layoutInfo.root?.properties;
-    if (rootProperties != null) {
-      this.root.control.deserializeProperties(rootProperties);
-    }
+    this.root = new RootControlInformationViewModel(this, layoutInfo.root?.properties);
   }
 
   @action
@@ -130,6 +127,10 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
   }
 
   public findControlById(id: UniqueId): ControlInformationViewModel {
+    if (id === RootControl.rootId) {
+      return this.root;
+    }
+
     let control = this.controls.find((c) => c.id === id);
     if (control == null) {
       throw new Error(`No control found with id ${id}`);
@@ -145,6 +146,10 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
    */
   @action
   public markSelected(control: ControlInformationViewModel, isSelected: boolean) {
+    if (control === this.root) {
+      return;
+    }
+
     control.isSelected = isSelected;
 
     if (isSelected) {
@@ -158,6 +163,14 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
       this.selectedControls.add(control);
     } else {
       this.selectedControls.delete(control);
+    }
+  }
+
+  @action
+  public clearSelection() {
+    for (let c of this.selectedControls) {
+      c.isSelected = false;
+      this.selectedControls.delete(c);
     }
   }
 }

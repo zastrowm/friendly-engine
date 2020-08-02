@@ -1,15 +1,14 @@
-import { EditorAppViewModel } from "../viewmodels/EditorAppViewModel";
-import { Anchor, AnchoredBoundary, IStoredPositionInfo, Point } from "../control-core/layout";
-import { ControlInformationViewModel } from "../viewmodels/ControlInformationViewModel";
-import { UniqueId } from "../util/UniqueId";
-import { registerUndoHandler } from "../viewmodels/UndoRedoQueueViewModel";
-import { ControlCollectionViewModel } from "../viewmodels/ControlCollectionViewModel";
+import { EditorAppViewModel } from '../viewmodels/EditorAppViewModel';
+import { Anchor, AnchoredBoundary, IStoredPositionInfo, Point } from '../control-core/layout';
+import { ControlInformationViewModel } from '../viewmodels/ControlInformationViewModel';
+import { UniqueId } from '../util/UniqueId';
+import { registerUndoHandler } from '../viewmodels/UndoRedoQueueViewModel';
+import { ControlCollectionViewModel } from '../viewmodels/ControlCollectionViewModel';
 
 /**
  * Handles the mouse-interacts with controls to move them around; also selects controls when they're clicked.
  */
 export class ControlMovementManager {
-
   private _editorApp: EditorAppViewModel;
   private _canvasElement: HTMLElement;
   private lastPosition: Point;
@@ -22,7 +21,7 @@ export class ControlMovementManager {
   private editingControl: ControlMovementData | null;
 
   constructor(editorApp: EditorAppViewModel, canvasElement: HTMLElement) {
-    console.log("Detecting mouse clicks");
+    console.log('Detecting mouse clicks');
 
     this._editorApp = editorApp;
     this._canvasElement = canvasElement;
@@ -33,35 +32,40 @@ export class ControlMovementManager {
     this.mouseUpListener = () => this.onMouseUp();
     this.mouseMoveListener = (mouseEvent) => this.onMouseMove(mouseEvent);
     this.mouseDownListener = (e) => this.onMouseDown(e);
-    this.mouseClickListener = (e) => ControlMovementManager.onMouseClick(e);
+    this.mouseClickListener = (e) => this.onMouseClick(e);
 
-    this._canvasElement.addEventListener("click", this.mouseClickListener);
-    this._canvasElement.addEventListener("mousedown", this.mouseDownListener);
+    this._canvasElement.addEventListener('click', this.mouseClickListener);
+    this._canvasElement.addEventListener('mousedown', this.mouseDownListener);
   }
 
   /**
    *  Prevent clicks from going into controls so that the native handlers (like click or checkboxes) are triggered
    *  by the user moving around controls.
    */
-  private static onMouseClick(e: MouseEvent) : boolean | undefined {
-    let controlContainer = (e.target as HTMLElement).closest(".editable-control") as HTMLDivElement;
-    if (controlContainer != null) {
+  private onMouseClick(e: MouseEvent): boolean | undefined {
+    let controlContainer = (e.target as HTMLElement).closest('.editable-control') as HTMLDivElement;
+    if (controlContainer != null && !this.isRootElement(controlContainer)) {
       e.preventDefault();
       e.stopPropagation();
       return false;
+    } else {
+      this._editorApp.controls.clearSelection();
     }
   }
 
   /* ~ */
+  private isRootElement(element: HTMLElement) {
+    return element.classList.contains('~root');
+  }
+
+  /* ~ */
   private onMouseDown(mouseEvent: MouseEvent) {
-
     let targetElement = mouseEvent.target as HTMLElement;
-    let controlContainer = targetElement.closest(".editable-control") as HTMLDivElement;
+    let controlContainer = targetElement.closest('.editable-control') as HTMLDivElement;
 
-    if (controlContainer == null)
-      return;
+    if (controlContainer == null || this.isRootElement(controlContainer)) return;
 
-    let controlId = controlContainer.dataset.id as any as UniqueId;
+    let controlId = (controlContainer.dataset.id as any) as UniqueId;
     let controlVm = this._editorApp.controls.findControlById(controlId);
 
     controlVm.isSelected = true;
@@ -82,7 +86,7 @@ export class ControlMovementManager {
       controlVm,
       controlContainer,
       controlContainer.parentElement!,
-      sizeChange
+      sizeChange,
     );
 
     window.addEventListener('mousemove', this.mouseMoveListener);
@@ -111,15 +115,13 @@ export class ControlMovementManager {
   private onMouseUp() {
     this.removeWindowListeners();
 
-    if (this.editingControl != null
-      && this.editingControl.lastUpdatedBoundary != null) {
-
+    if (this.editingControl != null && this.editingControl.lastUpdatedBoundary != null) {
       this._editorApp.undoRedo.add(moveUndoHandler, {
         controlsVm: this._editorApp.controls,
         id: this.editingControl.control.id,
         startingPosition: this.editingControl.originalPosition,
-        endingPosition: this.editingControl.lastUpdatedBoundary?.clone()
-      })
+        endingPosition: this.editingControl.lastUpdatedBoundary?.clone(),
+      });
     }
 
     this.editingControl?.markMovementDone();
@@ -135,8 +137,8 @@ export class ControlMovementManager {
   public removeEventListeners() {
     this.removeWindowListeners();
 
-    this._canvasElement.removeEventListener("mousedown", this.mouseDownListener);
-    this._canvasElement.removeEventListener("click", this.mouseClickListener);
+    this._canvasElement.removeEventListener('mousedown', this.mouseDownListener);
+    this._canvasElement.removeEventListener('click', this.mouseClickListener);
   }
 }
 
@@ -144,7 +146,7 @@ export class ControlMovementManager {
  * The movement data for a single control
  */
 class ControlMovementData {
-  public readonly anchorAndBoundary: { anchor: number; boundaries: AnchoredBoundary } ;
+  public readonly anchorAndBoundary: { anchor: number; boundaries: AnchoredBoundary };
   public readonly sizeChange: Anchor;
 
   /**
@@ -162,8 +164,8 @@ class ControlMovementData {
     control: ControlInformationViewModel,
     controlContainer: HTMLDivElement,
     designCanvasElement: HTMLElement,
-    sizeChange: Anchor) {
-
+    sizeChange: Anchor,
+  ) {
     this.control = control;
     this.sizeChange = sizeChange;
     this.container = controlContainer;
@@ -246,10 +248,23 @@ class ControlMovementData {
   }
 }
 
-
 /** Gets a point that represents the given mouse location. */
 function getPosition(event: MouseEvent): Point {
   return new Point(event.clientX, event.clientY);
+}
+
+/**
+ * Apply the position info from the given viewmodel-control to the html in the running application.  This method
+ * requires that the control layout is as follows:
+ *     canvasHtmlElement
+ *        controlContainerElement
+ *           controlElement
+ */
+export function applyLayoutInfo(controlVm: ControlInformationViewModel) {
+  let controlContainer = controlVm.control.htmlRoot.parentElement as HTMLElement;
+  let canvasHtml = controlContainer.parentElement as HTMLElement;
+  let editStyle = determineEditStyle(controlVm.positionInfo, canvasHtml);
+  editStyle.boundaries.applyTo(controlContainer);
 }
 
 /**
@@ -257,8 +272,10 @@ function getPosition(event: MouseEvent): Point {
  * @param storedInfo the stored position information for the control
  * @param parent the parent container of the control
  */
-export function determineEditStyle(storedInfo: IStoredPositionInfo, parent: HTMLElement)
-  : {anchor: Anchor, boundaries: AnchoredBoundary} {
+export function determineEditStyle(
+  storedInfo: IStoredPositionInfo,
+  parent: HTMLElement,
+): { anchor: Anchor; boundaries: AnchoredBoundary } {
   let leftRightData = getAbsoluteOffsets(
     storedInfo.left!,
     storedInfo.right!,
@@ -308,7 +325,7 @@ function getAbsoluteOffsets(
   data: any,
   mode: string,
   aFlag: Anchor,
-): {offsetA: number, offsetB: number, anchor: Anchor} {
+): { offsetA: number; offsetB: number; anchor: Anchor } {
   let offsetA;
   let offsetB;
   let anchor = Anchor.none;

@@ -2,6 +2,7 @@
  * Simplify commonEditors.tsx (and consumers) by simply reexporting everything
  */
 
+export * from './~ColorPropertyEditor';
 export * from './~EnumPropertyEditor';
 export * from './~FontSizePropertyEditor';
 export * from './~InputPropertyEditors';

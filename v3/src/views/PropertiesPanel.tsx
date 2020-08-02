@@ -10,7 +10,7 @@ export const PropertiesPanel = observer(function PropertiesPanel(props: { app: E
 
   return (
     <>
-      <p>Properties</p>
+      <small>{selectedInfo.selectedControl.id}</small>
       {selectedInfo?.properties.map((p) => (
         <div key={p.property.id}>
           {React.createElement(observer(getFactory(p.property)), { property: p } as any)}
