@@ -6,6 +6,8 @@ import './index.css';
 import EditorApp from './views/EditorApp';
 import * as serviceWorker from './serviceWorker';
 
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
 ReactDOM.render(
   <React.StrictMode>
     <EditorApp />

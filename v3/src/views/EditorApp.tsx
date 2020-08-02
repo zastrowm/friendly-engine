@@ -3,10 +3,11 @@ import './App.css';
 import { DesignCanvas } from "./DesignCanvas";
 import { observer } from "mobx-react"
 import { EditorAppViewModel } from "../viewmodels/EditorAppViewModel";
+import { PropertiesPanel } from "./PropertiesPanel";
 
 let editorVm = new EditorAppViewModel();
 
-let EditorApp = observer(function App() {
+let EditorApp = observer(function EditorApp() {
   return (
     <div className="design-app">
       <header>
@@ -28,7 +29,7 @@ let EditorApp = observer(function App() {
         </div>
       </main>
       <aside>
-        <div>Panel</div>
+        <PropertiesPanel app={editorVm} />
       </aside>
     </div>
   );

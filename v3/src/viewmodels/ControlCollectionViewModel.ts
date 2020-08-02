@@ -1,22 +1,19 @@
-import { action, observable } from "mobx";
-import { UniqueId } from "../util/UniqueId";
+import { action, observable } from 'mobx';
+import { UniqueId } from '../util/UniqueId';
 import {
   ControlRegistry,
   IControlDescriptor,
   IControlSerializedData,
-  IDefaultControlValues,
   ISerializedPropertyBag,
-  snapLayout
-} from "../controls/@control";
-import { ControlInformationViewModel, IControlInformationViewModelOwner } from "./ControlInformationViewModel";
-import { registerCommonControls, rootControlDescriptor } from "../controls/@standardControls";
+} from '../controls/@control';
+import { ControlInformationViewModel, IControlInformationViewModelOwner } from './ControlInformationViewModel';
+import { registerCommonControls, rootControlDescriptor } from '../controls/@standardControls';
 
 /**
  * Responsible for the business logic of the canvas that allows adding/removing controls and managing layouts
  * of the controls
  */
 export class ControlCollectionViewModel implements IControlInformationViewModelOwner {
-
   @observable
   public controls: ControlInformationViewModel[];
 
@@ -41,7 +38,7 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
     this.root = new ControlInformationViewModel(this, rootControlDescriptor);
   }
 
-  public get descriptors(): IControlDescriptor[]  {
+  public get descriptors(): IControlDescriptor[] {
     return this._controlRegistry.getDescriptors();
   }
 
@@ -74,7 +71,7 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
       layoutInfo = {
         controls: layoutInfo as IControlSerializedData[],
         root: {
-          properties: { },
+          properties: {},
         },
       };
     }
@@ -94,7 +91,7 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
     }
 
     this.root = new ControlInformationViewModel(this, rootControlDescriptor);
-    let rootProperties = layoutInfo.root?.properties
+    let rootProperties = layoutInfo.root?.properties;
     if (rootProperties != null) {
       this.root.control.deserializeProperties(rootProperties);
     }
@@ -113,12 +110,12 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
    * Serializes the currently selected controls for easy deletion or copy/paste
    */
   public serializeSelected(): IControlSerializedData[] {
-    return Array.from(this.selectedControls.values()).map(c => c.control.serialize());
+    return Array.from(this.selectedControls.values()).map((c) => c.control.serialize());
   }
 
   @action
   public removeControlById(id: UniqueId) {
-    let index = this.controls.findIndex(c => c.id == id);
+    let index = this.controls.findIndex((c) => c.id === id);
     this.removeControlByIndex(index);
   }
 
@@ -133,7 +130,7 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
   }
 
   public findControlById(id: UniqueId): ControlInformationViewModel {
-    let control = this.controls.find(c => c.id === id);
+    let control = this.controls.find((c) => c.id === id);
     if (control == null) {
       throw new Error(`No control found with id ${id}`);
     }
@@ -162,12 +159,6 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
     } else {
       this.selectedControls.delete(control);
     }
-  }
-}
-
-export class PropertyViewModel {
-  constructor(public readonly key: string, public readonly value: any) {
-
   }
 }
 

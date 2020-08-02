@@ -1,7 +1,8 @@
-import { h } from '@friendly/elements/jsxElements';
+import * as React from 'react';
+import { CSSProperties } from 'react';
 
-export function Icon(props: { type: IconName; style?: string }) {
-  return <span class={'fas fa-' + props.type} style={props.style} />;
+export function Icon(props: { type: IconName; style?: CSSProperties }) {
+  return <span className={'fas fa-' + props.type} style={props.style} />;
 }
 
 declare type IconName =

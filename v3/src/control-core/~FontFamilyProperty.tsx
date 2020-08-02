@@ -1,4 +1,4 @@
-import { IEnumProperty, IProperty, PropertyType } from "./controlProperties";
+import { IEnumProperty, IProperty, PropertyType } from './controlProperties';
 
 let defaultValue = '<default>';
 
@@ -7,7 +7,7 @@ let fontValues = [defaultValue, 'Times New Roman', 'Consolas', 'Fira Code'].map(
   display: it,
 }));
 
-export const FontProperty: IProperty<HTMLElement, string> & IEnumProperty<string> = {
+export const FontFamilyProperty: IProperty<HTMLElement, string> & IEnumProperty<string> = {
   id: 'text.fontFamily',
   displayName: 'Font',
   propertyType: PropertyType.string | PropertyType.enum,
@@ -17,7 +17,7 @@ export const FontProperty: IProperty<HTMLElement, string> & IEnumProperty<string
   },
 
   setValue(element, value) {
-    if (value == defaultValue) {
+    if (value === defaultValue) {
       element.style.fontFamily = '';
     } else {
       element.style.fontFamily = value;

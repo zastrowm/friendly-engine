@@ -1,20 +1,21 @@
-import { ControlCollectionViewModel, ISavedLayoutInfo } from "./ControlCollectionViewModel";
-import { IControlDescriptor, IDefaultControlValues } from "../control-core/controlRegistry";
-import { registerUndoHandler, UndoRedoQueueViewModel } from "./UndoRedoQueueViewModel";
-import { IControlSerializedData } from "../control-core/propertyBag";
-import { ControlInformationViewModel } from "./ControlInformationViewModel";
-import { generateUniqueId } from "../util/UniqueId";
-import { action } from "mobx";
-
+import { ControlCollectionViewModel, ISavedLayoutInfo } from './ControlCollectionViewModel';
+import { IControlDescriptor, IDefaultControlValues } from '../control-core/controlRegistry';
+import { registerUndoHandler, UndoRedoQueueViewModel } from './UndoRedoQueueViewModel';
+import { IControlSerializedData } from '../control-core/propertyBag';
+import { ControlInformationViewModel } from './ControlInformationViewModel';
+import { generateUniqueId } from '../util/UniqueId';
+import { action } from 'mobx';
+import { SelectedControlInformation } from './EditableControlPropertiesViewModel';
 
 export class EditorAppViewModel {
-
   public readonly controls: ControlCollectionViewModel;
   public readonly undoRedo: UndoRedoQueueViewModel;
+  public readonly selectedInformation: SelectedControlInformation;
 
   constructor() {
     this.controls = new ControlCollectionViewModel();
     this.undoRedo = new UndoRedoQueueViewModel(this);
+    this.selectedInformation = new SelectedControlInformation(this.controls, this.undoRedo);
   }
 
   @action
@@ -58,7 +59,6 @@ export class EditorAppViewModel {
 
   @action
   public addControl(descriptor: IControlDescriptor) {
-
     let normalizedDefaults = EditorAppViewModel.createInitialValues(descriptor);
 
     // TODO copy the data
@@ -74,10 +74,10 @@ export class EditorAppViewModel {
       entries: [
         {
           descriptor: descriptor,
-          data: data
-        }
-      ]
-    })
+          data: data,
+        },
+      ],
+    });
   }
 
   /**
@@ -92,10 +92,10 @@ export class EditorAppViewModel {
     if (serializedControlData.length > 0) {
       this.undoRedo.add(removeControlsUndoHandler, {
         controlsVm: this.controls,
-        entries: serializedControlData.map(s => ({
-            descriptor: this.controls.findDescriptor(s.typeId),
-            data: s
-          }))
+        entries: serializedControlData.map((s) => ({
+          descriptor: this.controls.findDescriptor(s.typeId),
+          data: s,
+        })),
       });
     }
   }
@@ -132,7 +132,7 @@ export class EditorAppViewModel {
 }
 
 interface IUndoRemoveControlsArgs {
-  controlsVm: ControlCollectionViewModel,
+  controlsVm: ControlCollectionViewModel;
   entries: {
     descriptor: IControlDescriptor;
     data: IControlSerializedData;

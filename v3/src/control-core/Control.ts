@@ -1,7 +1,7 @@
 import { IControlDescriptor } from './controlRegistry';
 import { IStoredPositionInfo } from './layout';
 import { addValue, IControlSerializedData, ISerializedPropertyBag } from './propertyBag';
-import { UniqueId } from "../util/UniqueId";
+import { UniqueId } from '../util/UniqueId';
 
 /**
  * A Designer environment for a control. It is assumed
@@ -12,16 +12,16 @@ export interface IControlDesigner {
 
 /** Base class for all controls that can be created */
 export abstract class Control {
-  private _layout: IStoredPositionInfo|null = null;
-  private _designer: IControlDesigner|null = null;
+  private _layout: IStoredPositionInfo | null = null;
+  private _designer: IControlDesigner | null = null;
   private _rootElement!: HTMLElement;
 
   /** The id of the control */
-  public id: UniqueId|null = null;
+  public id: UniqueId | null = null;
 
   protected setRoot(root: HTMLElement) {
     if (this._rootElement != null) {
-      throw new Error('Root element has already been set')
+      throw new Error('Root element has already been set');
     }
 
     this._rootElement = root;
@@ -56,8 +56,7 @@ export abstract class Control {
    * @returns an object containing key-value pairs of the properties to persist
    */
   public serialize(): IControlSerializedData {
-    if (this.id == null)
-      throw new Error("null id");
+    if (this.id == null) throw new Error('null id');
 
     return {
       id: this.id,
@@ -90,7 +89,7 @@ export abstract class Control {
   public deserialize(data: IControlSerializedData) {
     let descriptor = this.descriptor;
 
-    if (data.typeId != descriptor.id) {
+    if (data.typeId !== descriptor.id) {
       throw new Error(
         `Control's descriptor ${descriptor.id} does not match the type id being deserialized ${data.typeId}`,
       );

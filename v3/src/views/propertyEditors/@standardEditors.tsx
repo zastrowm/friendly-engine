@@ -1,9 +1,6 @@
-import { IPropertyEditor, PropertyEditorRegistry } from '@/control/propertyEditor';
-import { h } from '@friendly/elements/jsxElements';
-
-import { assume } from '@/framework/util';
-
 import * as AllPropertyEditors from './~AllPropertyEditors';
+import { IPropertyEditor, PropertyEditorRegistry } from './propertyEditor';
+import { assume } from '../../util/util';
 
 let commonEditors: IPropertyEditor<any>[] = [];
 
@@ -12,8 +9,8 @@ for (let [key, value] of Object.entries(AllPropertyEditors)) {
   assume<IPropertyEditor<any>>(value);
 
   // do a sanity test
-  if (value.createEditorFor == null) {
-    console.error('Got a non property-editor', key, value);
+  if (value.factory == null) {
+    throw new Error(`Got a non property-editor with key of ${key}`);
   } else {
     commonEditors.push(value);
   }

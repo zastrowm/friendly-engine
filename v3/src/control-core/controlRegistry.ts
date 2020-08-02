@@ -3,7 +3,7 @@ import { LocalizedString } from '../util/localization';
 import { Control } from './Control';
 import { getControlPropertiesFor, IControlProperty, TextContentId } from './controlProperties';
 import { addValue, ISerializedPropertyBag, tryGetValue } from './propertyBag';
-import { action, computed, observable } from "mobx";
+import { action, observable } from 'mobx';
 
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
@@ -99,7 +99,7 @@ export class ReflectionBasedDescriptor<T extends Control> implements IControlDes
 
     let textId = TextContentId;
     let textProperty = this.getProperty<string>(textId);
-    if (textProperty != null && tryGetValue(properties, textProperty) == undefined) {
+    if (textProperty != null && tryGetValue(properties, textProperty) === undefined) {
       addValue(properties, textProperty, `${this.displayName}`);
     }
 
@@ -111,7 +111,7 @@ export class ReflectionBasedDescriptor<T extends Control> implements IControlDes
 
   public getProperty<T>(id: string): IControlProperty<T> {
     for (let prop of this.getProperties()) {
-      if (prop.id == id) {
+      if (prop.id === id) {
         return prop;
       }
     }

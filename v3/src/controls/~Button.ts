@@ -8,7 +8,7 @@ import {
 } from './@control';
 
 import {
-  FontProperty,
+  FontFamilyProperty,
   FontSizeProperty,
   Formatting,
   HorizontalAlignmentProperty,
@@ -36,14 +36,13 @@ const ClickActionProperty: IProperty<HTMLElement, Formatting> = {
 };
 
 export class Button extends Control {
-
   private readonly buttonElement: HTMLButtonElement;
 
   constructor() {
     super();
 
     this.buttonElement = document.createElement('button');
-    this.buttonElement.addEventListener("click", () => alert('hello'))
+    this.buttonElement.addEventListener('click', () => alert('hello'));
     this.setRoot(this.buttonElement);
   }
 
@@ -53,7 +52,7 @@ export class Button extends Control {
   @implementProperty(TextFormattingProperty, (c: Button) => c.buttonElement)
   public textFormatting!: Formatting;
 
-  @implementProperty(FontProperty, (c: Button) => c.buttonElement)
+  @implementProperty(FontFamilyProperty, (c: Button) => c.buttonElement)
   public fontFamily!: string;
 
   @implementProperty(FontSizeProperty, (c: Button) => c.buttonElement)
