@@ -7,6 +7,8 @@ import { generateUniqueId } from '../util/UniqueId';
 import { action } from 'mobx';
 import { SelectedControlInformation } from './EditableControlPropertiesViewModel';
 
+const AutoSaveLayoutName = '$autosave$';
+
 export class EditorAppViewModel {
   public readonly controls: ControlCollectionViewModel;
   public readonly undoRedo: UndoRedoQueueViewModel;
@@ -16,6 +18,13 @@ export class EditorAppViewModel {
     this.controls = new ControlCollectionViewModel();
     this.undoRedo = new UndoRedoQueueViewModel(this);
     this.selectedInformation = new SelectedControlInformation(this.controls, this.undoRedo);
+
+    this.loadLayout(AutoSaveLayoutName);
+  }
+
+  @action
+  public shutdown() {
+    this.saveLayout(AutoSaveLayoutName);
   }
 
   @action
@@ -35,7 +44,7 @@ export class EditorAppViewModel {
 
     let jsonLayout = window.localStorage.getItem(`layout_${layoutName}`);
     if (jsonLayout == null) {
-      alert('No layout saved');
+      console.log('No layout saved');
       return;
     }
 

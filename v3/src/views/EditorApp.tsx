@@ -26,7 +26,18 @@ let EditorApp = observer(function EditorApp() {
 
     hotkeys.setScope(scopeName);
 
-    return () => hotkeys.deleteScope(scopeName);
+    let isErrored = false;
+
+    window.addEventListener("error", () => isErrored = true)
+    window.addEventListener("unload", () => {
+      if (!isErrored) {
+        editorVm.shutdown();
+      }
+    });
+
+    return () => {
+      hotkeys.deleteScope(scopeName);
+    };
   }, []);
 
   return (

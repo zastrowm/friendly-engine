@@ -120,13 +120,3 @@ export abstract class Control {
     }
   }
 }
-
-/** Gets the container element that hosts the control */
-export function setControlDesigner(control: Control, owner: IControlDesigner) {
-  (control as any)._designer = owner;
-}
-
-/** Sets the container element that hosts the control */
-export function getControlDesigner(control: Control): IControlDesigner {
-  return (control as any)._designer;
-}
