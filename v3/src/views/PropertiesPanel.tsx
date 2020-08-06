@@ -2,7 +2,7 @@ import { EditorAppViewModel } from '../viewmodels/EditorAppViewModel';
 import React from 'react';
 import { observer } from 'mobx-react';
 import { PropertyEditorRegistry } from './propertyEditors/propertyEditor';
-import { addCommonPropertyEditors, TextPropertyEditor } from './propertyEditors/@standardEditors';
+import { addCommonPropertyEditors } from './propertyEditors/@standardEditors';
 import { IControlProperty } from '../controls/@properties';
 
 export const PropertiesPanel = observer(function PropertiesPanel(props: { app: EditorAppViewModel }) {
@@ -25,10 +25,5 @@ let editors = new PropertyEditorRegistry();
 addCommonPropertyEditors(editors);
 
 function getFactory(property: IControlProperty): React.FunctionComponent<any> {
-  try {
-    return editors.findEditorFor(property).factory;
-  } catch {
-    // TODO throw
-    return () => <small> {property.id} editor not found </small>;
-  }
+  return editors.findEditorFor(property).factory;
 }

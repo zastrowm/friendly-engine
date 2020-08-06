@@ -5,7 +5,7 @@ import { observer } from 'mobx-react';
 import './EditableControl.css';
 import { Anchor } from '../control-core/layout';
 import { ControlInformationViewModel } from '../viewmodels/ControlInformationViewModel';
-import { applyLayoutInfo, determineEditStyle } from './DesignCanvasMovementManager';
+import { applyLayoutInfo } from './DesignCanvasMovementManager';
 import { autorun } from 'mobx';
 
 interface IProps {

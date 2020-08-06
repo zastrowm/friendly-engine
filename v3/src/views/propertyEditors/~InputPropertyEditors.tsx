@@ -4,7 +4,7 @@ import { PropertyType } from '../../controls/@properties';
 
 export const BooleanPropertyEditor: IPropertyEditor<boolean> = {
   canProcess(property) {
-    return property.propertyType == PropertyType.boolean;
+    return property.propertyType === PropertyType.boolean;
   },
 
   factory: function TextPropertyEditor(props: IReactPropertyEditorArgs<boolean>) {
