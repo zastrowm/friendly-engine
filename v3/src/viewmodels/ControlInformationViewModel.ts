@@ -69,8 +69,8 @@ export class ControlInformationViewModel {
   }
 
   public set positionInfo(value: IStoredPositionInfo) {
-    this._positionAtom.reportChanged();
     this.control.layout = value;
+    this._positionAtom.reportChanged();
   }
 
   public get id(): UniqueId {

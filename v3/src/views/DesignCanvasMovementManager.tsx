@@ -44,7 +44,7 @@ export class ControlMovementManager {
    */
   private onMouseClick(e: MouseEvent): boolean | undefined {
     let controlContainer = (e.target as HTMLElement).closest('.editable-control') as HTMLDivElement;
-    if (controlContainer != null && !this.isRootElement(controlContainer)) {
+    if (controlContainer != null && !ControlMovementManager.isRootElement(controlContainer)) {
       e.preventDefault();
       e.stopPropagation();
       return false;
@@ -54,7 +54,7 @@ export class ControlMovementManager {
   }
 
   /* ~ */
-  private isRootElement(element: HTMLElement) {
+  private static isRootElement(element: HTMLElement) {
     return element.classList.contains('~root');
   }
 
@@ -63,7 +63,7 @@ export class ControlMovementManager {
     let targetElement = mouseEvent.target as HTMLElement;
     let controlContainer = targetElement.closest('.editable-control') as HTMLDivElement;
 
-    if (controlContainer == null || this.isRootElement(controlContainer)) return;
+    if (controlContainer == null || ControlMovementManager.isRootElement(controlContainer)) return;
 
     let controlId = (controlContainer.dataset.id as any) as UniqueId;
     let controlVm = this._editorApp.controls.findControlById(controlId);
@@ -233,7 +233,7 @@ class ControlMovementData {
     // if we've changed, go ahead and update the VM
     if (!boundaryInfo.equals(this.lastUpdatedBoundary)) {
       this.lastUpdatedBoundary = boundaryInfo;
-      this.control.positionInfo = this.lastUpdatedBoundary;
+      this.control.positionInfo = this.lastUpdatedBoundary!;
     }
   }
 

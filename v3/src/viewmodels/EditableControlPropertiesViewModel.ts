@@ -83,8 +83,8 @@ export class EditablePropertyViewModel<T> implements IEditablePropertyViewModel<
   }
 
   public updateValue(value: T, options: IPropertySetOptions | null = null) {
-    this.valueAtom.reportChanged();
     this.owner.setValue(this, value, options ?? {});
+    this.valueAtom.reportChanged();
   }
 }
 
