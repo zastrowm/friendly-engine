@@ -50,6 +50,6 @@
   width: 180px;
 }
 
-.design-app button[selected] {
+.design-app button[data-selected='true'] {
   background-color: #ccc;
 }
