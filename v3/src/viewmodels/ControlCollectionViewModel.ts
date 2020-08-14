@@ -1,6 +1,7 @@
-import { action, observable } from 'mobx';
+import { action, computed, observable } from 'mobx';
 import { UniqueId } from '../util/UniqueId';
 import {
+  Control,
   ControlRegistry,
   IControlDescriptor,
   IControlSerializedData,
@@ -47,6 +48,15 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
     return this._controlRegistry.getDescriptor(typeId);
   }
 
+  @computed
+  public get primarySelected(): ControlInformationViewModel | null {
+    for (let control of this.selectedControls) {
+      return control;
+    }
+
+    return null;
+  }
+
   @action
   public clearLayout() {
     this.controls.splice(0, this.controls.length);
@@ -56,11 +66,13 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
 
   @action
   public serializeLayout(): ISavedLayoutInfo {
+
     return {
       controls: this.controls.map((it) => it.control.serialize()),
       root: {
         properties: this.root.control.serializeProperties(),
       },
+      selected: this.primarySelected?.id ?? null,
     };
   }
 
@@ -74,6 +86,7 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
         root: {
           properties: {},
         },
+        selected: null,
       };
     }
 
@@ -87,7 +100,9 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
       this.controls.push(lastControl);
     }
 
-    if (lastControl != null) {
+    if (layoutInfo.selected != null) {
+      this.markSelected(this.findControlById(layoutInfo.selected), true);
+    } else if (lastControl != null) {
       this.markSelected(lastControl, true);
     }
 
@@ -180,4 +195,5 @@ export interface ISavedLayoutInfo {
     properties: ISerializedPropertyBag;
   };
   controls: IControlSerializedData[];
+  selected: UniqueId | null;
 }

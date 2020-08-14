@@ -10,11 +10,7 @@ export class SelectedControlInformation {
 
   @computed
   public get selectedControl(): ControlInformationViewModel {
-    for (let control of this._controls.selectedControls) {
-      return control;
-    }
-
-    return this._controls.root;
+    return this._controls.primarySelected ?? this._controls.root;
   }
 
   @computed
