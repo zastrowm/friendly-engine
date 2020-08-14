@@ -5,6 +5,7 @@ import { observer } from 'mobx-react';
 import { EditorAppViewModel } from '../viewmodels/EditorAppViewModel';
 import { PropertiesPanel } from './PropertiesPanel';
 import hotkeys from 'hotkeys-js';
+import { environment } from "../environment";
 
 let editorVm = new EditorAppViewModel();
 
@@ -30,9 +31,8 @@ let EditorApp = observer(function EditorApp() {
 
     window.addEventListener("error", () => isErrored = true)
     window.addEventListener("unload", () => {
-      if (!isErrored) {
-        editorVm.shutdown();
-      }
+      let shouldSave = environment.isProduction || !isErrored;
+      editorVm.shutdown();
     });
 
     return () => {
