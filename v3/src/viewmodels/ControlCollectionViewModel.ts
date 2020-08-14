@@ -1,7 +1,6 @@
 import { action, computed, observable } from 'mobx';
 import { UniqueId } from '../util/UniqueId';
 import {
-  Control,
   ControlRegistry,
   IControlDescriptor,
   IControlSerializedData,
@@ -50,6 +49,7 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
 
   @computed
   public get primarySelected(): ControlInformationViewModel | null {
+    // noinspection LoopStatementThatDoesntLoopJS
     for (let control of this.selectedControls) {
       return control;
     }

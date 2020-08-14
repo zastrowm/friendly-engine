@@ -5,9 +5,8 @@ import { EditorAppViewModel } from '../viewmodels/EditorAppViewModel';
 import { EditableControl } from './EditableControl';
 
 import './DesignCanvas.css';
-import { applyLayoutInfo, ControlMovementManager, determineEditStyle } from './DesignCanvasMovementManager';
+import { applyLayoutInfo, ControlMovementManager } from './DesignCanvasMovementManager';
 import { autorun } from 'mobx';
-import { ControlInformationViewModel } from '../viewmodels/ControlInformationViewModel';
 
 export const DesignCanvas = observer(function DesignCanvas(props: { app: EditorAppViewModel }) {
   const canvasControl = useRef<HTMLDivElement>(null);
