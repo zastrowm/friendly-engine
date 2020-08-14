@@ -31,7 +31,7 @@ let monacoLibs = new (class {
 
     return this._promise;
   }
-})
+})();
 
 /** The properties to CodeEditor */
 interface ICodeEditorProps {
