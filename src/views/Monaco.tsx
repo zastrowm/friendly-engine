@@ -14,14 +14,24 @@ declare class ResizeObserver {
 /** hack require so that we can use it to load monaco */
 let require = window["require"] as any
 
-let isMonacoLoaded = false;
+let monacoLibs = new (class {
+  private _promise: Promise<null> | null = null;
 
-let promise = new Promise<null>((resolve) => {
-  require(["vs/editor/editor.main"], function () {
-    resolve(null);
-    isMonacoLoaded = true;
-  });
-});
+  public isMonacoLoaded = false;
+
+  public getOrStartPromise(): Promise<null> {
+    if (this._promise == null) {
+      this._promise = new Promise<null>((resolve) => {
+        require(["vs/editor/editor.main"], () => {
+          this.isMonacoLoaded = true;
+          resolve(null);
+        });
+      });
+    }
+
+    return this._promise;
+  }
+})
 
 /** The properties to CodeEditor */
 interface ICodeEditorProps {
@@ -33,7 +43,7 @@ interface ICodeEditorProps {
  * Monaco based code editor
  */
 export function CodeEditor(props: ICodeEditorProps) {
-  let [isLoaded, setIsLoaded] = useState<boolean>(isMonacoLoaded);
+  let [isLoaded, setIsLoaded] = useState<boolean>(monacoLibs.isMonacoLoaded);
 
   useEffect(() => {
     if (isLoaded)
@@ -42,7 +52,7 @@ export function CodeEditor(props: ICodeEditorProps) {
     let isValid = true;
 
     (async function() {
-      await promise;
+      await monacoLibs.getOrStartPromise();
 
       if (isValid) {
         setIsLoaded(true);
@@ -55,7 +65,7 @@ export function CodeEditor(props: ICodeEditorProps) {
   }, []);
 
   if (!isLoaded) {
-    return <div>Loading...</div>
+    return <div>Loading Editor...</div>
   }
 
   return <CodeEditorImplementation code={props.code} codeGetter={props.codeGetter} />
