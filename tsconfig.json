@@ -1,33 +1,26 @@
 {
   "compilerOptions": {
-    /* warnings/errors */
-    "allowSyntheticDefaultImports": true,
-    "allowUnreachableCode": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    /* others */
-    "declaration": false,
+    "target": "ES6",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "module": "esnext",
-    "target": "ES2017",
-    "sourceMap": true,
+    "moduleResolution": "node",
     "resolveJsonModule": true,
-    "jsx": "react",
-    "jsxFactory": "h",
-    "baseUrl": "./",
-    "paths": {
-      "@friendly/elements/*": ["lib/friendly/elements/*"],
-      "@friendly/wapp/*": ["lib/friendly/wapp/*"],
-      /* Internal items */
-      "@/framework/*": ["src/framework/*"],
-      "@/control": ["src/controls/core/@control"],
-      "@/control/propertyEditor": ["src/controls/core/@propertyEditor"],
-      "@/control/standardProperties": ["src/controls/properties/@standardProperties"],
-      "@/control/standardEditors": ["src/controls/editors/@standardEditors"],
-      "@/control/standardControls": ["src/controls/@standardControls"]
-    }
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react"
   },
-  "include": ["src", "lib/friendly/elements", "lib/friendly/wapp"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src"
+  ]
 }

@@ -1,15 +1,14 @@
 import {
   Control,
-  IControlDescriptor,
-  IControlSerializedData,
   implementProperty,
-  ReflectionBasedDescriptor,
-} from '@/control';
-import { UniqueId } from '@/framework/util';
-import { BackgroundColorProperty } from '@/control/standardProperties';
+  IControlDescriptor,
+  ReflectionBasedDescriptor, IControlSerializedData,
+} from './@control';
+import { BackgroundColorProperty } from './@properties';
+import { UniqueId } from "../util/UniqueId";
 
 export class RootControl extends Control {
-  private containerElement: HTMLDivElement;
+  private readonly containerElement: HTMLDivElement;
 
   public static rootId: UniqueId = '~root' as any;
 
@@ -17,15 +16,12 @@ export class RootControl extends Control {
     super();
 
     this.id = RootControl.rootId;
+    this.containerElement = document.createElement('div');
+    this.setRoot(this.containerElement);
   }
 
   @implementProperty(BackgroundColorProperty, (c: RootControl) => c.containerElement)
-  public backgroundColor: string;
-
-  protected initialize(): HTMLElement {
-    this.containerElement = document.createElement('div');
-    return this.containerElement;
-  }
+  public backgroundColor!: string;
 
   /* override */
   public deserialize(data: IControlSerializedData) {

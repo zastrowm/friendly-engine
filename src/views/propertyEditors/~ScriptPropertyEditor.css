@@ -1,0 +1,38 @@
+
+dialog {
+  display: grid;
+
+  grid-template-areas:
+    "header"
+    "editor"
+    "actions";
+
+  grid-template-rows: auto 1fr auto;
+}
+
+h1 {
+  grid-area: header;
+  margin: 0;
+}
+
+.editor {
+  grid-area: editor;
+  border: 1px solid #ccc;
+}
+
+.actions {
+  grid-area: actions;
+  text-align: right;
+}
+
+.actions button {
+  margin: 0 3px 3px 3px;
+}
+
+dialog {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  top: 10px;
+  bottom: 10px;
+}

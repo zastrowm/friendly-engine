@@ -1,0 +1,55 @@
+.design-app h1 {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #fff;
+  padding: 0 12px;
+}
+
+.design-app {
+  display: grid;
+
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 1fr auto;
+
+  grid-template-areas:
+    'header header'
+    'main   properties';
+
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  left: 0px;
+}
+
+.design-app header {
+  background: #ff6a2b;
+  color: white;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+
+  grid-area: header;
+}
+
+.design-app main {
+  grid-area: main;
+  position: relative;
+  overflow: scroll;
+}
+
+.design-app main > div {
+  height: 100%;
+}
+
+.design-app aside {
+  grid-area: properties;
+  position: relative;
+  overflow: auto;
+  width: 180px;
+}
+
+.design-app button[data-selected='true'] {
+  background-color: #ccc;
+}

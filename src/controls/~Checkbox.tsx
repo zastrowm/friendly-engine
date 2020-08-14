@@ -1,4 +1,3 @@
-import { Fragment, h, renderToElement } from '@friendly/elements/jsxElements';
 import {
   Control,
   implementProperty,
@@ -6,15 +5,15 @@ import {
   PropertyType,
   IControlDescriptor,
   ReflectionBasedDescriptor,
-} from '@/control';
+} from './@control';
+
 import {
   FontSizeProperty,
   Formatting,
   HorizontalAlignmentProperty,
   TextContentProperty,
-  TextFormattingProperty,
-  VerticalAlignmentProperty,
-} from '@/control/standardProperties';
+  TextFormattingProperty, VerticalAlignmentProperty,
+} from './@properties';
 
 import './~Checkbox.css';
 
@@ -37,47 +36,47 @@ const CheckedProperty: IProperty<HTMLInputElement, boolean> = {
   },
 
   serializeValue(element) {
-    return element.checked === true;
+    return element.checked;
   },
 };
 
 export class Checkbox extends Control {
-  private input: HTMLInputElement;
-  private textElement: HTMLElement;
-  private root: HTMLElement;
+  private readonly input: HTMLInputElement;
+  private readonly textElement: HTMLElement;
+
+  constructor() {
+    super();
+
+    let root = document.createElement("div");
+    this.input = document.createElement("input");
+    this.input.type = "checkbox";
+    this.textElement = document.createElement("span");
+    root.appendChild(this.input);
+    root.appendChild(this.textElement);
+    this.setRoot(root);
+  }
 
   @implementProperty(TextContentProperty, (c: Checkbox) => c.textElement)
-  public text: string;
+  public text!: string;
 
   @implementProperty(TextFormattingProperty, (c: Checkbox) => c.root)
-  public textFormatting: Formatting;
+  public textFormatting!: Formatting;
 
   @implementProperty(FontSizeProperty, (c: Checkbox) => c.root)
-  public fontSize: number;
+  public fontSize!: number;
 
   @implementProperty(HorizontalAlignmentProperty, (c: Checkbox) => c.root)
-  public textAlignment: string;
+  public textAlignment!: string;
 
   @implementProperty(VerticalAlignmentProperty, (c: Checkbox) => c.root)
-  public verticalAlignment: string;
+  public verticalAlignment!: string;
 
+  // @ts-ignore
   @implementProperty(CheckedProperty, (c: Checkbox) => c.input)
-  public isChecked: boolean;
+  public isChecked!: boolean;
 
   public get descriptor(): IControlDescriptor<Checkbox> {
     return checkboxDescriptor;
-  }
-
-  protected initialize(): HTMLElement {
-    this.root = renderToElement(
-      'div',
-      <Fragment>
-        <input ref={(e) => (this.input = e)} type="checkbox" />
-        <span ref={(e) => (this.textElement = e)} />
-      </Fragment>,
-    );
-
-    return this.root;
   }
 }
 
