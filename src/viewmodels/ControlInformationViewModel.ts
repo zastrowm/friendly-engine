@@ -3,7 +3,7 @@ import { IControlDescriptor } from '../control-core/controlRegistry';
 import { IControlSerializedData } from '../control-core/propertyBag';
 import { createAtom, observable } from 'mobx';
 import { IStoredPositionInfo } from '../control-core/layout';
-import { UniqueId } from '../util/UniqueId';
+import { generateUniqueId, UniqueId } from '../util/UniqueId';
 import { Atom } from 'mobx/lib/core/atom';
 
 /**
@@ -47,6 +47,13 @@ export class ControlInformationViewModel {
 
     if (item != null) {
       this.control.deserialize(item);
+    } else {
+      this.control.deserialize({
+        typeId: descriptor.id,
+        properties: {},
+        position: {},
+        id: generateUniqueId(),
+      })
     }
   }
 
