@@ -68,7 +68,7 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
   public serializeLayout(): ISavedLayoutInfo {
 
     return {
-      controls: this.controls.map((it) => it.control.serialize()),
+      controls: this.controls.map((it) => it.serialize()),
       root: {
         properties: this.root.control.serializeProperties(),
       },
@@ -122,7 +122,7 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
    * Serializes the currently selected controls for easy deletion or copy/paste
    */
   public serializeSelected(): IControlSerializedData[] {
-    return Array.from(this.selectedControls.values()).map((c) => c.control.serialize());
+    return Array.from(this.selectedControls.values()).map((c) => c.serialize());
   }
 
   @action

@@ -83,4 +83,8 @@ export class ControlInformationViewModel {
   public get id(): UniqueId {
     return this.control.id!;
   }
+
+  public serialize(): IControlSerializedData {
+    return this.control.serialize();
+  }
 }

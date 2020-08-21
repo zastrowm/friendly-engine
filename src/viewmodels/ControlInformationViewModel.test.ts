@@ -49,8 +49,24 @@ test("setting a control as selected notifies parent", () => {
 test("Changing VM position changes control position", () => {
   let vm = new ControlInformationViewModel(owner, buttonDescriptor);
   vm.positionInfo = {
-    left: 10, right: 30
+    left: 103, right: 303
   };
 
-  expect(vm.control.layout).toStrictEqual({ left: 10, right: 30});
+  expect(vm.control.layout).toStrictEqual({ left: 103, right: 303});
+})
+
+test("Serialization works", () => {
+  let vm = new ControlInformationViewModel(owner, buttonDescriptor);
+  vm.positionInfo = {
+    left: 103, right: 303
+  };
+
+  let serialization = vm.serialize();
+  expect(serialization.id).toBe(vm.id);
+  expect(serialization.typeId).toBe(buttonDescriptor.id);
+  expect(serialization.position).toStrictEqual({
+    left: 103,
+    right: 303,
+  });
+  expect(serialization.properties).toBeEmpty();
 })
