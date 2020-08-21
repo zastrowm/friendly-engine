@@ -14,7 +14,7 @@ export const FontFamilyProperty: IProperty<HTMLElement, string> & IEnumProperty<
   propertyType: PropertyType.string | PropertyType.enum,
 
   getValue(element) {
-    if (element.style.fontFamily == defaultCssValue) {
+    if (element.style.fontFamily === defaultCssValue) {
       return defaultValue;
     } else {
       return element.style.fontFamily;
@@ -30,7 +30,7 @@ export const FontFamilyProperty: IProperty<HTMLElement, string> & IEnumProperty<
   },
 
   serializeValue(element) {
-    if (defaultCssValue == defaultCssValue) {
+    if (element.style.fontFamily === defaultCssValue) {
       return undefined;
     }
     return element.style.fontFamily;

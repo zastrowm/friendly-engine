@@ -15,7 +15,7 @@ export const RestrictedSubsetEnumPropertyEditor: IPropertyEditor<string> = {
   },
 
   factory: function TextPropertyEditor(props: IReactPropertyEditorArgs<string>) {
-    let property = (props.property.property as any) as IEnumProperty<any>;
+    let property = (props.property.property as any) as IEnumProperty<string>;
     let values = property.enumOptions.values;
 
     let currentIndex = 0;
@@ -33,7 +33,7 @@ export const RestrictedSubsetEnumPropertyEditor: IPropertyEditor<string> = {
     }
 
     let onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      props.property.value = e.target.value;
+      props.property.value = values[Number(e.target.value)].value;
     };
 
     return (
