@@ -37,7 +37,7 @@ const ClickActionProperty: IProperty<HTMLElement, string> = {
   /* override */
   serializeValue(element) {
     let script = (element as any).scriptsClick as string;
-    if (script == null || script.length == 0) {
+    if (script == null || script.length === 0) {
       return undefined;
     }
 
