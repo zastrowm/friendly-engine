@@ -1,3 +1,5 @@
+![Node.js CI](https://github.com/zastrowm/friendly-engine/workflows/Node.js%20CI/badge.svg)
+
 # Web-Based Editor
 
 Web-based WYSIWYG webpage editor intended to allow easily creation webpages without the need to modify HTML or CSS.
