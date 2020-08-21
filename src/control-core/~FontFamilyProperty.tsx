@@ -1,9 +1,9 @@
 import { IEnumProperty, IProperty, PropertyType } from './controlProperties';
 
-let defaultValue = '<default>';
+export const DefaultFontValue = '<default>';
 let defaultCssValue = '';
 
-let fontValues = [defaultValue, 'Times New Roman', 'Consolas', 'Fira Code'].map((it) => ({
+let fontValues = [DefaultFontValue, 'Times New Roman', 'Consolas', 'Fira Code'].map((it) => ({
   value: it.includes(' ') ? `"${it}"` : it,
   display: it,
 }));
@@ -15,14 +15,14 @@ export const FontFamilyProperty: IProperty<HTMLElement, string> & IEnumProperty<
 
   getValue(element) {
     if (element.style.fontFamily === defaultCssValue) {
-      return defaultValue;
+      return DefaultFontValue;
     } else {
       return element.style.fontFamily;
     }
   },
 
   setValue(element, value) {
-    if (value === defaultValue) {
+    if (value === DefaultFontValue) {
       element.style.fontFamily = defaultCssValue;
     } else {
       element.style.fontFamily = value;
