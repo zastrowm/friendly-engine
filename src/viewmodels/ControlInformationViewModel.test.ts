@@ -68,5 +68,5 @@ test("Serialization works", () => {
     left: 103,
     right: 303,
   });
-  expect(serialization.properties).toBeEmpty();
+  expect(serialization.properties).toStrictEqual({});
 })

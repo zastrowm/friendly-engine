@@ -19,7 +19,7 @@ import {
 /**
  * The text that should be shown when the button is clicked
  */
-const ClickActionProperty: IProperty<HTMLElement, Formatting> = {
+const ClickActionProperty: IProperty<HTMLElement, string> = {
   id: 'button.scripts.click',
   displayName: '',
   propertyType: PropertyType.script,
@@ -33,6 +33,16 @@ const ClickActionProperty: IProperty<HTMLElement, Formatting> = {
   setValue(element, value) {
     (element as any).scriptsClick = value;
   },
+
+  /* override */
+  serializeValue(element) {
+    let script = (element as any).scriptsClick as string;
+    if (script == null || script.length == 0) {
+      return undefined;
+    }
+
+    return script;
+  }
 };
 
 export class Button extends Control {

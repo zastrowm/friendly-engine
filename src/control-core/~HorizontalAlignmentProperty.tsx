@@ -14,6 +14,10 @@ export const HorizontalAlignmentProperty: IProperty<HTMLElement, string> = {
   },
 
   serializeValue(element: HTMLElement) {
-    return element.style.textAlign;
+    let alignment = element.style.textAlign;
+    if (alignment == '') {
+      return undefined;
+    }
+    return alignment;
   },
 };

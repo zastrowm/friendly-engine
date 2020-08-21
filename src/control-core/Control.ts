@@ -76,7 +76,9 @@ export abstract class Control {
     for (let prop of this.descriptor.getProperties()) {
       // TODO why do we need the bang operator
       let value = prop.serializeValue!(this);
-      addValue(propertyBag, prop, value);
+      if (value != undefined) {
+        addValue(propertyBag, prop, value);
+      }
     }
 
     return propertyBag;
