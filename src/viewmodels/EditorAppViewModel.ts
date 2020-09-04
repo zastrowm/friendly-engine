@@ -29,6 +29,11 @@ export interface IApplicationHost {
    * @param data the data to copy
    */
   copyToClipboard(data: ICopyPasteContents): void;
+
+  /**
+   * True if the app should automatically save & load the layout on startup/shutdown
+   */
+  shouldAutoLoad: boolean;
 }
 
 export class EditorAppViewModel {
@@ -45,12 +50,16 @@ export class EditorAppViewModel {
     this.undoRedo = new UndoRedoQueueViewModel(this);
     this.selectedInformation = new SelectedControlInformation(this.controls, this.undoRedo);
 
-    this.loadLayout(AutoSaveLayoutName);
+    if (this._host.shouldAutoLoad) {
+      this.loadLayout(AutoSaveLayoutName);
+    }
   }
 
   @action
   public shutdown() {
-    this.saveLayout(AutoSaveLayoutName);
+    if (this._host.shouldAutoLoad) {
+      this.saveLayout(AutoSaveLayoutName);
+    }
   }
 
   @action

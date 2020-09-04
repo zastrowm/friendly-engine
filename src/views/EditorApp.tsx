@@ -12,6 +12,10 @@ let browserHost = new (class implements IApplicationHost {
   private mimeTypeEngine = "engine/paste+data";
   private mimeTypePlain = "text/plain";
 
+  public get shouldAutoLoad() {
+    return true;
+  }
+
   public copyToClipboard(contents: ICopyPasteContents): void {
     // https://gist.github.com/lgarron/d1dee380f4ed9d825ca7
     let listener = (e: ClipboardEvent) => {
@@ -40,7 +44,7 @@ let browserHost = new (class implements IApplicationHost {
     let text = e.clipboardData.getData(this.mimeTypePlain);
     let data: string | null = e.clipboardData.getData(this.mimeTypeEngine);
 
-    if (data == "") {
+    if (data === "") {
       return {
         text
       };
@@ -51,7 +55,7 @@ let browserHost = new (class implements IApplicationHost {
       };
     }
   }
-});
+})();
 
 
 let editorVm = new EditorAppViewModel(browserHost);
