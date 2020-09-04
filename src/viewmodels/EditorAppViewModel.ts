@@ -6,15 +6,41 @@ import { ControlInformationViewModel } from './ControlInformationViewModel';
 import { generateUniqueId } from '../util/UniqueId';
 import { action } from 'mobx';
 import { SelectedControlInformation } from './EditableControlPropertiesViewModel';
+import { TextContentProperty } from "../control-core/~TextContentProperty";
 
 const AutoSaveLayoutName = '$autosave$';
 
+/**
+ * Data exchange format when interacting with the clipboard.
+ */
+export interface ICopyPasteContents {
+  /** The text representation of the data **/
+  text: string;
+  /** The serialied json representation of the data **/
+  data?: string;
+}
+
+/**
+ * The methods required for any host that wants to run the EditorAppViewModel
+ */
+export interface IApplicationHost {
+  /**
+   * Copy the given data into the clipboard
+   * @param data the data to copy
+   */
+  copyToClipboard(data: ICopyPasteContents): void;
+}
+
 export class EditorAppViewModel {
+  private _host: IApplicationHost;
+
   public readonly controls: ControlCollectionViewModel;
   public readonly undoRedo: UndoRedoQueueViewModel;
   public readonly selectedInformation: SelectedControlInformation;
 
-  constructor() {
+  constructor(host: IApplicationHost) {
+    this._host = host;
+
     this.controls = new ControlCollectionViewModel();
     this.undoRedo = new UndoRedoQueueViewModel(this);
     this.selectedInformation = new SelectedControlInformation(this.controls, this.undoRedo);
@@ -70,7 +96,6 @@ export class EditorAppViewModel {
   public addControl(descriptor: IControlDescriptor) {
     let normalizedDefaults = EditorAppViewModel.createInitialValues(descriptor);
 
-    // TODO copy the data
     let data: IControlSerializedData = {
       id: generateUniqueId(),
       typeId: descriptor.id,
@@ -107,6 +132,58 @@ export class EditorAppViewModel {
         })),
       });
     }
+  }
+
+  /**
+   *  Copies teh currently selected control to the clipboard
+   */
+  public async copySelected() {
+
+    let selected = this.controls.primarySelected;
+    if (selected == null) {
+      return;
+    }
+
+    let serialized = selected.serialize();
+    let asJson = JSON.stringify(serialized);
+
+    let descriptionText: string;
+    let property = selected.control.descriptor.getPropertyOrNull<string>(TextContentProperty.id);
+    if (property != null) {
+      let text = property.getValue(selected.control);
+      descriptionText = `${selected.control.descriptor.id}: ${text}`;
+    } else {
+      descriptionText = `${selected.control.descriptor.id}`;
+    }
+
+    this._host.copyToClipboard({
+      text: descriptionText,
+      data: asJson,
+    });
+  }
+
+  /**
+   *  Pastes the clipboard onto the canvas
+   */
+  public paste(contents: ICopyPasteContents) {
+    if (contents.data == null) {
+      return;
+    }
+
+    let data = JSON.parse(contents.data) as IControlSerializedData;
+
+    let descriptor = this.controls.findDescriptor(data.typeId);
+    data.id = generateUniqueId();
+
+    this.undoRedo.add(addControlsUndoHandler, {
+      controlsVm: this.controls,
+      entries: [
+        {
+          descriptor: descriptor,
+          data: data,
+        },
+      ],
+    });
   }
 
   /**
