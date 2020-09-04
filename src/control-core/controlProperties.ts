@@ -119,7 +119,13 @@ export interface IProperty<TOwner, TPropertyType> extends IPropertyInfo {
   /** Sets the value on the instance */
   setValue(owner: TOwner, value: TPropertyType): void;
   /** Serializes the value from the instance - may returned undefined */
-  serializeValue?: (data: TOwner) => TPropertyType | undefined;
+  serializeValue(data: TOwner): TPropertyType | undefined;
+
+  // we may eventually want these items:
+  //   /** True if the item currently has its default value **/
+  //   hasDefaultValue(data: TOwner): boolean;
+  //   /** Resets the value back to the default value */
+  //   resetValue(data: TOwner): void;
 }
 
 /**

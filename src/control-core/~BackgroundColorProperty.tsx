@@ -14,6 +14,11 @@ export const BackgroundColorProperty: IProperty<HTMLElement, string> = {
   },
 
   serializeValue(element: HTMLElement) {
-    return element.style.backgroundColor ?? undefined;
+    let value = element.style.backgroundColor;
+    if (value === "") {
+      return undefined;
+    }
+
+    return value;
   },
 };

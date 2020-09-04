@@ -1,6 +1,6 @@
-import { IProperty, PropertyType } from './controlProperties';
+import { IEnumProperty, IProperty, PropertyType } from './controlProperties';
 
-export const HorizontalAlignmentProperty: IProperty<HTMLElement, string> = {
+export const HorizontalAlignmentProperty: IProperty<HTMLElement, string> & IEnumProperty<string> = {
   id: 'text.alignment',
   displayName: 'Alignment',
   propertyType: PropertyType.string,
@@ -20,4 +20,26 @@ export const HorizontalAlignmentProperty: IProperty<HTMLElement, string> = {
     }
     return alignment;
   },
+
+  enumOptions: {
+    preexistingOnly: true,
+    values: [
+      {
+        value: '',
+        display: "<default>",
+      },
+      {
+        value: 'left',
+        display: "Left",
+      },
+      {
+        value: 'right',
+        display: "Right",
+      },
+      {
+        value: 'center',
+        display: "Center",
+      }
+    ]
+  }
 };
