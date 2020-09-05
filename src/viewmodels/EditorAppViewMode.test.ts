@@ -18,100 +18,177 @@ beforeEach(() => {
   copiedData = null;
 })
 
-test("Adding a button adds it", () => {
-  expect(viewModel.controls.controls.length).toBe(0);
+describe("adding controls", () => {
 
-  viewModel.addControl(buttonDescriptor);
-  expect(viewModel.controls.controls.length).toBe(1);
+  test("Adding a button adds it", () => {
+    expect(viewModel.controls.controls.length).toBe(0);
+
+    viewModel.addControl(buttonDescriptor);
+    expect(viewModel.controls.controls.length).toBe(1);
+  })
+
+  test("Adding a button selects it", () => {
+    viewModel.addControl(buttonDescriptor);
+    expect(viewModel.controls.primarySelected).not.toBeNull();
+  })
+
+  test("Adding can be undone", () => {
+    viewModel.addControl(buttonDescriptor);
+    expect(viewModel.controls.controls.length).toBe(1);
+    expect(viewModel.undoRedo.canUndo).toBeTruthy();
+    expect(viewModel.undoRedo.canRedo).toBeFalsy();
+
+    viewModel.undo();
+    expect(viewModel.controls.controls.length).toBe(0);
+    expect(viewModel.undoRedo.canUndo).toBeFalsy();
+    expect(viewModel.undoRedo.canRedo).toBeTruthy();
+  })
+
+  test("Adding can be undone & redone", () => {
+    viewModel.addControl(buttonDescriptor);
+    expect(viewModel.controls.controls.length).toBe(1);
+
+    viewModel.undo();
+    expect(viewModel.controls.controls.length).toBe(0);
+
+    viewModel.redo();
+    expect(viewModel.controls.controls.length).toBe(1);
+    expect(viewModel.undoRedo.canUndo).toBeTruthy();
+    expect(viewModel.undoRedo.canRedo).toBeFalsy();
+  })
 })
 
-test("Adding a button selects it", () => {
-  viewModel.addControl(buttonDescriptor);
-  expect(viewModel.controls.primarySelected).not.toBeNull();
+describe("removing controls", () => {
+  test("Removing a control works", () => {
+    viewModel.addControl(buttonDescriptor);
+    viewModel.addControl(checkboxDescriptor);
+    expect(viewModel.controls.controls.length).toBe(2);
+
+    viewModel.removeSelected();
+    expect(viewModel.controls.controls.length).toBe(1);
+
+    expect(viewModel.controls.controls[0].typeId).toBe(buttonDescriptor.id);
+  })
+
+  test("Removing non-last control works", () => {
+    viewModel.addControl(buttonDescriptor);
+    viewModel.addControl(checkboxDescriptor);
+    expect(viewModel.controls.controls.length).toBe(2);
+
+    selectControlAt(0);
+    viewModel.removeSelected();
+    expect(viewModel.controls.controls.length).toBe(1);
+
+    expect(viewModel.controls.controls[0].typeId).toBe(checkboxDescriptor.id);
+  })
+
+  test("Removing middle control works", () => {
+    viewModel.addControl(buttonDescriptor);
+    viewModel.addControl(checkboxDescriptor);
+    viewModel.addControl(labelDescriptor);
+    expect(viewModel.controls.controls.length).toBe(3);
+
+    selectControlAt(1);
+    viewModel.removeSelected();
+    expect(viewModel.controls.controls.length).toBe(2);
+
+    expect(viewModel.controls.controls[0].typeId).toBe(buttonDescriptor.id);
+    expect(viewModel.controls.controls[1].typeId).toBe(labelDescriptor.id);
+  })
+
+  test("Removing control is undoable", () => {
+    viewModel.addControl(buttonDescriptor);
+    viewModel.addControl(checkboxDescriptor);
+    viewModel.addControl(labelDescriptor);
+    expect(viewModel.controls.controls.length).toBe(3);
+
+    selectControlAt(1);
+    viewModel.removeSelected();
+    expect(viewModel.controls.controls.length).toBe(2);
+
+    viewModel.undo();
+    expect(viewModel.controls.controls.length).toBe(3);
+  })
+
+  test("Removing control is undoable & redoable", () => {
+    viewModel.addControl(buttonDescriptor);
+    viewModel.addControl(checkboxDescriptor);
+    viewModel.addControl(labelDescriptor);
+    expect(viewModel.controls.controls.length).toBe(3);
+
+    selectControlAt(1);
+    viewModel.removeSelected();
+    expect(viewModel.controls.controls.length).toBe(2);
+
+    viewModel.undo();
+    expect(viewModel.controls.controls.length).toBe(3);
+
+    viewModel.redo();
+    expect(viewModel.controls.controls.length).toBe(2);
+  })
 })
 
-test("Adding can be undone", () => {
-  viewModel.addControl(buttonDescriptor);
-  expect(viewModel.controls.controls.length).toBe(1);
-  expect(viewModel.undoRedo.canUndo).toBeTruthy();
-  expect(viewModel.undoRedo.canRedo).toBeFalsy();
+describe("copy/paste", () => {
 
-  viewModel.undo();
-  expect(viewModel.controls.controls.length).toBe(0);
-  expect(viewModel.undoRedo.canUndo).toBeFalsy();
-  expect(viewModel.undoRedo.canRedo).toBeTruthy();
+  test("Copy works", () => {
+    viewModel.addControl(buttonDescriptor);
+    viewModel.addControl(checkboxDescriptor);
+    expect(viewModel.controls.controls.length).toBe(2);
+    expect(viewModel.controls.primarySelected?.typeId).toBe(checkboxDescriptor.id);
+
+    viewModel.copySelected();
+    expect(copiedData).not.toBe(null);
+    expect(copiedData?.text).not.toBeNull();
+    expect(copiedData?.text).not.toEqual("");
+    expect(copiedData?.data).not.toBeNull();
+    expect(copiedData?.data).not.toEqual("");
+  })
+
+  test("Copy does nothing if nothing is selected", () => {
+    viewModel.addControl(buttonDescriptor);
+    viewModel.addControl(checkboxDescriptor);
+    expect(viewModel.controls.controls.length).toBe(2);
+    viewModel.controls.primarySelected!.isSelected = false;
+
+    viewModel.copySelected();
+    expect(copiedData).toBe(null);
+  })
+
+  test("Copy & paste works", () => {
+    viewModel.addControl(buttonDescriptor);
+    viewModel.addControl(checkboxDescriptor);
+    expect(viewModel.controls.controls.length).toBe(2);
+    expect(viewModel.controls.primarySelected?.typeId).toBe(checkboxDescriptor.id);
+
+    let previousIds = new Set(viewModel.controls.controls.map(c => c.id));
+    viewModel.copySelected();
+    expect(copiedData).not.toBe(null);
+
+    viewModel.paste(copiedData!);
+    expect(viewModel.controls.controls.length).toBe(3);
+    let newControl = viewModel.controls.primarySelected!;
+    expect(previousIds.has(newControl.id)).toBe(false)
+  })
+
+  test("Copy & paste is undoable", verifyUndoRedoEachYield(function*() {
+    viewModel.addControl(buttonDescriptor);
+    yield;
+    viewModel.addControl(checkboxDescriptor);
+    yield;
+
+    viewModel.copySelected();
+    viewModel.paste(copiedData!);
+    yield;
+    expect(viewModel.controls.controls.length).toBe(3);
+
+    viewModel.undo();
+    expect(viewModel.controls.controls.length).toBe(2);
+
+    viewModel.redo();
+    expect(viewModel.controls.controls.length).toBe(3);
+  }))
 })
 
-test("Adding can be undone & redone", () => {
-  viewModel.addControl(buttonDescriptor);
-  expect(viewModel.controls.controls.length).toBe(1);
-
-  viewModel.undo();
-  expect(viewModel.controls.controls.length).toBe(0);
-
-  viewModel.redo();
-  expect(viewModel.controls.controls.length).toBe(1);
-  expect(viewModel.undoRedo.canUndo).toBeTruthy();
-  expect(viewModel.undoRedo.canRedo).toBeFalsy();
-})
-
-test("Copy works", () => {
-  viewModel.addControl(buttonDescriptor);
-  viewModel.addControl(checkboxDescriptor);
-  expect(viewModel.controls.controls.length).toBe(2);
-  expect(viewModel.controls.primarySelected?.typeId).toBe(checkboxDescriptor.id);
-
-  viewModel.copySelected();
-  expect(copiedData).not.toBe(null);
-  expect(copiedData?.text).not.toBeNull();
-  expect(copiedData?.text).not.toEqual("");
-  expect(copiedData?.data).not.toBeNull();
-  expect(copiedData?.data).not.toEqual("");
-})
-
-test("Copy does nothing if nothing is selected", () => {
-  viewModel.addControl(buttonDescriptor);
-  viewModel.addControl(checkboxDescriptor);
-  expect(viewModel.controls.controls.length).toBe(2);
-  viewModel.controls.primarySelected!.isSelected = false;
-
-  viewModel.copySelected();
-  expect(copiedData).toBe(null);
-})
-
-test("Copy & paste works", () => {
-  viewModel.addControl(buttonDescriptor);
-  viewModel.addControl(checkboxDescriptor);
-  expect(viewModel.controls.controls.length).toBe(2);
-  expect(viewModel.controls.primarySelected?.typeId).toBe(checkboxDescriptor.id);
-
-  let previousIds = new Set(viewModel.controls.controls.map(c => c.id));
-  viewModel.copySelected();
-  expect(copiedData).not.toBe(null);
-
-  viewModel.paste(copiedData!);
-  expect(viewModel.controls.controls.length).toBe(3);
-  let newControl = viewModel.controls.primarySelected!;
-  expect(previousIds.has(newControl.id)).toBe(false)
-})
-
-test("Copy & paste is undoable", verifyUndoRedoEachYield(function*() {
-  viewModel.addControl(buttonDescriptor);
-  yield;
-  viewModel.addControl(checkboxDescriptor);
-  yield;
-
-  viewModel.copySelected();
-  viewModel.paste(copiedData!);
-  yield;
-  expect(viewModel.controls.controls.length).toBe(3);
-
-  viewModel.undo();
-  expect(viewModel.controls.controls.length).toBe(2);
-
-  viewModel.redo();
-  expect(viewModel.controls.controls.length).toBe(3);
-}))
 
 test("Extensive undo/redo tests", verifyUndoRedoEachYield(function*() {
   viewModel.addControl(buttonDescriptor);
