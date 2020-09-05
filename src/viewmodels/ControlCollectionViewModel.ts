@@ -110,19 +110,17 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
   }
 
   @action
-  public addControl(descriptor: IControlDescriptor, data: IControlSerializedData): ControlInformationViewModel {
+  public addControl(descriptor: IControlDescriptor, data: IControlSerializedData, index: number | null = null): ControlInformationViewModel {
     let newControl = new ControlInformationViewModel(this, descriptor, data);
     newControl.isSelected = true;
-    this.controls.push(newControl);
 
+    if (index != null && index >= 0 && index < this.controls.length) {
+      // maintain the previous index (in the case where we're restoring a deleted control)
+      this.controls.splice(index, 0, newControl);
+    } else {
+      this.controls.push(newControl);
+    }
     return newControl;
-  }
-
-  /**
-   * Serializes the currently selected controls for easy deletion or copy/paste
-   */
-  public serializeSelected(): IControlSerializedData[] {
-    return Array.from(this.selectedControls.values()).map((c) => c.serialize());
   }
 
   @action

@@ -126,6 +126,31 @@ describe("removing controls", () => {
     viewModel.redo();
     expect(viewModel.controls.controls.length).toBe(2);
   })
+
+  test("Removing control extensive undo/redo tests", verifyUndoRedoEachYield(function* () {
+    viewModel.addControl(buttonDescriptor);
+    viewModel.addControl(checkboxDescriptor);
+    viewModel.addControl(labelDescriptor);
+    expect(viewModel.controls.controls.length).toBe(3);
+
+    // removing from the end
+    selectControlAt(2);
+    viewModel.removeSelected();
+    yield;
+    viewModel.undo();
+
+    // removing from the middle
+    selectControlAt(1);
+    viewModel.removeSelected();
+    yield;
+    viewModel.undo();
+
+    // removing from the front
+    selectControlAt(0);
+    viewModel.removeSelected();
+    yield;
+    viewModel.undo();
+  }))
 })
 
 describe("copy/paste", () => {
@@ -225,16 +250,21 @@ function selectControlAt(index: number) {
 function verifyUndoRedoSerialization() {
   let serializationStack = [];
 
+  let maxTimes = 0;
+
   while (viewModel.undoRedo.canUndo) {
     let serialized = viewModel.controls.serializeLayout();
+    // we don't guarantee to preserve the selected control during undo/redo
     serialized.selected = null;
     serializationStack.push(serialized);
     viewModel.undo();
+    maxTimes++;
   }
 
-  for (let i = 0; viewModel.undoRedo.canRedo; i++) {
+  for (let i = 0; i < maxTimes && viewModel.undoRedo.canRedo; i++) {
     viewModel.redo();
     let serialized = viewModel.controls.serializeLayout();
+    // we don't guarantee to preserve the selected control during undo/redo
     serialized.selected = null;
     let expected = serializationStack.pop();
 

@@ -118,6 +118,7 @@ export class EditorAppViewModel {
         {
           descriptor: descriptor,
           data: data,
+          insertionPosition: null,
         },
       ],
     });
@@ -128,17 +129,28 @@ export class EditorAppViewModel {
    */
   @action
   public removeSelected() {
-    let serializedControlData = this.controls.serializeSelected();
+    let removedControlsInfo: IUndoAddRemoveControlInfo[] = [];
+    let controlsArr = this.controls.controls;
 
-    // Because we remove the root control if it was present, it's possible to end up with an empty list - in that
-    // case, we don't want to add an undo entry
-    if (serializedControlData.length > 0) {
+    for (let i = 0; i < controlsArr.length; i++) {
+      let controlVm = controlsArr[i];
+      if (!controlVm.isSelected) {
+        continue;
+      }
+
+      removedControlsInfo.push({
+        descriptor: controlVm.control.descriptor,
+        data: controlVm.serialize(),
+        insertionPosition: i
+      });
+    }
+
+    // Because we remove the root control if it was present, it's possible to end up with an empty
+    // list - in that case, we don't want to add an undo entry
+    if (removedControlsInfo.length > 0) {
       this.undoRedo.add(removeControlsUndoHandler, {
         controlsVm: this.controls,
-        entries: serializedControlData.map((s) => ({
-          descriptor: this.controls.findDescriptor(s.typeId),
-          data: s,
-        })),
+        entries: removedControlsInfo
       });
     }
   }
@@ -190,6 +202,7 @@ export class EditorAppViewModel {
         {
           descriptor: descriptor,
           data: data,
+          insertionPosition: null,
         },
       ],
     });
@@ -226,12 +239,15 @@ export class EditorAppViewModel {
   }
 }
 
+interface IUndoAddRemoveControlInfo {
+  insertionPosition: number | null;
+  descriptor: IControlDescriptor;
+  data: IControlSerializedData;
+}
+
 interface IUndoRemoveControlsArgs {
   controlsVm: ControlCollectionViewModel;
-  entries: {
-    descriptor: IControlDescriptor;
-    data: IControlSerializedData;
-  }[];
+  entries: IUndoAddRemoveControlInfo[];
 }
 
 let addControlsUndoHandler = registerUndoHandler<IUndoRemoveControlsArgs>('addControls', () => ({
@@ -267,7 +283,7 @@ let removeControlsUndoHandler = registerUndoHandler<IUndoRemoveControlsArgs>('re
     let lastAdded: ControlInformationViewModel | null = null;
 
     for (let entry of this.entries) {
-      lastAdded = this.controlsVm.addControl(entry.descriptor, entry.data);
+      lastAdded = this.controlsVm.addControl(entry.descriptor, entry.data, entry.insertionPosition);
     }
 
     if (lastAdded != null) {
