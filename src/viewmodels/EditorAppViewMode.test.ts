@@ -1,6 +1,7 @@
 import { EditorAppViewModel, IApplicationHost, ICopyPasteContents } from "./EditorAppViewModel";
 import { buttonDescriptor } from "../controls/~Button";
 import { checkboxDescriptor } from "../controls/~Checkbox";
+import { labelDescriptor } from "../controls/~Label";
 
 let viewModel: EditorAppViewModel;
 let hostMock: IApplicationHost;
@@ -93,3 +94,89 @@ test("Copy & paste works", () => {
   let newControl = viewModel.controls.primarySelected!;
   expect(previousIds.has(newControl.id)).toBe(false)
 })
+
+test("Copy & paste is undoable", verifyUndoRedoEachYield(function*() {
+  viewModel.addControl(buttonDescriptor);
+  yield;
+  viewModel.addControl(checkboxDescriptor);
+  yield;
+
+  viewModel.copySelected();
+  viewModel.paste(copiedData!);
+  yield;
+  expect(viewModel.controls.controls.length).toBe(3);
+
+  viewModel.undo();
+  expect(viewModel.controls.controls.length).toBe(2);
+
+  viewModel.redo();
+  expect(viewModel.controls.controls.length).toBe(3);
+}))
+
+test("Extensive undo/redo tests", verifyUndoRedoEachYield(function*() {
+  viewModel.addControl(buttonDescriptor);
+  yield;
+  viewModel.addControl(checkboxDescriptor);
+  yield;
+
+  viewModel.addControl(labelDescriptor);
+  yield;
+
+  expect(viewModel.controls.controls.length).toBe(3);
+  selectControlAt(1);
+  viewModel.copySelected();
+  viewModel.paste(copiedData!);
+  yield;
+
+  viewModel.addControl(checkboxDescriptor);
+  yield;
+
+  expect(viewModel.controls.controls.length).toBe(5);
+}))
+
+/**
+ * Make the control at the specified index the currently selected item.
+ */
+function selectControlAt(index: number) {
+  viewModel.controls.controls[index].isSelected = true;
+}
+
+/**
+ * Verify that if we undo every undoable item then redo every redoable item, the states end up
+ * serializing the same (excluding the currently selected item).
+ */
+function verifyUndoRedoSerialization() {
+  let serializationStack = [];
+
+  while (viewModel.undoRedo.canUndo) {
+    let serialized = viewModel.controls.serializeLayout();
+    serialized.selected = null;
+    serializationStack.push(serialized);
+    viewModel.undo();
+  }
+
+  for (let i = 0; viewModel.undoRedo.canRedo; i++) {
+    viewModel.redo();
+    let serialized = viewModel.controls.serializeLayout();
+    serialized.selected = null;
+    let expected = serializationStack.pop();
+
+    expect(serialized).toEqualWithMessage(expected, `After undoing then redoing operation #${i + 1}`);
+  }
+}
+
+/**
+ * Every time the generator yields, call verifyUndoRedoSerialization
+ * @param callback
+ */
+function verifyUndoRedoEachYield(callback: () => Generator) {
+  return function() {
+    let generator = callback();
+
+    while (!generator.next().done) {
+      verifyUndoRedoSerialization();
+    }
+
+    verifyUndoRedoSerialization();
+  }
+}
