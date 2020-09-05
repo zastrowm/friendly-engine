@@ -27,8 +27,11 @@ export interface IControlDescriptor<T extends Control = Control> {
   /** Gets the editable properties for the given element. */
   getProperties(): IControlProperty[];
 
-  /** Gets a property with the given name */
+  /** Gets a property with the given name, throwing an exception if it does not exist. */
   getProperty<T>(id: string): IControlProperty<T>;
+
+  /** Gets a property with the given name, returning null if it does not exist */
+  getPropertyOrNull<T>(id: string): IControlProperty<T> | null;
 
   /** Gets the default control properties if none are provided */
   getDefaultValues(): IDefaultControlValues;
@@ -110,12 +113,21 @@ export class ReflectionBasedDescriptor<T extends Control> implements IControlDes
   }
 
   public getProperty<T>(id: string): IControlProperty<T> {
+    let property = this.getPropertyOrNull<T>(id);
+    if (property != null) {
+      return property;
+    }
+
+    throw new Error(`Property with id ${id} does not exist`);
+  }
+
+  public getPropertyOrNull<T>(id: string): IControlProperty<T> | null {
     for (let prop of this.getProperties()) {
       if (prop.id === id) {
         return prop;
       }
     }
 
-    throw new Error(`Property with id ${id} does not exist`);
+    return null;
   }
 }

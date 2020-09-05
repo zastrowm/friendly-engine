@@ -1,3 +1,4 @@
+import { action, computed, observable } from "mobx";
 
 interface IContextProvider {
   context: IContext;
@@ -89,7 +90,9 @@ export interface IContext {}
  * Represents a queue of commands that can be done/undone.
  */
 export class UndoRedoQueueViewModel {
+  @observable
   private readonly undoQueue: UndoEntry<any>[] = [];
+  @observable
   private readonly redoQueue: UndoEntry<any>[] = [];
 
   private readonly context: IContext;
@@ -99,12 +102,29 @@ export class UndoRedoQueueViewModel {
   }
 
   /**
+   * True if we can currently undo the last operation that was done
+   */
+  @computed
+  public get canUndo(): boolean {
+    return this.undoQueue.length > 0;
+  }
+
+  /**
+   * True if we can currently redo the last operation that was undone.
+   */
+  @computed
+  public get canRedo(): boolean {
+    return this.redoQueue.length > 0;
+  }
+
+  /**
    * Adds an undo action to the queue.  If the undo action has a .do method, it will
    * be invoked.  This operation clears the redo queue.
    *
    * @param command the undo descriptor to be added to the queue
    * @param data the data for the descriptor
    */
+  @action
   public add<T>(command: ICommandCreator<T>, data: T) {
     let undoEntry = new UndoEntry<T>(command as CommandCreator<T>, data);
     undoEntry.initialize(this.context);
@@ -125,32 +145,35 @@ export class UndoRedoQueueViewModel {
   /**
    * Calls `IUndoCommand.undo()` on the first command in the undo queue
    */
+  @action
   public async undo(): Promise<void> {
-    if (this.undoQueue.length === 0) {
+    if (!this.canUndo) {
       return;
     }
 
     let undoEntry = this.undoQueue.pop()!;
-    await undoEntry.undo(this.context);
+    undoEntry.undo(this.context);
     this.redoQueue.push(undoEntry);
   }
 
   /**
    * Calls `IUndoCommand.redo()` on the first command in the redo queue
    */
+  @action
   public async redo(): Promise<void> {
-    if (this.redoQueue.length === 0) {
+    if (!this.canRedo) {
       return;
     }
 
     let redoEntry = this.redoQueue.pop()!;
-    await redoEntry.redo(this.context);
+    redoEntry.redo(this.context);
     this.undoQueue.push(redoEntry);
   }
 
   /**
    * Clears the undo/redo queue
    */
+  @action
   public clear() {
     this.redoQueue.length = 0;
     this.undoQueue.length = 0;

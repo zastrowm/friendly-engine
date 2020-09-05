@@ -1,14 +1,74 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import './App.css';
 import { DesignCanvas } from './DesignCanvas';
 import { observer } from 'mobx-react';
-import { EditorAppViewModel } from '../viewmodels/EditorAppViewModel';
+import { EditorAppViewModel, IApplicationHost, ICopyPasteContents } from '../viewmodels/EditorAppViewModel';
 import { PropertiesPanel } from './PropertiesPanel';
 import hotkeys from 'hotkeys-js';
 
-let editorVm = new EditorAppViewModel();
+
+let browserHost = new (class implements IApplicationHost {
+
+  private mimeTypeEngine = "engine/paste+data";
+  private mimeTypePlain = "text/plain";
+
+  public get shouldAutoLoad() {
+    return true;
+  }
+
+  public copyToClipboard(contents: ICopyPasteContents): void {
+    // https://gist.github.com/lgarron/d1dee380f4ed9d825ca7
+    let listener = (e: ClipboardEvent) => {
+      e.clipboardData!.setData(this.mimeTypePlain, contents.text);
+
+      if (contents.data != null) {
+        e.clipboardData!.setData(this.mimeTypeEngine, contents.data);
+      }
+
+      e.preventDefault();
+    };
+
+    try {
+      document.addEventListener("copy", listener);
+      document.execCommand("copy");
+    } finally {
+      document.removeEventListener("copy", listener);
+    }
+  }
+
+  public retrieveData(e: ClipboardEvent): ICopyPasteContents | null {
+    if (e.clipboardData == null) {
+      return null;
+    }
+
+    let text = e.clipboardData.getData(this.mimeTypePlain);
+    let data: string | null = e.clipboardData.getData(this.mimeTypeEngine);
+
+    if (data === "") {
+      return {
+        text
+      };
+    } else {
+      return {
+        text,
+        data
+      };
+    }
+  }
+})();
+
+
+let editorVm = new EditorAppViewModel(browserHost);
 
 let EditorApp = observer(function EditorApp() {
+
+  let pasteCallback = useCallback((event: ClipboardEvent) => {
+    let data = browserHost.retrieveData(event);
+    if (data != null) {
+      editorVm.paste(data);
+    }
+  }, []);
+
   useEffect(() => {
     const scopeName = 'app';
 
@@ -21,10 +81,13 @@ let EditorApp = observer(function EditorApp() {
 
     add('ctrl+z', () => editorVm.undo());
     add('ctrl+y', () => editorVm.redo());
+    add('ctrl+c', () => editorVm.copySelected());
     add('delete', () => editorVm.removeSelected());
     add('ctrl+n', () => editorVm.clearLayout());
 
     hotkeys.setScope(scopeName);
+
+    (window as any).addEventListener("paste", pasteCallback);
 
     window.addEventListener("unload", () => {
       editorVm.shutdown();
@@ -32,8 +95,9 @@ let EditorApp = observer(function EditorApp() {
 
     return () => {
       hotkeys.deleteScope(scopeName);
+      (window as any).removeEventListener("paste", pasteCallback);
     };
-  }, []);
+  }, [pasteCallback]);
 
   return (
     <div className="design-app">
@@ -46,6 +110,7 @@ let EditorApp = observer(function EditorApp() {
           </button>
         ))}
         <button onClick={() => editorVm.removeSelected()}>Delete</button>
+        <button onClick={() => editorVm.copySelected()}>Copy</button>
         <button onClick={() => editorVm.undo()}>Undo</button>
         <button onClick={() => editorVm.redo()}>Redo</button>
         <button onClick={() => editorVm.saveLayout('manual')}>Save Layout</button>
