@@ -1,10 +1,7 @@
-import { Control } from '../control-core/Control';
-import { IControlDescriptor } from '../control-core/controlRegistry';
-import { IControlSerializedData } from '../control-core/propertyBag';
 import { createAtom, observable } from 'mobx';
-import { IStoredPositionInfo } from '../control-core/layout';
 import { generateUniqueId, UniqueId } from '../util/UniqueId';
 import { Atom } from 'mobx/lib/core/atom';
+import { ControlPositioning, IControlSerializedData, IControlDescriptor, Control } from "../controls/@control";
 
 /**
  * Interface for an object that owns a control and needs to be notified when the control is
@@ -70,14 +67,8 @@ export class ControlInformationViewModel {
     this._owner.markSelected(this, value);
   }
 
-  public get positionInfo(): IStoredPositionInfo {
-    this._positionAtom.reportObserved();
-    return this.control.layout;
-  }
-
-  public set positionInfo(value: IStoredPositionInfo) {
-    this.control.layout = value;
-    this._positionAtom.reportChanged();
+  public get position(): ControlPositioning {
+    return this.control.position;
   }
 
   public get id(): UniqueId {

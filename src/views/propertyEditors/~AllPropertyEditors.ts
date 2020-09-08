@@ -11,3 +11,4 @@ export * from './~TextFormattingPropertyEditor';
 export * from './~TextAlignmentHorizontalPropertyEditor';
 export * from './~TextAlignmentVerticalPropertyEditor';
 export * from './~TextPropertyEditor';
+export * from './~FallbackPropertyEditor';

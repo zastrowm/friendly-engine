@@ -1,9 +1,10 @@
 import { IStoredPositionInfo } from './layout';
 import { LocalizedString } from '../util/localization';
 import { Control } from './Control';
-import { getControlPropertiesFor, IControlProperty, TextContentId } from './controlProperties';
+import { getControlPropertiesFor, IControlProperty, IProperty, TextContentId } from './controlProperties';
 import { addValue, ISerializedPropertyBag, tryGetValue } from './propertyBag';
 import { action, observable } from 'mobx';
+import { PositionProperty } from "./~PositionProperty";
 
 /**
  * Holds information about the controls that can be edited via the design surface.  It is
@@ -74,20 +75,39 @@ export class ControlRegistry {
   }
 }
 
+/** Options that configure how ReflectionBasedDescriptor operates */
+interface ReflectionBasedOptions {
+  supportsMovement?: boolean;
+}
+
+/** The default options for ReflectionBasedDescriptor */
+let defaultOptions: Required<ReflectionBasedOptions> = {
+  supportsMovement: true,
+};
+
 /**
  * Creates an instance of IControlDescriptor based on information provided by the @implementProperty decorator
  * on a control
  */
 export class ReflectionBasedDescriptor<T extends Control> implements IControlDescriptor<T> {
+  private readonly _properties: IProperty<Control, any>[];
+
   constructor(
     public readonly id: string,
     public readonly displayName: LocalizedString,
     private readonly typeDef: new () => T,
     private readonly defaultValuesCreator?: () => IDefaultControlValues,
-  ) {}
+    private options: ReflectionBasedOptions = defaultOptions,
+  ) {
+    this._properties = getControlPropertiesFor(this.typeDef.prototype) ?? [];
+
+    if (options.supportsMovement) {
+      this._properties.splice(0, 0, PositionProperty);
+    }
+  }
 
   public getProperties(): IControlProperty[] {
-    return getControlPropertiesFor(this.typeDef.prototype) ?? [];
+    return this._properties;
   }
 
   public createInstance(): T {

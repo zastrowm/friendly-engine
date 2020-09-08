@@ -2,19 +2,13 @@ import { IControlDescriptor } from './controlRegistry';
 import { IStoredPositionInfo } from './layout';
 import { addValue, IControlSerializedData, ISerializedPropertyBag } from './propertyBag';
 import { UniqueId } from '../util/UniqueId';
-
-/**
- * A Designer environment for a control. It is assumed
- */
-export interface IControlDesigner {
-  notifyLayoutChanged(control: Control): void;
-}
+import { ControlPositioning } from "./ControlPositioning";
 
 /** Base class for all controls that can be created */
 export abstract class Control {
   private _layout: IStoredPositionInfo | null = null;
-  private _designer: IControlDesigner | null = null;
   private _rootElement!: HTMLElement;
+  private _positioning: ControlPositioning = new ControlPositioning(this);
 
   /** The id of the control */
   public id: UniqueId | null = null;
@@ -32,13 +26,8 @@ export abstract class Control {
     return this._rootElement;
   }
 
-  public get layout(): IStoredPositionInfo {
-    return this._layout ?? { left: 0, top: 0, width: 100, height: 20 };
-  }
-
-  public set layout(value: IStoredPositionInfo) {
-    this._layout = value;
-    this._designer?.notifyLayoutChanged(this);
+  public get position(): ControlPositioning {
+    return this._positioning;
   }
 
   /**
@@ -62,7 +51,7 @@ export abstract class Control {
       id: this.id,
       typeId: this.descriptor.id,
       properties: this.serializeProperties(),
-      position: this.layout,
+      position: this._positioning.layout,
     };
   }
 
@@ -99,7 +88,7 @@ export abstract class Control {
 
     this.deserializeProperties(data.properties);
 
-    this.layout = data.position;
+    this.position.update(data.position);
     this.id = data.id;
   }
 

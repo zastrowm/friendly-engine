@@ -1,9 +1,9 @@
 import { EditorAppViewModel } from '../viewmodels/EditorAppViewModel';
-import { Anchor, AnchoredBoundary, IStoredPositionInfo, Point } from '../control-core/layout';
 import { ControlInformationViewModel } from '../viewmodels/ControlInformationViewModel';
 import { UniqueId } from '../util/UniqueId';
 import { registerUndoHandler } from '../viewmodels/UndoRedoQueueViewModel';
 import { ControlCollectionViewModel } from '../viewmodels/ControlCollectionViewModel';
+import { ControlPositioning, Anchor, AnchoredBoundary, IStoredPositionInfo, Point } from "../controls/@control";
 
 /**
  * Handles the mouse-interacts with controls to move them around; also selects controls when they're clicked.
@@ -118,7 +118,7 @@ export class ControlMovementManager {
     if (this.editingControl != null && this.editingControl.lastUpdatedBoundary != null) {
       this._editorApp.undoRedo.add(moveUndoHandler, {
         controlsVm: this._editorApp.controls,
-        id: this.editingControl.control.id,
+        id: this.editingControl.controlId,
         startingPosition: this.editingControl.originalPosition,
         endingPosition: this.editingControl.lastUpdatedBoundary?.clone(),
       });
@@ -154,10 +154,12 @@ class ControlMovementData {
    */
   public readonly originalPosition: AnchoredBoundary;
 
-  public readonly control: ControlInformationViewModel;
   public readonly container: HTMLDivElement;
+  public readonly controlId: UniqueId;
 
   public lastUpdatedBoundary: AnchoredBoundary | null;
+
+  private readonly _position: ControlPositioning;
 
   /* ~ */
   constructor(
@@ -166,12 +168,13 @@ class ControlMovementData {
     designCanvasElement: HTMLElement,
     sizeChange: Anchor,
   ) {
-    this.control = control;
+    this._position = control.position;
+    this.controlId = control.id;
     this.sizeChange = sizeChange;
     this.container = controlContainer;
 
     this.lastUpdatedBoundary = null;
-    this.anchorAndBoundary = determineEditStyle(this.control.positionInfo, designCanvasElement);
+    this.anchorAndBoundary = determineEditStyle(this._position.layout, designCanvasElement);
     this.originalPosition = this.anchorAndBoundary.boundaries.clone();
   }
 
@@ -233,7 +236,8 @@ class ControlMovementData {
     // if we've changed, go ahead and update the VM
     if (!boundaryInfo.equals(this.lastUpdatedBoundary)) {
       this.lastUpdatedBoundary = boundaryInfo;
-      this.control.positionInfo = this.lastUpdatedBoundary!;
+      this._position.update(this.lastUpdatedBoundary);
+      console.log("Updating");
     }
   }
 
@@ -244,7 +248,7 @@ class ControlMovementData {
     }
 
     this.anchorAndBoundary!.boundaries = this.lastUpdatedBoundary;
-    this.control.positionInfo = this.lastUpdatedBoundary;
+    this._position.update(this.lastUpdatedBoundary);
   }
 }
 
@@ -263,7 +267,7 @@ function getPosition(event: MouseEvent): Point {
 export function applyLayoutInfo(controlVm: ControlInformationViewModel) {
   let controlContainer = controlVm.control.htmlRoot.parentElement as HTMLElement;
   let canvasHtml = controlContainer.parentElement as HTMLElement;
-  let editStyle = determineEditStyle(controlVm.positionInfo, canvasHtml);
+  let editStyle = determineEditStyle(controlVm.position.layout, canvasHtml);
   editStyle.boundaries.applyTo(controlContainer);
 }
 
@@ -391,13 +395,13 @@ interface UndoArgs {
 let moveUndoHandler = registerUndoHandler<UndoArgs>('moveControl', () => ({
   undo() {
     let control = this.controlsVm.findControlById(this.id);
-    control.positionInfo = this.startingPosition;
+    control.position.update(this.startingPosition);
     control.isSelected = true;
   },
 
   redo() {
     let control = this.controlsVm.findControlById(this.id);
-    control.positionInfo = this.endingPosition;
+    control.position.update(this.endingPosition);
     control.isSelected = true;
   },
 }));

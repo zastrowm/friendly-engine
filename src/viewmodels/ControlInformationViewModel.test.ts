@@ -25,7 +25,7 @@ test.each(registry.getDescriptors().map(d => d.id))('Creating a control (%s) wor
   let control = controlVm.control;
 
   expect(controlVm.id).not.toBeNull();
-  expect(controlVm.positionInfo).not.toBeNull();
+  expect(controlVm.position.layout).not.toBeNull();
   expect(controlVm.isAttached).toBe(false);
 
   expect(control.id).not.toBeNull();
@@ -48,18 +48,18 @@ test("setting a control as selected notifies parent", () => {
 
 test("Changing VM position changes control position", () => {
   let vm = new ControlInformationViewModel(owner, buttonDescriptor);
-  vm.positionInfo = {
+  vm.position.update({
     left: 103, right: 303
-  };
+  });
 
-  expect(vm.control.layout).toStrictEqual({ left: 103, right: 303});
+  expect(vm.control.position.layout).toStrictEqual({ left: 103, right: 303});
 })
 
 test("Serialization works", () => {
   let vm = new ControlInformationViewModel(owner, buttonDescriptor);
-  vm.positionInfo = {
+  vm.position.update({
     left: 103, right: 303
-  };
+  });
 
   let serialization = vm.serialize();
   expect(serialization.id).toBe(vm.id);

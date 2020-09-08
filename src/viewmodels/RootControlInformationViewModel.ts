@@ -6,12 +6,12 @@ export class RootControlInformationViewModel extends ControlInformationViewModel
   constructor(owner: IControlInformationViewModelOwner, properties?: ISerializedPropertyBag) {
     super(owner, rootControlDescriptor);
 
-    this.control.layout = {
+    this.control.position.update({
       bottom: 0,
       top: 0,
       left: 0,
       right: 0,
-    };
+    });
 
     if (properties != null) {
       this.control.deserializeProperties(properties);
