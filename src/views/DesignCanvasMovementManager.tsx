@@ -3,7 +3,7 @@ import { ControlInformationViewModel } from '../viewmodels/ControlInformationVie
 import { UniqueId } from '../util/UniqueId';
 import { registerUndoHandler } from '../viewmodels/UndoRedoQueueViewModel';
 import { ControlCollectionViewModel } from '../viewmodels/ControlCollectionViewModel';
-import { ControlPositioning, Anchor, AnchoredBoundary, IStoredPositionInfo, Point } from "../controls/@control";
+import { ControlPositioning, DragAnchor, AnchoredBoundary, IStoredPositionInfo, Point } from "../controls/@control";
 
 /**
  * Handles the mouse-interacts with controls to move them around; also selects controls when they're clicked.
@@ -73,13 +73,13 @@ export class ControlMovementManager {
     // if we selected a drag handle, then use the anchoring given by that element
     let selectedDragHandle = targetElement.closest('.drag-handle') as HTMLElement;
 
-    let sizeChange: Anchor;
+    let sizeChange: DragAnchor;
 
     if (selectedDragHandle != null) {
-      sizeChange = Number(selectedDragHandle.dataset.drag) as Anchor;
+      sizeChange = Number(selectedDragHandle.dataset.drag) as DragAnchor;
     } else {
       // by default to resizing all of them (e.g. a move operation)
-      sizeChange = Anchor.all;
+      sizeChange = DragAnchor.all;
     }
 
     this.editingControl = new ControlMovementData(
@@ -147,7 +147,7 @@ export class ControlMovementManager {
  */
 class ControlMovementData {
   public readonly anchorAndBoundary: { anchor: number; boundaries: AnchoredBoundary };
-  public readonly sizeChange: Anchor;
+  public readonly sizeChange: DragAnchor;
 
   /**
    * The original position of the element that is now being moved
@@ -166,7 +166,7 @@ class ControlMovementData {
     control: ControlInformationViewModel,
     controlContainer: HTMLDivElement,
     designCanvasElement: HTMLElement,
-    sizeChange: Anchor,
+    sizeChange: DragAnchor,
   ) {
     this._position = control.position;
     this.controlId = control.id;
@@ -189,10 +189,10 @@ class ControlMovementData {
     let sizeChange = this.sizeChange;
 
     // cache the values
-    let isAdjustingWest = sizeChange & Anchor.west;
-    let isAdjustingEast = sizeChange & Anchor.east;
-    let isAdjustingNorth = sizeChange & Anchor.north;
-    let isAdjustingSouth = sizeChange & Anchor.south;
+    let isAdjustingWest = sizeChange & DragAnchor.west;
+    let isAdjustingEast = sizeChange & DragAnchor.east;
+    let isAdjustingNorth = sizeChange & DragAnchor.north;
+    let isAdjustingSouth = sizeChange & DragAnchor.south;
 
     if (isAdjustingWest && isAdjustingEast) {
       // if we're moving left & right, then we want to snap in whichever direction we're moving
@@ -279,7 +279,7 @@ export function applyLayoutInfo(controlVm: ControlInformationViewModel) {
 export function determineEditStyle(
   storedInfo: IStoredPositionInfo,
   parent: HTMLElement,
-): { anchor: Anchor; boundaries: AnchoredBoundary } {
+): { anchor: DragAnchor; boundaries: AnchoredBoundary } {
   let leftRightData = getAbsoluteOffsets(
     storedInfo.left!,
     storedInfo.right!,
@@ -287,7 +287,7 @@ export function determineEditStyle(
     parent.clientWidth,
     storedInfo,
     'horizontal',
-    Anchor.west,
+    DragAnchor.west,
   );
 
   let topRightData = getAbsoluteOffsets(
@@ -297,7 +297,7 @@ export function determineEditStyle(
     parent.clientHeight,
     storedInfo,
     'vertical',
-    Anchor.north,
+    DragAnchor.north,
   );
 
   return {
@@ -328,11 +328,11 @@ function getAbsoluteOffsets(
   parentSize: number,
   data: any,
   mode: string,
-  aFlag: Anchor,
-): { offsetA: number; offsetB: number; anchor: Anchor } {
+  aFlag: DragAnchor,
+): { offsetA: number; offsetB: number; anchor: DragAnchor } {
   let offsetA;
   let offsetB;
-  let anchor = Anchor.none;
+  let anchor = DragAnchor.none;
 
   if (a == null && b == null) {
     console.error(`No ${mode} offsets stored`, data);

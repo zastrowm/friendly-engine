@@ -3,7 +3,7 @@ import React, { useLayoutEffect, useRef } from 'react';
 import { observer } from 'mobx-react';
 
 import './EditableControl.css';
-import { Anchor } from '../control-core/layout';
+import { DragAnchor } from '../control-core/layout';
 import { ControlInformationViewModel } from '../viewmodels/ControlInformationViewModel';
 import { applyLayoutInfo } from './DesignCanvasMovementManager';
 import { autorun } from 'mobx';
@@ -66,14 +66,14 @@ export function ControlEditor() {
   // noinspection HtmlUnknownAttribute
   return (
     <div className="control-editor">
-      <div className="drag-handle drag-handle-west" data-drag={Anchor.west} />
-      <div className="drag-handle drag-handle-north" data-drag={Anchor.north} />
-      <div className="drag-handle drag-handle-east" data-drag={Anchor.east} />
-      <div className="drag-handle drag-handle-south" data-drag={Anchor.south} />
-      <div className="drag-handle drag-handle-nw" data-drag={Anchor.nw} />
-      <div className="drag-handle drag-handle-ne" data-drag={Anchor.ne} />
-      <div className="drag-handle drag-handle-se" data-drag={Anchor.se} />
-      <div className="drag-handle drag-handle-sw" data-drag={Anchor.sw} />
+      <div className="drag-handle drag-handle-west" data-drag={DragAnchor.west} />
+      <div className="drag-handle drag-handle-north" data-drag={DragAnchor.north} />
+      <div className="drag-handle drag-handle-east" data-drag={DragAnchor.east} />
+      <div className="drag-handle drag-handle-south" data-drag={DragAnchor.south} />
+      <div className="drag-handle drag-handle-nw" data-drag={DragAnchor.nw} />
+      <div className="drag-handle drag-handle-ne" data-drag={DragAnchor.ne} />
+      <div className="drag-handle drag-handle-se" data-drag={DragAnchor.se} />
+      <div className="drag-handle drag-handle-sw" data-drag={DragAnchor.sw} />
     </div>
   );
 }

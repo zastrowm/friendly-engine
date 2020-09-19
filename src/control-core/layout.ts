@@ -61,10 +61,10 @@ export function calculateSnapTo(value: number, snapToDivider: number) {
  * Represents how an element is laid out - that is, what sides of the element
  * are attached to the side of the parent container.
  */
-export enum Anchor {
+export enum DragAnchor {
   none = 0,
 
-  /* The values are important here matters east and west must be shift a way; same for south & north */
+  /* The values here are important; east & west must be a bitshift away; same for south & north */
   west = 1 << 0,
   east = 1 << 1,
   north = 1 << 2,
