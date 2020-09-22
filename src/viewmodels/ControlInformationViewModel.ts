@@ -48,10 +48,14 @@ export class ControlInformationViewModel {
       this.control.deserialize({
         typeId: descriptor.id,
         properties: {},
-        position: {},
+        position: null,
         id: generateUniqueId(),
       })
     }
+  }
+
+  public applyLayoutInfo(): void {
+    this.control.position.applyLayoutInfo();
   }
 
   public get isSelected(): boolean {

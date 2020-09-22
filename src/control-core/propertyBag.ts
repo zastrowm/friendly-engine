@@ -1,15 +1,17 @@
 import { UniqueId } from '../util/UniqueId';
-import { IStoredPositionInfo } from './layout';
 import { IControlProperty } from './controlProperties';
 
 export interface ISerializedPropertyBag {
   [key: string]: any;
 }
 
+export interface ISerializedLayout {
+}
+
 /** The serialized representation of a control */
 export interface IControlSerializedData {
   id: UniqueId;
-  position: IStoredPositionInfo;
+  position: ISerializedLayout | null;
   properties: ISerializedPropertyBag;
   typeId: string;
 }

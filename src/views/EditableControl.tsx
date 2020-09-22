@@ -5,7 +5,6 @@ import { observer } from 'mobx-react';
 import './EditableControl.css';
 import { DragAnchor } from '../control-core/layout';
 import { ControlInformationViewModel } from '../viewmodels/ControlInformationViewModel';
-import { applyLayoutInfo } from './DesignCanvasMovementManager';
 import { autorun } from 'mobx';
 
 interface IProps {
@@ -36,10 +35,11 @@ export const EditableControl = observer(function EditableControl(props: IProps) 
 
     /** whenever the control position changes on the view-model, re-position the editor/control */
     let autoRunDisposer = autorun(() => {
-      applyLayoutInfo(controlVm);
+      controlVm.applyLayoutInfo();
     });
 
     return function () {
+      div.removeChild(controlHtmlRoot);
       controlVm.isAttached = false;
       autoRunDisposer();
     };

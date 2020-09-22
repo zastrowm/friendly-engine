@@ -1,12 +1,10 @@
 import { IControlDescriptor } from './controlRegistry';
-import { IStoredPositionInfo } from './layout';
 import { addValue, IControlSerializedData, ISerializedPropertyBag } from './propertyBag';
 import { UniqueId } from '../util/UniqueId';
 import { ControlPositioning } from "./ControlPositioning";
 
 /** Base class for all controls that can be created */
 export abstract class Control {
-  private _layout: IStoredPositionInfo | null = null;
   private _rootElement!: HTMLElement;
   private _positioning: ControlPositioning = new ControlPositioning(this);
 
@@ -51,7 +49,7 @@ export abstract class Control {
       id: this.id,
       typeId: this.descriptor.id,
       properties: this.serializeProperties(),
-      position: this._positioning.layout,
+      position: this._positioning.serialize(),
     };
   }
 
@@ -88,7 +86,7 @@ export abstract class Control {
 
     this.deserializeProperties(data.properties);
 
-    this.position.update(data.position);
+    this._positioning.deserialize(data.position);
     this.id = data.id;
   }
 

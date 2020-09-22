@@ -1,19 +1,19 @@
 import { Control } from "./Control";
 import { IProperty, PropertyType } from "./controlProperties";
-import { IStoredPositionInfo } from "./layout";
+import { ISerializedLayout } from "./propertyBag";
 
-export const PositionProperty: IProperty<Control, IStoredPositionInfo> = {
+export const PositionProperty: IProperty<Control, ISerializedLayout> = {
   id: 'layout',
   displayName: 'Position',
   propertyType: PropertyType.unknown,
 
-  getValue(owner: Control): any {
-    return owner.position.layout;
+  getValue(owner: Control): ISerializedLayout {
+    return owner.position.serialize();
   },
 
-  setValue(owner: Control, value: IStoredPositionInfo) {
+  setValue(owner: Control, value: ISerializedLayout) {
     // todo make sure the control supports the given position
-    owner.position.update(value);
+    owner.position.deserialize(value);
   },
 
   serializeValue(data: Control) {

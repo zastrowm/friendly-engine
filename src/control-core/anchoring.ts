@@ -1,128 +1,9 @@
 /** How a control can be anchored horizontally. */
 import { calculateSnapTo } from "../views/DesignCanvasMovementManager";
+import { assume } from "../util/util";
+import { IStoredPositionInfo } from "./layout";
 
-export enum AnchorModeHorizontal {
-  /** None, the center of the control is anchored to the middle of the canvas */
-  none = 0,
-  /** The control maintains a fixed distance from the left of the canvas */
-  left = 1,
-  /** The control maintains a fixed distance from the right of the canvas */
-  right = 2,
-  /** The control maintains a fixed distance from the left & right of the canvas, changing the width as needed. */
-  stretch = 3,
-}
-
-interface HorizontalAnchorStretch {
-  mode: AnchorModeHorizontal.stretch;
-  left: number;
-  right: number;
-}
-
-interface HorizontalAnchorLeft {
-  mode: AnchorModeHorizontal.left;
-  left: number;
-  width: number;
-}
-
-interface HorizontalAnchorRight {
-  mode: AnchorModeHorizontal.right;
-  right: number;
-  width: number;
-}
-
-interface HorizontalAnchorNone {
-  mode: AnchorModeHorizontal.none;
-  center: number;
-  width: number;
-}
-
-/** The horizontal anchoring to use on a control */
-export type AnchorHorizontal =
-  | HorizontalAnchorNone
-  | HorizontalAnchorLeft
-  | HorizontalAnchorRight
-  | HorizontalAnchorStretch;
-
-export enum AnchorModeVertical {
-  /** None, the center of the control is anchored to the middle of the canvas */
-  none = 0,
-  /** The control maintains a fixed distance from the top of the canvas */
-  top = 1,
-  /** The control maintains a fixed distance from the bottom of the canvas */
-  bottom = 2,
-  /** The control maintains a fixed distance from the top & bottom of the canvas, changing the height as needed. */
-  stretch = 3,
-}
-
-interface VerticalAnchorStretch {
-  mode: AnchorModeVertical.stretch;
-  top: number;
-  bottom: number;
-}
-
-interface VerticalAnchorTop {
-  mode: AnchorModeVertical.top;
-  top: number;
-  height: number;
-}
-
-interface VerticalAnchorBottom {
-  mode: AnchorModeVertical.bottom;
-  bottom: number;
-  height: number;
-}
-
-interface VerticalAnchorNone {
-  mode: AnchorModeVertical.none;
-  center: number;
-  height: number;
-}
-
-/** The vertical anchoring to use on a control */
-export type AnchorVertical = VerticalAnchorNone | VerticalAnchorTop | VerticalAnchorBottom | VerticalAnchorStretch;
-
-export function applyAnchorV(element: HTMLElement, anchor: AnchorVertical) {
-  switch (anchor.mode) {
-    case AnchorModeVertical.none:
-      // TODO
-      break;
-    case AnchorModeVertical.top:
-      element.style.top = anchor.top + 'px';
-      element.style.height = anchor.height + 'px';
-      break;
-    case AnchorModeVertical.bottom:
-      element.style.bottom = anchor.bottom + 'px';
-      element.style.height = anchor.height + 'px';
-      break;
-    case AnchorModeVertical.stretch:
-      element.style.bottom = anchor.bottom + 'px';
-      element.style.top = anchor.top + 'px';
-      break;
-  }
-}
-
-export function applyAnchorH(element: HTMLElement, anchor: AnchorHorizontal) {
-  switch (anchor.mode) {
-    case AnchorModeHorizontal.none:
-      // TODO
-      break;
-    case AnchorModeHorizontal.left:
-      element.style.left = anchor.left + 'px';
-      element.style.width = anchor.width + 'px';
-      break;
-    case AnchorModeHorizontal.right:
-      element.style.right = anchor.right + 'px';
-      element.style.width = anchor.width + 'px';
-      break;
-    case AnchorModeHorizontal.stretch:
-      element.style.left = anchor.left + 'px';
-      element.style.right = anchor.right + 'px';
-      break;
-  }
-}
-
-
-export enum AnchorModeBoth {
+export enum AnchorAxisLayoutMode {
   /** None, the center of the control is anchored to the middle of the canvas */
   none = 0,
   /** The control maintains a fixed distance from the start of the container */
@@ -133,78 +14,81 @@ export enum AnchorModeBoth {
   stretch = 3,
 }
 
-export interface AnchorData {
+/**
+ * Represents a snapshot of the state of something that owns a AnchorLayout.  Not directly updated, but can be transformed
+ * back into an AnchorBoth by `convertToAnchorLayout`.
+ */
+export interface AnchorLayoutSnapshot {
   start: number;
   end: number;
   size: number;
   parentSize: number;
 }
 
-interface AnchorStretch {
-  mode: AnchorModeBoth.stretch;
+interface AnchorAxisLayoutStretch {
+  mode: AnchorAxisLayoutMode.stretch;
   start: number;
   end: number;
 }
 
-interface AnchorStart {
-  mode: AnchorModeBoth.start;
+interface AnchorAxisLayoutStart {
+  mode: AnchorAxisLayoutMode.start;
   start: number;
   size: number;
 }
 
-interface AnchorEnd {
-  mode: AnchorModeBoth.end;
+interface AnchorAxisLayoutEnd {
+  mode: AnchorAxisLayoutMode.end;
   end: number;
   size: number;
 }
 
-interface AnchorNone {
-  mode: AnchorModeBoth.none;
+interface AnchorAxisLayoutNone {
+  mode: AnchorAxisLayoutMode.none;
   center: number;
   size: number;
 }
 
-export interface AnchorHV {
-  horizontal: AnchorBoth;
-  vertical: AnchorBoth;
-}
-
-export type AnchorBoth = AnchorStretch | AnchorStart | AnchorEnd | AnchorNone;
+export type AnchorAxisLayout =
+  AnchorAxisLayoutStretch
+  | AnchorAxisLayoutStart
+  | AnchorAxisLayoutEnd
+  | AnchorAxisLayoutNone;
 
 /**
  * Calculates what anchoring would be used if the given mode was set on the control.
  */
-export function transformAnchor(info: AnchorData, mode: AnchorModeBoth): AnchorBoth {
+export function convertToAnchorLayout(data: AnchorLayoutSnapshot, mode: AnchorAxisLayoutMode): AnchorAxisLayout {
   switch (mode) {
-    case AnchorModeBoth.none:
-      let mid = (info.start + info.end) / 2 / info.parentSize;
+    case AnchorAxisLayoutMode.none:
+      let mid = (data.start + data.end) / 2 / data.parentSize;
       return {
-        mode: AnchorModeBoth.none,
+        mode: AnchorAxisLayoutMode.none,
         center: mid,
-        size: info.size,
+        size: data.size,
       };
-    case AnchorModeBoth.start:
+    case AnchorAxisLayoutMode.start:
       return {
-        mode: AnchorModeBoth.start,
-        start: info.start,
-        size: info.size,
+        mode: AnchorAxisLayoutMode.start,
+        start: data.start,
+        size: data.size,
       };
-    case AnchorModeBoth.end:
+    case AnchorAxisLayoutMode.end:
       return {
-        mode: AnchorModeBoth.end,
-        end: info.end,
-        size: info.size,
+        mode: AnchorAxisLayoutMode.end,
+        end: data.end,
+        size: data.size,
       };
-    case AnchorModeBoth.stretch:
+    case AnchorAxisLayoutMode.stretch:
       return {
-        mode: AnchorModeBoth.stretch,
-        start: info.start,
-        end: info.end,
+        mode: AnchorAxisLayoutMode.stretch,
+        start: data.start,
+        end: data.end,
       };
   }
 }
 
-export enum AdjustmentMode {
+export enum AnchorAxisLayoutAdjustmentMode {
   none = 0 << 0,
   start = 1 << 0,
   end = 1 << 1,
@@ -218,13 +102,13 @@ export enum AdjustmentMode {
  * @param diff the value of the difference to the anchor being made
  * @param gridSnap any grid snap that should be applied
  */
-export function adjustAnchoredLayout(data: AnchorData, adjustmentMode: AdjustmentMode, diff: number, gridSnap: number): AnchorData {
+export function adjustAnchoredLayout(data: AnchorLayoutSnapshot, adjustmentMode: AnchorAxisLayoutAdjustmentMode, diff: number, gridSnap: number): AnchorLayoutSnapshot {
 
   switch (adjustmentMode) {
-    case AdjustmentMode.none: {
+    case AnchorAxisLayoutAdjustmentMode.none: {
       return { ...data };
     }
-    case AdjustmentMode.start: {
+    case AnchorAxisLayoutAdjustmentMode.start: {
       let newStart = calculateSnapTo(data.start + diff, gridSnap);
       let startDiff = data.start - newStart;
 
@@ -235,7 +119,7 @@ export function adjustAnchoredLayout(data: AnchorData, adjustmentMode: Adjustmen
         parentSize: data.parentSize
       };
     }
-    case AdjustmentMode.end: {
+    case AnchorAxisLayoutAdjustmentMode.end: {
       let newEnd = calculateSnapTo(data.end - diff, gridSnap)
       let endDiff = data.end - newEnd;
 
@@ -246,7 +130,7 @@ export function adjustAnchoredLayout(data: AnchorData, adjustmentMode: Adjustmen
         parentSize: data.parentSize,
       };
     }
-    case AdjustmentMode.both: {
+    case AnchorAxisLayoutAdjustmentMode.both: {
       // if we're moving start & end, then we want to snap in whichever direction we're moving
       // e.g. if we're moving end, snap end
       let diffValue;
@@ -273,11 +157,132 @@ export function adjustAnchoredLayout(data: AnchorData, adjustmentMode: Adjustmen
 /**
  * Checks if two instances of `AnchorData` are equal
  */
-export function areEqual(left: AnchorData, right: AnchorData): boolean {
+export function areAnchorSnapshotsEqual(left: AnchorLayoutSnapshot, right: AnchorLayoutSnapshot): boolean {
   return (left === right
     || (left.end === right.end
-      && left.start === right.end
+      && left.start === right.start
       && left.size === right.size
       && left.parentSize === right.parentSize)
   )
+}
+
+export function areAnchorEqual(left: AnchorAxisLayout, right: AnchorAxisLayout): boolean {
+
+  if (left === right) {
+    return true;
+  }
+
+  if (left.mode !== right.mode) {
+    return false;
+  }
+
+  switch (left.mode) {
+    case AnchorAxisLayoutMode.stretch:
+      assume<AnchorAxisLayoutStretch>(right);
+      return left.start === right.start && left.end === right.end;
+    case AnchorAxisLayoutMode.start:
+      assume<AnchorAxisLayoutStart>(right);
+      return left.start === right.start && left.size === right.size;
+    case AnchorAxisLayoutMode.end:
+      assume<AnchorAxisLayoutEnd>(right);
+      return left.end === right.end && left.size === right.size;
+    case AnchorAxisLayoutMode.none:
+      assume<AnchorAxisLayoutNone>(right);
+      return left.size === right.size && left.center === right.center;
+  }
+}
+
+interface IAnchorOwner {
+  onAnchorChanged(): void;
+}
+
+interface IAnchorOwner {
+  readonly horizontal: AnchorLayoutSnapshot;
+  readonly vertical: AnchorLayoutSnapshot;
+
+  set(h: AnchorLayoutSnapshot, v: AnchorLayoutSnapshot): void;
+}
+
+export class AnchoredPosition {
+  private _horizontal: AnchorAxisLayout;
+  private _vertical: AnchorAxisLayout;
+  private _owner: IAnchorOwner | null;
+
+  constructor(h: AnchorAxisLayout, v: AnchorAxisLayout, owner?: IAnchorOwner) {
+    this._horizontal = { ...h };
+    this._vertical = { ...v };
+    this._owner = owner ?? null;
+  }
+
+  public get horizontal(): AnchorAxisLayout {
+    return this._horizontal;
+  }
+
+  public get vertical(): AnchorAxisLayout {
+    return this._vertical;
+  }
+
+  public set(h: AnchorAxisLayout, v: AnchorAxisLayout): boolean {
+    let didChange = false;
+
+    if (!areAnchorEqual(this.horizontal, h)) {
+      this._horizontal = h;
+      didChange = true;
+    }
+
+    if (!areAnchorEqual(this.vertical, v)) {
+      this._vertical = v;
+      didChange = true;
+    }
+
+    if (didChange) {
+      this._owner?.onAnchorChanged();
+    }
+
+    return didChange;
+  }
+}
+
+export type BiAxis<T> = {
+  horizontal: T;
+  vertical: T;
+}
+
+export function fromStoredPositionInfo(position: IStoredPositionInfo): BiAxis<AnchorAxisLayout> {
+
+  let horizontal: AnchorAxisLayout;
+  let vertical: AnchorAxisLayout;
+
+  if (position.width != null) {
+    horizontal = {
+      mode: AnchorAxisLayoutMode.start,
+      start: position.left!,
+      size: position.width
+    };
+  } else {
+    horizontal = {
+      mode: AnchorAxisLayoutMode.stretch,
+      start: position.left!,
+      end: position.right!
+    }
+  }
+
+  if (position.height != null) {
+    vertical = {
+      mode: AnchorAxisLayoutMode.start,
+      start: position.top!,
+      size: position.height
+    };
+  } else {
+    vertical = {
+      mode: AnchorAxisLayoutMode.stretch,
+      start: position.top!,
+      end: position.bottom!
+    }
+  }
+
+  return {
+    horizontal,
+    vertical
+  };
 }

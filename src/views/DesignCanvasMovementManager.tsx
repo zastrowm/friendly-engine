@@ -3,7 +3,15 @@ import { ControlInformationViewModel } from '../viewmodels/ControlInformationVie
 import { UniqueId } from '../util/UniqueId';
 import { registerUndoHandler } from '../viewmodels/UndoRedoQueueViewModel';
 import { ControlCollectionViewModel } from '../viewmodels/ControlCollectionViewModel';
-import { ControlPositioning, DragAnchor, AnchoredBoundary, IStoredPositionInfo, Point } from "../controls/@control";
+import {  ControlPositioning, DragAnchor, Point } from "../controls/@control";
+import {
+  adjustAnchoredLayout, AnchorAxisLayout,
+  AnchorAxisLayoutAdjustmentMode,
+  AnchorAxisLayoutMode,
+  AnchorLayoutSnapshot,
+  areAnchorSnapshotsEqual, BiAxis, convertToAnchorLayout
+} from "../control-core/anchoring";
+import { Enums } from "../util/enums";
 
 /**
  * Handles the mouse-interacts with controls to move them around; also selects controls when they're clicked.
@@ -11,7 +19,7 @@ import { ControlPositioning, DragAnchor, AnchoredBoundary, IStoredPositionInfo, 
 export class ControlMovementManager {
   private _editorApp: EditorAppViewModel;
   private _canvasElement: HTMLElement;
-  private lastPosition: Point;
+  private _startingPosition: Point;
 
   private readonly mouseUpListener: (MouseEvent: MouseEvent) => void;
   private readonly mouseMoveListener: (MouseEvent: MouseEvent) => void;
@@ -26,7 +34,7 @@ export class ControlMovementManager {
     this._editorApp = editorApp;
     this._canvasElement = canvasElement;
     this.editingControl = null;
-    this.lastPosition = null as any;
+    this._startingPosition = null as any;
 
     // bind events for "this"
     this.mouseUpListener = () => this.onMouseUp();
@@ -92,7 +100,7 @@ export class ControlMovementManager {
     window.addEventListener('mousemove', this.mouseMoveListener);
     window.addEventListener('mouseup', this.mouseUpListener);
 
-    this.lastPosition = getPosition(mouseEvent);
+    this._startingPosition = getPosition(mouseEvent);
 
     mouseEvent.preventDefault();
     mouseEvent.stopPropagation();
@@ -103,7 +111,7 @@ export class ControlMovementManager {
     const minimumChangeRequired = 1;
 
     let position = getPosition(mouseEvent);
-    let diff = position.subtract(this.lastPosition);
+    let diff = position.subtract(this._startingPosition);
     if (Math.abs(diff.x) < minimumChangeRequired && Math.abs(diff.y) < minimumChangeRequired) {
       return;
     }
@@ -115,12 +123,12 @@ export class ControlMovementManager {
   private onMouseUp() {
     this.removeWindowListeners();
 
-    if (this.editingControl != null && this.editingControl.lastUpdatedBoundary != null) {
+    if (this.editingControl?.didChange() === true) {
       this._editorApp.undoRedo.add(moveUndoHandler, {
         controlsVm: this._editorApp.controls,
         id: this.editingControl.controlId,
-        startingPosition: this.editingControl.originalPosition,
-        endingPosition: this.editingControl.lastUpdatedBoundary?.clone(),
+        startingPosition: this.editingControl.layoutOriginal,
+        endingPosition: this.editingControl.layoutCurrent,
       });
     }
 
@@ -142,24 +150,27 @@ export class ControlMovementManager {
   }
 }
 
+interface IAxisData {
+  mode: AnchorAxisLayoutMode;
+  snapshotInitial: AnchorLayoutSnapshot;
+  snapshotLatest: AnchorLayoutSnapshot;
+  adjustType: AnchorAxisLayoutAdjustmentMode;
+}
+
 /**
  * The movement data for a single control
  */
 class ControlMovementData {
-  public readonly anchorAndBoundary: { anchor: number; boundaries: AnchoredBoundary };
-  public readonly sizeChange: DragAnchor;
-
-  /**
-   * The original position of the element that is now being moved
-   */
-  public readonly originalPosition: AnchoredBoundary;
 
   public readonly container: HTMLDivElement;
   public readonly controlId: UniqueId;
 
-  public lastUpdatedBoundary: AnchoredBoundary | null;
-
   private readonly _position: ControlPositioning;
+
+  private readonly _hData: IAxisData;
+  private readonly _vData: IAxisData;
+
+  private _didChange: boolean;
 
   /* ~ */
   constructor(
@@ -170,200 +181,108 @@ class ControlMovementData {
   ) {
     this._position = control.position;
     this.controlId = control.id;
-    this.sizeChange = sizeChange;
     this.container = controlContainer;
 
-    this.lastUpdatedBoundary = null;
-    this.anchorAndBoundary = determineEditStyle(this._position.layout, designCanvasElement);
-    this.originalPosition = this.anchorAndBoundary.boundaries.clone();
+    let hAdjustmentMode: AnchorAxisLayoutAdjustmentMode =
+      (Enums.hasFlag(sizeChange, DragAnchor.west) ? AnchorAxisLayoutAdjustmentMode.start : 0)
+      | (Enums.hasFlag(sizeChange, DragAnchor.east) ? AnchorAxisLayoutAdjustmentMode.end : 0)
+
+    let vAdjustmentMode: AnchorAxisLayoutAdjustmentMode =
+      (Enums.hasFlag(sizeChange, DragAnchor.north) ? AnchorAxisLayoutAdjustmentMode.start : 0)
+      | (Enums.hasFlag(sizeChange, DragAnchor.south) ? AnchorAxisLayoutAdjustmentMode.end : 0)
+
+    this._hData = {
+      mode: this._position.hMode,
+      snapshotInitial: this._position.getHSnapshot(),
+      snapshotLatest: this._position.getHSnapshot(),
+      adjustType: hAdjustmentMode,
+    }
+
+    this._vData = {
+      mode: this._position.vMode,
+      snapshotInitial: this._position.getVSnapshot(),
+      snapshotLatest: this._position.getVSnapshot(),
+      adjustType: vAdjustmentMode,
+    }
+
+    this._didChange = false;
+  }
+
+  public get layoutOriginal(): BiAxis<AnchorAxisLayout> {
+    return {
+      horizontal: convertToAnchorLayout(this._hData.snapshotInitial, this._hData.mode),
+      vertical: convertToAnchorLayout(this._vData.snapshotInitial, this._vData.mode),
+    }
+  }
+
+  public get layoutCurrent(): BiAxis<AnchorAxisLayout> {
+    return {
+      horizontal: convertToAnchorLayout(this._hData.snapshotLatest, this._hData.mode),
+      vertical: convertToAnchorLayout(this._vData.snapshotLatest, this._vData.mode),
+    }
+  }
+
+  public didChange(): boolean {
+    return this._didChange;
   }
 
   /** Take the given difference in point value, and apply it to the controlt o move it */
   public applyDifference(diff: Point) {
-    // and now move as we need to
-    let boundaryInfo = this.anchorAndBoundary.boundaries.clone();
 
     // TODO grid snap from somewhere else
     const gridSnap = 8;
 
-    let sizeChange = this.sizeChange;
+    // and now move as we need to
+    let newHSnapshot = adjustAnchoredLayout(
+      this._hData.snapshotInitial,
+      this._hData.adjustType,
+      diff.x,
+      gridSnap
+    );
 
-    // cache the values
-    let isAdjustingWest = sizeChange & DragAnchor.west;
-    let isAdjustingEast = sizeChange & DragAnchor.east;
-    let isAdjustingNorth = sizeChange & DragAnchor.north;
-    let isAdjustingSouth = sizeChange & DragAnchor.south;
+    let newVSnapshot = adjustAnchoredLayout(
+      this._vData.snapshotInitial,
+      this._vData.adjustType,
+      diff.y,
+      gridSnap
+    );
 
-    if (isAdjustingWest && isAdjustingEast) {
-      // if we're moving left & right, then we want to snap in whichever direction we're moving
-      // e.g. if we're moving right, snap right
-      let diffValue;
+    let didChange = false;
 
-      if (diff.x > 0) {
-        diffValue = boundaryInfo.left - calculateSnapTo(boundaryInfo.left + diff.x, gridSnap);
-        diffValue = -diffValue;
-      } else {
-        diffValue = boundaryInfo.right - calculateSnapTo(boundaryInfo.right - diff.x, gridSnap);
-      }
-
-      boundaryInfo.left += diffValue;
-      boundaryInfo.right -= diffValue;
-    } else if (isAdjustingWest) {
-      boundaryInfo.left = calculateSnapTo(boundaryInfo.left + diff.x, gridSnap);
-    } else if (isAdjustingEast) {
-      boundaryInfo.right = calculateSnapTo(boundaryInfo.right - diff.x, gridSnap);
+    if (!areAnchorSnapshotsEqual(this._hData.snapshotLatest, newHSnapshot)) {
+      this._hData.snapshotLatest = newHSnapshot;
+      didChange = true;
     }
 
-    // same logic above as for left & right, but this time for up/down
-    if (isAdjustingNorth && isAdjustingSouth) {
-      let snapToValue;
-
-      if (diff.y > 0) {
-        snapToValue = boundaryInfo.top - calculateSnapTo(boundaryInfo.top + diff.y, gridSnap);
-        snapToValue = -snapToValue;
-      } else {
-        snapToValue = boundaryInfo.bottom - calculateSnapTo(boundaryInfo.bottom - diff.y, gridSnap);
-      }
-
-      boundaryInfo.top += snapToValue;
-      boundaryInfo.bottom -= snapToValue;
-    } else if (isAdjustingNorth) {
-      boundaryInfo.top = calculateSnapTo(boundaryInfo.top + diff.y, gridSnap);
-    } else if (isAdjustingSouth) {
-      boundaryInfo.bottom = calculateSnapTo(boundaryInfo.bottom - diff.y, gridSnap);
+    if (!areAnchorSnapshotsEqual(this._vData.snapshotLatest, newVSnapshot)) {
+      this._vData.snapshotLatest = newVSnapshot;
+      didChange = true;
     }
 
-    // if we've changed, go ahead and update the VM
-    if (!boundaryInfo.equals(this.lastUpdatedBoundary)) {
-      this.lastUpdatedBoundary = boundaryInfo;
-      this._position.update(this.lastUpdatedBoundary);
+    if (didChange) {
+      this._didChange = true;
+
+      this.pushData();
       console.log("Updating");
     }
   }
 
+  private pushData() {
+    this._position.updateLayout(
+      convertToAnchorLayout(this._hData.snapshotLatest, this._hData.mode),
+      convertToAnchorLayout(this._vData.snapshotLatest, this._vData.mode)
+    );
+  }
+
   /** Finalize any movement that needs to be applied */
   public markMovementDone() {
-    if (this.lastUpdatedBoundary == null) {
-      return;
-    }
-
-    this.anchorAndBoundary!.boundaries = this.lastUpdatedBoundary;
-    this._position.update(this.lastUpdatedBoundary);
+    this.pushData();
   }
 }
 
 /** Gets a point that represents the given mouse location. */
 function getPosition(event: MouseEvent): Point {
   return new Point(event.clientX, event.clientY);
-}
-
-/**
- * Apply the position info from the given viewmodel-control to the html in the running application.  This method
- * requires that the control layout is as follows:
- *     canvasHtmlElement
- *        controlContainerElement
- *           controlElement
- */
-export function applyLayoutInfo(controlVm: ControlInformationViewModel) {
-  let controlContainer = controlVm.control.htmlRoot.parentElement as HTMLElement;
-  let canvasHtml = controlContainer.parentElement as HTMLElement;
-  let editStyle = determineEditStyle(controlVm.position.layout, canvasHtml);
-  editStyle.boundaries.applyTo(controlContainer);
-}
-
-/**
- * Convert a controls' relative coordinates into absolute coordinates for easy editing
- * @param storedInfo the stored position information for the control
- * @param parent the parent container of the control
- */
-export function determineEditStyle(
-  storedInfo: IStoredPositionInfo,
-  parent: HTMLElement,
-): { anchor: DragAnchor; boundaries: AnchoredBoundary } {
-  let leftRightData = getAbsoluteOffsets(
-    storedInfo.left!,
-    storedInfo.right!,
-    storedInfo.width!,
-    parent.clientWidth,
-    storedInfo,
-    'horizontal',
-    DragAnchor.west,
-  );
-
-  let topRightData = getAbsoluteOffsets(
-    storedInfo.top!,
-    storedInfo.bottom!,
-    storedInfo.height!,
-    parent.clientHeight,
-    storedInfo,
-    'vertical',
-    DragAnchor.north,
-  );
-
-  return {
-    anchor: leftRightData.anchor! | topRightData.anchor!,
-    boundaries: new AnchoredBoundary(
-      leftRightData.offsetA,
-      topRightData.offsetA,
-      leftRightData.offsetB,
-      topRightData.offsetB,
-    ),
-  };
-}
-
-/**
- * Convert relative offset to absolute offsets
- * @param a the left or top relative size of the element
- * @param b the right or bottom relative size of the element
- * @param size the horizontal or vertical size of the element
- * @param parentSize the size of the parent container
- * @param data data structure used for logging when an error occurs
- * @param mode the human-readable mode used for logging when an error occurs
- * @param aFlag the anchor direction
- */
-function getAbsoluteOffsets(
-  a: number,
-  b: number,
-  size: number,
-  parentSize: number,
-  data: any,
-  mode: string,
-  aFlag: DragAnchor,
-): { offsetA: number; offsetB: number; anchor: DragAnchor } {
-  let offsetA;
-  let offsetB;
-  let anchor = DragAnchor.none;
-
-  if (a == null && b == null) {
-    console.error(`No ${mode} offsets stored`, data);
-    offsetA = 0;
-    offsetB = parentSize - 100;
-    return { offsetA, offsetB, anchor };
-  }
-
-  if (a != null && b != null) {
-    offsetA = a;
-    offsetB = b;
-    anchor = aFlag | (anchor << 1);
-    return { offsetA, offsetB, anchor };
-  }
-
-  if (size == null) {
-    console.error(`No ${mode} size stored`, data);
-    size = 100;
-  }
-
-  if (a != null /* && b == null*/) {
-    offsetA = a;
-    offsetB = parentSize - (a + size);
-    anchor = aFlag;
-    return { offsetA, offsetB, anchor };
-  } /* if (b != null && a == null) */ else {
-    offsetB = b;
-    offsetA = parentSize - b - size;
-    anchor = aFlag << 1;
-    return { offsetA, offsetB, anchor };
-  }
 }
 
 /**
@@ -388,20 +307,20 @@ export function calculateSnapTo(value: number, snapToDivider: number) {
 interface UndoArgs {
   controlsVm: ControlCollectionViewModel;
   id: UniqueId;
-  startingPosition: IStoredPositionInfo;
-  endingPosition: IStoredPositionInfo;
+  startingPosition: BiAxis<AnchorAxisLayout>;
+  endingPosition: BiAxis<AnchorAxisLayout>;
 }
 
 let moveUndoHandler = registerUndoHandler<UndoArgs>('moveControl', () => ({
   undo() {
     let control = this.controlsVm.findControlById(this.id);
-    control.position.update(this.startingPosition);
+    control.position.updateLayout(this.startingPosition.horizontal, this.startingPosition.vertical);
     control.isSelected = true;
   },
 
   redo() {
     let control = this.controlsVm.findControlById(this.id);
-    control.position.update(this.endingPosition);
+    control.position.updateLayout(this.endingPosition.horizontal, this.endingPosition.vertical);
     control.isSelected = true;
   },
 }));

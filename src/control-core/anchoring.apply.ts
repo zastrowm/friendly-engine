@@ -1,26 +1,21 @@
-import { AnchorBoth, AnchorHV, AnchorModeBoth } from "./anchoring";
+import { AnchorAxisLayout, AnchorAxisLayoutMode } from "./anchoring";
 
-export function applyAnchor(element: HTMLElement, anchor: AnchorHV) {
-  applyAnchorBothH(element, anchor.horizontal);
-  applyAnchorBothV(element, anchor.vertical);
-}
-
-export function applyAnchorBothH(element: HTMLElement, anchor: AnchorBoth) {
+export function applyAnchorH(element: HTMLElement, anchor: AnchorAxisLayout) {
   switch (anchor.mode) {
-    case AnchorModeBoth.none:
+    case AnchorAxisLayoutMode.none:
       // TODO
       break;
-    case AnchorModeBoth.start:
+    case AnchorAxisLayoutMode.start:
       element.style.left = anchor.start + 'px';
       element.style.right = '';
       element.style.width = anchor.size + 'px';
       break;
-    case AnchorModeBoth.end:
+    case AnchorAxisLayoutMode.end:
       element.style.left = '';
       element.style.right = anchor.end + 'px';
       element.style.width = anchor.size + 'px';
       break;
-    case AnchorModeBoth.stretch:
+    case AnchorAxisLayoutMode.stretch:
       element.style.left = anchor.start + 'px';
       element.style.right = anchor.end + 'px';
       element.style.width = '';
@@ -28,22 +23,22 @@ export function applyAnchorBothH(element: HTMLElement, anchor: AnchorBoth) {
   }
 }
 
-export function applyAnchorBothV(element: HTMLElement, anchor: AnchorBoth) {
+export function applyAnchorV(element: HTMLElement, anchor: AnchorAxisLayout) {
   switch (anchor.mode) {
-    case AnchorModeBoth.none:
+    case AnchorAxisLayoutMode.none:
       // TODO
       break;
-    case AnchorModeBoth.start:
+    case AnchorAxisLayoutMode.start:
       element.style.top = anchor.start + 'px';
       element.style.bottom = '';
       element.style.height = anchor.size + 'px';
       break;
-    case AnchorModeBoth.end:
+    case AnchorAxisLayoutMode.end:
       element.style.top = '';
       element.style.bottom = anchor.end + 'px';
       element.style.height = anchor.size + 'px';
       break;
-    case AnchorModeBoth.stretch:
+    case AnchorAxisLayoutMode.stretch:
       element.style.top = anchor.start + 'px';
       element.style.bottom = anchor.end + 'px';
       element.style.height = '';

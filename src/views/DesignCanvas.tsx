@@ -5,7 +5,7 @@ import { EditorAppViewModel } from '../viewmodels/EditorAppViewModel';
 import { EditableControl } from './EditableControl';
 
 import './DesignCanvas.css';
-import { applyLayoutInfo, ControlMovementManager } from './DesignCanvasMovementManager';
+import { ControlMovementManager } from './DesignCanvasMovementManager';
 import { autorun } from 'mobx';
 
 export const DesignCanvas = observer(function DesignCanvas(props: { app: EditorAppViewModel }) {
@@ -23,7 +23,7 @@ export const DesignCanvas = observer(function DesignCanvas(props: { app: EditorA
         rootDiv!.innerHTML = '';
         rootDiv!.appendChild(root.control.htmlRoot);
 
-        applyLayoutInfo(root);
+        root.applyLayoutInfo();
         root.isAttached = true;
       });
 
