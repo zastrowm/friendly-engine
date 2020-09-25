@@ -1,19 +1,22 @@
 import { Control } from "./Control";
 import { IProperty, PropertyType } from "./controlProperties";
-import { ISerializedLayout } from "./propertyBag";
+import { BiAxisAnchorLayout } from "./anchoring";
 
-export const PositionProperty: IProperty<Control, ISerializedLayout> = {
+export const PositionProperty: IProperty<Control, BiAxisAnchorLayout> = {
   id: 'layout',
   displayName: 'Position',
   propertyType: PropertyType.unknown,
 
-  getValue(owner: Control): ISerializedLayout {
-    return owner.position.serialize();
+  getValue(owner: Control): BiAxisAnchorLayout {
+    return {
+      horizontal: owner.position.hAxis,
+      vertical: owner.position.vAxis,
+    }
   },
 
-  setValue(owner: Control, value: ISerializedLayout) {
+  setValue(owner: Control, value: BiAxisAnchorLayout) {
     // todo make sure the control supports the given position
-    owner.position.deserialize(value);
+    owner.position.updateLayout(value.horizontal, value.vertical);
   },
 
   serializeValue(data: Control) {

@@ -11,13 +11,13 @@ test("Upgrades from pre-alpha", () => {
       typeId: buttonDescriptor.id,
       id: generateUniqueId(),
       properties: {},
-      position: {},
+      position: null,
     },
     {
       typeId: buttonDescriptor.id,
       id: generateUniqueId(),
       properties: {},
-      position: {},
+      position: null,
     }
   ];
 
@@ -38,7 +38,7 @@ test("Upgrades from position changes", () => {
         right: 15,
         top: 30,
         bottom: 40,
-      },
+      } as any,
     },
     {
       typeId: buttonDescriptor.id,
@@ -49,7 +49,7 @@ test("Upgrades from position changes", () => {
         right: 65,
         top: 50,
         bottom: 60,
-      },
+      } as any,
     }
   ];
 

@@ -1,4 +1,3 @@
-import { IStoredPositionInfo } from './layout';
 import { LocalizedString } from '../util/localization';
 import { Control } from './Control';
 import { getControlPropertiesFor, IControlProperty, IProperty, TextContentId } from './controlProperties';
@@ -41,7 +40,7 @@ export interface IControlDescriptor<T extends Control = Control> {
 /** The default values to use when constructing a new control */
 export interface IDefaultControlValues {
   /** The position of the control */
-  position?: IStoredPositionInfo;
+  position?: { width: number, height: number };
   /** The properties for the control */
   properties?: ISerializedPropertyBag;
 }
@@ -114,11 +113,11 @@ export class ReflectionBasedDescriptor<T extends Control> implements IControlDes
     return new this.typeDef();
   }
 
-  public getDefaultValues(): Required<IDefaultControlValues> {
+  public getDefaultValues(): IDefaultControlValues {
     let defaultValues = this.defaultValuesCreator?.() ?? {};
 
     let properties = defaultValues?.properties ?? {};
-    let position = defaultValues?.position ?? {};
+    let position = defaultValues?.position;
 
     let textId = TextContentId;
     let textProperty = this.getProperty<string>(textId);

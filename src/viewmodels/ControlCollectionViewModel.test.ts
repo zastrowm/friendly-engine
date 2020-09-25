@@ -1,6 +1,7 @@
 import { ControlCollectionViewModel } from "./ControlCollectionViewModel";
 import { buttonDescriptor } from "../controls/~Button";
 import { UniqueId } from "../util/UniqueId";
+import { createDefaultLayout } from "../control-core/ControlPositioning";
 
 let viewModel: ControlCollectionViewModel;
 
@@ -12,7 +13,7 @@ function addControl(id: any) {
   let descriptor = buttonDescriptor;
   return viewModel.addControl(descriptor, {
     id: id as UniqueId,
-    position: { left: 100, right: 50, top: 10, bottom: 20},
+    position: createDefaultLayout({ left: 100, width: 50, top: 10, height: 20}),
     properties: {},
     typeId: descriptor.id,
   });

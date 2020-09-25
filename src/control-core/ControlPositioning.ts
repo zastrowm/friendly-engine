@@ -9,12 +9,11 @@ import {
   AnchorAxisLayoutMode,
   AnchorLayoutSnapshot,
   deserializeBiAxisLayout,
+  ISerializedPositionInfo,
   serializeBiAxisLayout,
-  SerializedBiAxisData,
 } from "./anchoring";
 import { assume } from "../util/util";
 import { applyAnchorH, applyAnchorV } from "./anchoring.apply";
-import { ISerializedLayout } from "./propertyBag";
 
 export class ControlPositioning {
   private readonly _control: Control;
@@ -125,15 +124,29 @@ export class ControlPositioning {
     }
   }
 
-  public serialize(): ISerializedLayout {
+  public serialize(): ISerializedPositionInfo {
     return serializeBiAxisLayout({ horizontal: this._anchorH, vertical: this._anchorV }) as any;
   }
 
-  public deserialize(value: ISerializedLayout | null): void {
+  public deserialize(value: ISerializedPositionInfo | null): void {
     if (value != null) {
-      assume<SerializedBiAxisData>(value);
       let layout = deserializeBiAxisLayout(value);
       this.updateLayout(layout.horizontal, layout.vertical);
     }
   }
+}
+
+export function createDefaultLayout(data: { width: number, height: number, left?: number, top?:number }): ISerializedPositionInfo {
+  return serializeBiAxisLayout({
+    horizontal: {
+      mode: AnchorAxisLayoutMode.start,
+      start: data.left ?? 0,
+      size: data.width,
+    },
+    vertical: {
+      mode: AnchorAxisLayoutMode.start,
+      start: data.top ?? 0,
+      size: data.height
+    }
+  })
 }

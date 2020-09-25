@@ -8,6 +8,7 @@ import { action } from 'mobx';
 import { SelectedControlInformation } from './EditableControlPropertiesViewModel';
 import { TextContentProperty } from "../control-core/~TextContentProperty";
 import type { ISerializedPanelLayout } from "../control-core/serializedPanelLayout";
+import { createDefaultLayout } from "../control-core/ControlPositioning";
 
 const AutoSaveLayoutName = '$autosave$';
 
@@ -109,9 +110,13 @@ export class EditorAppViewModel {
     let data: IControlSerializedData = {
       id: generateUniqueId(),
       typeId: descriptor.id,
-      position: normalizedDefaults.position,
+      position: null,
       properties: normalizedDefaults.properties,
     };
+
+    if (normalizedDefaults.position != null) {
+      data.position = createDefaultLayout(normalizedDefaults.position);
+    }
 
     this.undoRedo.add(addControlsUndoHandler, {
       controlsVm: this.controls,
@@ -225,8 +230,6 @@ export class EditorAppViewModel {
     // make sure we have some default position info for controls
     position = Object.assign(
       {
-        left: 20,
-        top: 20,
         width: 40,
         height: 60,
       },

@@ -1,7 +1,6 @@
 /** How a control can be anchored horizontally. */
 import { calculateSnapTo } from "../views/DesignCanvasMovementManager";
 import { assume } from "../util/util";
-import { IStoredPositionInfo } from "./layout";
 
 export enum AnchorAxisLayoutMode {
   /** None, the center of the control is anchored to the middle of the canvas */
@@ -248,44 +247,9 @@ export type BiAxis<T> = {
   vertical: T;
 }
 
-export function fromStoredPositionInfo(position: IStoredPositionInfo): BiAxis<AnchorAxisLayout> {
+export type BiAxisAnchorLayout = BiAxis<AnchorAxisLayout>;
 
-  let horizontal: AnchorAxisLayout;
-  let vertical: AnchorAxisLayout;
 
-  if (position.width != null) {
-    horizontal = {
-      mode: AnchorAxisLayoutMode.start,
-      start: position.left!,
-      size: position.width
-    };
-  } else {
-    horizontal = {
-      mode: AnchorAxisLayoutMode.stretch,
-      start: position.left!,
-      end: position.right!
-    }
-  }
-
-  if (position.height != null) {
-    vertical = {
-      mode: AnchorAxisLayoutMode.start,
-      start: position.top!,
-      size: position.height
-    };
-  } else {
-    vertical = {
-      mode: AnchorAxisLayoutMode.stretch,
-      start: position.top!,
-      end: position.bottom!
-    }
-  }
-
-  return {
-    horizontal,
-    vertical
-  };
-}
 
 
 export function serializeAxisLayout(layout: AnchorAxisLayout): SerializedAxisData {
@@ -331,13 +295,13 @@ export function deserializeAxisLayout(data: SerializedAxisData): AnchorAxisLayou
 }
 
 export type SerializedAxisData = [AnchorAxisLayoutMode, number, number];
-export type SerializedBiAxisData = [AnchorAxisLayoutMode, number, number, AnchorAxisLayoutMode, number, number];
+export type ISerializedPositionInfo = [AnchorAxisLayoutMode, number, number, AnchorAxisLayoutMode, number, number];
 
-export function serializeBiAxisLayout(layout: BiAxis<AnchorAxisLayout>): SerializedBiAxisData {
-  return [serializeAxisLayout(layout.horizontal), serializeAxisLayout(layout.vertical)].flat() as SerializedBiAxisData;
+export function serializeBiAxisLayout(layout: BiAxis<AnchorAxisLayout>): ISerializedPositionInfo {
+  return [serializeAxisLayout(layout.horizontal), serializeAxisLayout(layout.vertical)].flat() as ISerializedPositionInfo;
 }
 
-export function deserializeBiAxisLayout(serialized: SerializedBiAxisData): BiAxis<AnchorAxisLayout> {
+export function deserializeBiAxisLayout(serialized: ISerializedPositionInfo): BiAxis<AnchorAxisLayout> {
   return {
     horizontal: deserializeAxisLayout([serialized[0], serialized[1], serialized[2]]),
     vertical: deserializeAxisLayout([serialized[3], serialized[4], serialized[5]]),
