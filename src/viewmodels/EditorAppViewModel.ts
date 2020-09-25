@@ -1,4 +1,4 @@
-import { ControlCollectionViewModel, ISavedLayoutInfo } from './ControlCollectionViewModel';
+import { ControlCollectionViewModel } from './ControlCollectionViewModel';
 import { IControlDescriptor, IDefaultControlValues } from '../control-core/controlRegistry';
 import { registerUndoHandler, UndoRedoQueueViewModel } from './UndoRedoQueueViewModel';
 import { IControlSerializedData } from '../control-core/propertyBag';
@@ -7,6 +7,7 @@ import { generateUniqueId } from '../util/UniqueId';
 import { action } from 'mobx';
 import { SelectedControlInformation } from './EditableControlPropertiesViewModel';
 import { TextContentProperty } from "../control-core/~TextContentProperty";
+import type { ISerializedPanelLayout } from "../control-core/serializedPanelLayout";
 
 const AutoSaveLayoutName = '$autosave$';
 
@@ -83,7 +84,7 @@ export class EditorAppViewModel {
       return;
     }
 
-    let layoutInfo = JSON.parse(jsonLayout) as ISavedLayoutInfo;
+    let layoutInfo = JSON.parse(jsonLayout) as ISerializedPanelLayout;
     this.controls.deserializeLayout(layoutInfo);
     this.undoRedo.clear();
   }

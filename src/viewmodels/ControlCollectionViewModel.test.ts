@@ -1,4 +1,4 @@
-import { ControlCollectionViewModel, ISavedLayoutInfo } from "./ControlCollectionViewModel";
+import { ControlCollectionViewModel } from "./ControlCollectionViewModel";
 import { buttonDescriptor } from "../controls/~Button";
 import { UniqueId } from "../util/UniqueId";
 

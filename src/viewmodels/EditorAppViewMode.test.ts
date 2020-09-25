@@ -214,7 +214,6 @@ describe("copy/paste", () => {
   }))
 })
 
-
 test("Extensive undo/redo tests", verifyUndoRedoEachYield(function*() {
   viewModel.addControl(buttonDescriptor);
   yield;

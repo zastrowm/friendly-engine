@@ -8,8 +8,9 @@ import {
   AnchorAxisLayout,
   AnchorAxisLayoutMode,
   AnchorLayoutSnapshot,
-  BiAxis,
-  fromStoredPositionInfo,
+  deserializeBiAxisLayout,
+  serializeBiAxisLayout,
+  SerializedBiAxisData,
 } from "./anchoring";
 import { assume } from "../util/util";
 import { applyAnchorH, applyAnchorV } from "./anchoring.apply";
@@ -49,8 +50,16 @@ export class ControlPositioning {
     return this._anchorH.mode;
   }
 
+  public get hAxis(): AnchorAxisLayout {
+    return { ...this._anchorH };
+  }
+
   public get vMode(): AnchorAxisLayoutMode {
     return this._anchorV.mode;
+  }
+
+  public get vAxis(): AnchorAxisLayout {
+    return { ...this._anchorV };
   }
 
   public applyLayoutInfo(): boolean {
@@ -117,23 +126,14 @@ export class ControlPositioning {
   }
 
   public serialize(): ISerializedLayout {
-    return {
-      horizontal: { ...this._anchorH },
-      vertical: { ...this._anchorV },
-    } as BiAxis<AnchorAxisLayout> as any as ISerializedLayout;
+    return serializeBiAxisLayout({ horizontal: this._anchorH, vertical: this._anchorV }) as any;
   }
 
   public deserialize(value: ISerializedLayout | null): void {
-
     if (value != null) {
-      // backwards compatibility after #19 (better layout system) was implemented
-      let asStoredPosition = value as any;
-      if (asStoredPosition.left != null) {
-        value = fromStoredPositionInfo(asStoredPosition);
-      }
-
-      assume<BiAxis<AnchorAxisLayout>>(value);
-      this.updateLayout(value.horizontal, value.vertical);
+      assume<SerializedBiAxisData>(value);
+      let layout = deserializeBiAxisLayout(value);
+      this.updateLayout(layout.horizontal, layout.vertical);
     }
   }
 }

@@ -286,3 +286,60 @@ export function fromStoredPositionInfo(position: IStoredPositionInfo): BiAxis<An
     vertical
   };
 }
+
+
+export function serializeAxisLayout(layout: AnchorAxisLayout): SerializedAxisData {
+  switch (layout.mode) {
+    case AnchorAxisLayoutMode.stretch:
+      return [AnchorAxisLayoutMode.stretch, layout.start, layout.end];
+    case AnchorAxisLayoutMode.start:
+      return [AnchorAxisLayoutMode.start, layout.start, layout.size];
+    case AnchorAxisLayoutMode.end:
+      return [AnchorAxisLayoutMode.end, layout.end, layout.size];
+    case AnchorAxisLayoutMode.none:
+      return [AnchorAxisLayoutMode.none, layout.center, layout.size];
+  }
+}
+
+export function deserializeAxisLayout(data: SerializedAxisData): AnchorAxisLayout {
+  switch (data[0]) {
+    case AnchorAxisLayoutMode.none:
+      return {
+        mode: AnchorAxisLayoutMode.none,
+        center: data[1],
+        size: data[2],
+      };
+    case AnchorAxisLayoutMode.start:
+      return {
+        mode: AnchorAxisLayoutMode.start,
+        start: data[1],
+        size: data[2],
+      };
+    case AnchorAxisLayoutMode.end:
+      return {
+        mode: AnchorAxisLayoutMode.end,
+        end: data[1],
+        size: data[2],
+      };
+    case AnchorAxisLayoutMode.stretch:
+      return {
+        mode: AnchorAxisLayoutMode.stretch,
+        start: data[1],
+        end: data[2],
+      };
+  }
+}
+
+export type SerializedAxisData = [AnchorAxisLayoutMode, number, number];
+export type SerializedBiAxisData = [AnchorAxisLayoutMode, number, number, AnchorAxisLayoutMode, number, number];
+
+export function serializeBiAxisLayout(layout: BiAxis<AnchorAxisLayout>): SerializedBiAxisData {
+  return [serializeAxisLayout(layout.horizontal), serializeAxisLayout(layout.vertical)].flat() as SerializedBiAxisData;
+}
+
+export function deserializeBiAxisLayout(serialized: SerializedBiAxisData): BiAxis<AnchorAxisLayout> {
+  return {
+    horizontal: deserializeAxisLayout([serialized[0], serialized[1], serialized[2]]),
+    vertical: deserializeAxisLayout([serialized[3], serialized[4], serialized[5]]),
+  }
+}

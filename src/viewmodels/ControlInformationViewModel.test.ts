@@ -3,6 +3,7 @@ import { ControlInformationViewModel, IControlInformationViewModelOwner } from "
 import { registerCommonControls } from "../controls/@standardControls";
 import { ControlRegistry } from "../control-core/controlRegistry";
 import { AnchorAxisLayoutMode } from "../control-core/anchoring";
+import { TextContentProperty } from "../control-core/~TextContentProperty";
 
 let selectionState = new Map<ControlInformationViewModel, boolean>();
 
@@ -60,25 +61,52 @@ test("Changing VM position changes control position", () => {
     size: 109,
   });
 
-  expect(vm.control.position.serialize()).toStrictEqual({
-    horizontal: {
+  expect(vm.control.position.hAxis).toStrictEqual(
+    {
       mode: AnchorAxisLayoutMode.start,
       start: 103,
       size: 100,
     },
-    vertical: {
+  );
+
+  expect(vm.control.position.vAxis).toStrictEqual(
+    {
       mode: AnchorAxisLayoutMode.end,
       end: 108,
       size: 109,
     }
-  });
+  );
 })
 
 test("Serialization works", () => {
   let vm = new ControlInformationViewModel(owner, buttonDescriptor);
 
+  let textProperty = buttonDescriptor.getProperty(TextContentProperty.id);
+  textProperty.setValue(vm.control, "Some text");
+
   let serialization = vm.serialize();
   expect(serialization.id).toBe(vm.id);
   expect(serialization.typeId).toBe(buttonDescriptor.id);
-  expect(serialization.properties).toStrictEqual({});
+  expect(serialization.properties).toStrictEqual({
+    [textProperty.id]: "Some text"
+  });
+  expect(serialization.position).not.toBeFalsy();
+})
+
+
+test("Deserialization works", () => {
+  let vm = new ControlInformationViewModel(owner, buttonDescriptor);
+
+  let textProperty = buttonDescriptor.getProperty(TextContentProperty.id);
+  textProperty.setValue(vm.control, "Some text");
+
+  let serializedData = vm.serialize();
+  let newVm = new ControlInformationViewModel(owner, buttonDescriptor, serializedData);
+
+  expect(newVm.id).toEqual(vm.id);
+  expect(newVm.typeId).toEqual(vm.typeId);
+  expect(newVm.position.hAxis).toEqual(vm.position.hAxis);
+  expect(newVm.position.vAxis).toEqual(vm.position.vAxis);
+
+  expect(newVm.serialize()).toEqual(vm.serialize());
 })

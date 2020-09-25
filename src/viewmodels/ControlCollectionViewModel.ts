@@ -4,11 +4,11 @@ import {
   ControlRegistry,
   IControlDescriptor,
   IControlSerializedData,
-  ISerializedPropertyBag,
 } from '../controls/@control';
 import { ControlInformationViewModel, IControlInformationViewModelOwner } from './ControlInformationViewModel';
 import { registerCommonControls, RootControl } from '../controls/@standardControls';
 import { RootControlInformationViewModel } from './RootControlInformationViewModel';
+import { currentVersion, ISerializedPanelLayout, upgradeLayout } from "../control-core/serializedPanelLayout";
 
 /**
  * Responsible for the business logic of the canvas that allows adding/removing controls and managing layouts
@@ -65,9 +65,10 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
   }
 
   @action
-  public serializeLayout(): ISavedLayoutInfo {
+  public serializeLayout(): ISerializedPanelLayout {
 
     return {
+      version: currentVersion,
       controls: this.controls.map((it) => it.serialize()),
       root: {
         properties: this.root.control.serializeProperties(),
@@ -77,18 +78,10 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
   }
 
   @action
-  public deserializeLayout(layoutInfo: ISavedLayoutInfo) {
+  public deserializeLayout(layoutInfo: ISerializedPanelLayout) {
     this.selectedControls.clear();
 
-    if (Array.isArray(layoutInfo)) {
-      layoutInfo = {
-        controls: layoutInfo as IControlSerializedData[],
-        root: {
-          properties: {},
-        },
-        selected: null,
-      };
-    }
+    layoutInfo = upgradeLayout(layoutInfo);
 
     this.controls.splice(0, this.controls.length);
 
@@ -186,12 +179,4 @@ export class ControlCollectionViewModel implements IControlInformationViewModelO
       this.selectedControls.delete(c);
     }
   }
-}
-
-export interface ISavedLayoutInfo {
-  root: {
-    properties: ISerializedPropertyBag;
-  };
-  controls: IControlSerializedData[];
-  selected: UniqueId | null;
 }
