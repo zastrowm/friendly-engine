@@ -2,6 +2,7 @@ import { buttonDescriptor } from "../controls/~Button";
 import { ControlInformationViewModel, IControlInformationViewModelOwner } from "./ControlInformationViewModel";
 import { registerCommonControls } from "../controls/@standardControls";
 import { ControlRegistry } from "../control-core/controlRegistry";
+import { AnchorAxisLayoutMode } from "../control-core/anchoring";
 
 let selectionState = new Map<ControlInformationViewModel, boolean>();
 
@@ -25,7 +26,8 @@ test.each(registry.getDescriptors().map(d => d.id))('Creating a control (%s) wor
   let control = controlVm.control;
 
   expect(controlVm.id).not.toBeNull();
-  expect(controlVm.position.layout).not.toBeNull();
+  expect(controlVm.position).not.toBeNull();
+  expect(controlVm.position.serialize()).not.toBeNull();
   expect(controlVm.isAttached).toBe(false);
 
   expect(control.id).not.toBeNull();
@@ -48,25 +50,35 @@ test("setting a control as selected notifies parent", () => {
 
 test("Changing VM position changes control position", () => {
   let vm = new ControlInformationViewModel(owner, buttonDescriptor);
-  vm.position.update({
-    left: 103, right: 303
+  vm.position.updateLayout({
+    mode: AnchorAxisLayoutMode.start,
+    start: 103,
+    size: 100,
+  }, {
+    mode: AnchorAxisLayoutMode.end,
+    end: 108,
+    size: 109,
   });
 
-  expect(vm.control.position.layout).toStrictEqual({ left: 103, right: 303});
+  expect(vm.control.position.serialize()).toStrictEqual({
+    horizontal: {
+      mode: AnchorAxisLayoutMode.start,
+      start: 103,
+      size: 100,
+    },
+    vertical: {
+      mode: AnchorAxisLayoutMode.end,
+      end: 108,
+      size: 109,
+    }
+  });
 })
 
 test("Serialization works", () => {
   let vm = new ControlInformationViewModel(owner, buttonDescriptor);
-  vm.position.update({
-    left: 103, right: 303
-  });
 
   let serialization = vm.serialize();
   expect(serialization.id).toBe(vm.id);
   expect(serialization.typeId).toBe(buttonDescriptor.id);
-  expect(serialization.position).toStrictEqual({
-    left: 103,
-    right: 303,
-  });
   expect(serialization.properties).toStrictEqual({});
 })
